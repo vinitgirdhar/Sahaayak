@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Selector - Sahaayak{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+        <!-- Header -->
+        <div class="mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-gray-800">📦 Inventory Selector</h1>
+            <p class="text-gray-600 mt-1">Select items from your inventory to add to the order.</p>
+        </div>
+
+        <!-- Dropdowns for Category and Subcategory -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select id="category" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select a Category</option>
+                </select>
+            </div>
+            <div>
+                <label for="subcategory" class="block text-sm font-medium text-gray-700 mb-2">Subcategory</label>
+                <select id="subcategory" name="subcategory" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" disabled>
+                    <option value="">Select Category First</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Item List -->
+        <div id="item-list-container">
+            <p id="item-list-placeholder" class="text-center text-gray-500 py-8">Please select a category and subcategory to see items.</p>
+            <div id="item-list" class="space-y-3">
+                <!-- Items will be populated by JS -->
+            </div>
+        </div>
+
+        <!-- Summary and Action Button -->
+        <div class="mt-8 pt-6 border-t">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="w-full md:w-auto">
+                    <h3 class="font-semibold text-gray-700">Selected Items: <span id="selected-count" class="text-blue-600 font-bold">0</span></h3>
+                    <p id="selected-summary" class="text-sm text-gray-500 mt-1 h-4 truncate">No items added yet.</p>
+                </div>
+                <button id="add-items-btn" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors" disabled>
+                    Add Selected Items
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryMap = {
+        'Dairy & Alternatives': {
+            'Core Dairy': ['Milk', 'Butter', 'Curd (dahi)', 'Paneer', 'Ghee'],
+            'Processed & Dessert Dairy': ['Cheese slices', 'Condensed milk', 'Khoya / Mawa']
+        },
+        'Produce': {
+            'Vegetables': ['Potatoes (boiled/raw)', 'Onions', 'Tomatoes', 'Green chillies', 'Cabbage', 'Carrot', 'Capsicum', 'Beetroot', 'Garlic', 'Ginger'],
+            'Fresh Herbs & Citrus': ['Coriander (dhania)', 'Lemon', 'Mint (pudina)']
+        },
+        'Pantry Staples': {
+            'Flours & Thickeners': ['Besan', 'Maida/Wheat flour', 'Cornflour'],
+            'Spices & Seasonings': ['Salt', 'Turmeric', 'Red chilli powder', 'Cumin (jeera)', 'Mustard seeds', 'Asafoetida (hing)', 'Chaat masala', 'Garam masala', 'Amchur powder', 'Cardamom powder'],
+            'Oils & Vinegars': ['Vegetable oil', 'Vinegar'],
+            'Sweeteners': ['Sugar', 'Sugar syrup'],
+            'Legumes': ['Chana dal']
+        },
+        'Sauces & Pastes': {
+            'Wet Condiments & Flavor Bases': ['Soy sauce', 'Tamarind pulp', 'Imli chutney', 'Green chutney', 'Red garlic chutney', 'Tomato ketchup', 'Rose water / Kewra essence']
+        },
+        'Bakery & Base Items': {
+            'Breads & Buns': ['Pav', 'Buns', 'Bread loaves'],
+            'Flatbreads': ['Roti/Paratha (precooked)']
+        },
+        'Snacks & Dessert Ingredients': {
+            'Dry Snacks (Namkeen)': ['Puffed rice', 'Sev', 'Papdi', 'Puris', 'Fryums', 'Boondi', 'Nylon sev'],
+            'Nuts, Seeds & Fruits': ['Roasted peanuts', 'Sabja seeds', 'Dry fruits'],
+            'Dessert Mixes & Components': ['Vermicelli', 'Custard powder', 'Coconut', 'Food colors']
+        },
+        'Prepared & Semi-Cooked': {
+            'Ready-to-Eat Items': ['Boiled potatoes', 'Ragda', 'Chole (precooked)', 'Boiled rice', 'Samosa fillings', 'Ready gravy base']
+        },
+        'Beverages': {
+            'Drink Mixes': ['Tea powder', 'Coffee', 'Lemon concentrate'],
+            'Carbonated Drinks': ['Soda']
+        },
+        'Packaging & Disposables': {
+            'Tableware & Containers': ['Paper plates', 'Foil containers', 'Plastic spoons', 'Plastic cups'],
+            'Supplies': ['Napkins', 'Carry bags', 'Gloves', 'Tissue paper']
+        }
+    };
+
+    const categorySelect = document.getElementById('category');
+    const subcategorySelect = document.getElementById('subcategory');
+    const itemList = document.getElementById('item-list');
+    const itemListPlaceholder = document.getElementById('item-list-placeholder');
+    const selectedCountEl = document.getElementById('selected-count');
+    const selectedSummaryEl = document.getElementById('selected-summary');
+    const addItemsBtn = document.getElementById('add-items-btn');
+
+    // Populate main categories
+    Object.keys(categoryMap).forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categorySelect.appendChild(option);
+    });
+
+    function updateSubcategories() {
+        const selectedCategory = categorySelect.value;
+        subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+        itemList.innerHTML = '';
+        itemListPlaceholder.style.display = 'block';
+        
+        if (selectedCategory && categoryMap[selectedCategory]) {
+            subcategorySelect.disabled = false;
+            Object.keys(categoryMap[selectedCategory]).forEach(subcategory => {
+                const option = document.createElement('option');
+                option.value = subcategory;
+                option.textContent = subcategory;
+                subcategorySelect.appendChild(option);
+            });
+        } else {
+            subcategorySelect.disabled = true;
+        }
+        updateSummary();
+    }
+
+    function updateItems() {
+        const selectedCategory = categorySelect.value;
+        const selectedSubcategory = subcategorySelect.value;
+        itemList.innerHTML = '';
+
+        if (selectedCategory && selectedSubcategory && categoryMap[selectedCategory][selectedSubcategory]) {
+            itemListPlaceholder.style.display = 'none';
+            const items = categoryMap[selectedCategory][selectedSubcategory];
+            items.forEach(item => {
+                const itemId = item.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                const itemRow = document.createElement('div');
+                itemRow.className = 'item-row flex items-center justify-between p-3 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors';
+                itemRow.innerHTML = `
+                    <div class="flex items-center">
+                        <input type="checkbox" id="item-${itemId}" data-name="${item}" class="item-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="item-${itemId}" class="ml-3 text-gray-800 font-medium">${item}</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="qty-${itemId}" class="text-sm text-gray-600">Qty:</label>
+                        <input type="number" id="qty-${itemId}" min="0" value="0" disabled class="item-qty w-20 text-center border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-200 disabled:cursor-not-allowed">
+                    </div>
+                `;
+                itemList.appendChild(itemRow);
+            });
+        } else {
+            itemListPlaceholder.style.display = 'block';
+        }
+        updateSummary();
+    }
+
+    function updateSummary() {
+        const selectedItems = [];
+        document.querySelectorAll('.item-row').forEach(row => {
+            const checkbox = row.querySelector('.item-checkbox');
+            const qtyInput = row.querySelector('.item-qty');
+            const quantity = parseInt(qtyInput.value, 10);
+
+            if (checkbox.checked && quantity > 0) {
+                selectedItems.push({ name: checkbox.dataset.name, quantity });
+            }
+        });
+
+        selectedCountEl.textContent = selectedItems.length;
+        if (selectedItems.length > 0) {
+            selectedSummaryEl.textContent = selectedItems.map(i => `${i.name} (x${i.quantity})`).join(', ');
+            addItemsBtn.disabled = false;
+        } else {
+            selectedSummaryEl.textContent = 'No items added yet.';
+            addItemsBtn.disabled = true;
+        }
+    }
+
+    categorySelect.addEventListener('change', updateSubcategories);
+    subcategorySelect.addEventListener('change', updateItems);
+
+    itemList.addEventListener('change', function(e) {
+        if (e.target.classList.contains('item-checkbox')) {
+            const qtyInput = e.target.closest('.item-row').querySelector('.item-qty');
+            qtyInput.disabled = !e.target.checked;
+            if (!e.target.checked) {
+                qtyInput.value = 0;
+            } else if (qtyInput.value === '0') {
+                qtyInput.value = 1;
+            }
+        }
+        updateSummary();
+    });
+
+    addItemsBtn.addEventListener('click', function() {
+        const selectedItems = [];
+        document.querySelectorAll('.item-row').forEach(row => {
+            const checkbox = row.querySelector('.item-checkbox');
+            const qtyInput = row.querySelector('.item-qty');
+            const quantity = parseInt(qtyInput.value, 10);
+
+            if (checkbox.checked && quantity > 0) {
+                selectedItems.push({ name: checkbox.dataset.name, quantity });
+            }
+        });
+        console.log('Items to be added:', selectedItems);
+        alert(`${selectedItems.length} item types added to order. Check console for details.`);
+    });
+});
+</script>
+{% endblock %}

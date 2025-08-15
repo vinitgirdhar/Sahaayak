@@ -1,0 +1,1024 @@
+{% extends "vendor_base.html" %}
+
+{% block title %}Vendor Dashboard - Sahaayak{% endblock %}
+
+{% block vendor_content %}
+<!-- Main Content -->
+<header class="flex justify-between items-center mb-10">
+    <h1 id="main-title" class="text-4xl font-extrabold" style="color: var(--text-primary);">Sahaayak</h1>
+</header>
+
+<!-- AI Search Section -->
+<div class="mb-12 reveal">
+    <div class="relative flex items-center gap-4">
+        <div class="relative flex-grow">
+            <i data-feather="search" class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-[var(--text-secondary)] pointer-events-none"></i>
+            <input id="product-search-input" type="text" placeholder="Search products..." class="w-full pl-16 pr-16 py-5 bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl text-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all" style="color: var(--text-primary);">
+            <button id="mic-button" class="absolute right-6 top-1/2 -translate-y-1/2 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors" onclick="startVoiceSearch()">
+                <i data-feather="mic" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <!-- NEW SEARCH BUTTON ADDED -->
+        <button type="button" onclick="performSearch()" class="bg-blue-600 hover:bg-blue-700 font-semibold text-white px-6 py-4 rounded-2xl flex-shrink-0">Search</button>
+        <!-- ASK AI BUTTON -->
+        <button type="button" id="ask-ai-btn" class="gradient-button font-semibold text-white px-6 py-4 rounded-2xl flex-shrink-0">Ask AI</button>
+    </div>
+</div>
+
+<!-- Recently Ordered Section -->
+<section class="mb-16">
+    <h2 id="recent-orders-title" class="text-3xl font-bold mb-6 reveal" style="color: var(--text-primary);">Recently Ordered</h2>
+    <!-- Recently Ordered Section -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {% for item in recent_orders %}
+    <div class="order-card reveal flex flex-col p-4">
+            <!-- Top section with Image and Info -->
+            <div class="flex-grow flex items-start gap-4">
+                <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/80x80/e2e8f0/64748b?text=N/A' }}" 
+                     alt="{{ item.name }}" class="w-20 h-20 rounded-lg object-cover flex-shrink-0">
+                
+                <div class="flex-grow">
+                    <h3 class="font-bold text-md product-name mb-1" style="color: var(--text-primary);">{{ item.name }}</h3>
+                    <p class="text-xs mb-3" style="color: var(--text-secondary);">Ordered {{ item.order_count }} times</p>
+                    
+                    <!-- Quantity Controls -->
+                    <div class="flex items-center gap-2">
+                        <button class="quantity-button !w-8 !h-8" onclick="updateQuantity(this, -1)">
+                            <i data-feather="minus" class="w-4 h-4"></i>
+                        </button>
+                        <input type="number" class="quantity-input !w-12 !text-sm" value="{{ item.quantity }}" min="1">
+                        <button class="quantity-button !w-8 !h-8" onclick="updateQuantity(this, 1)">
+                            <i data-feather="plus" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom section with Reorder Button -->
+            <div class="mt-4">
+                <button class="gradient-button w-full text-white font-semibold py-3 rounded-xl text-md shadow-lg reorder-btn" 
+                        data-product-id="{{ item.id }}">
+                    Reorder
+                </button>
+            </div>
+        </div>
+    {% else %}
+    <p class="col-span-full" style="color: var(--text-secondary);">You have no recent orders to display.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section>
+    <h2 id="categories-title" class="text-3xl font-bold mb-6 reveal" style="color: var(--text-primary);">Our Categories</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        <!-- Category Cards -->
+        <a href="/vendor/category/vegetables" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 100ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-green-100 flex items-center justify-center text-4xl">
+                🥬
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Vegetables</h3>
+        </a>
+        
+        <a href="/vendor/category/dry-ingredients" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 150ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-amber-100 flex items-center justify-center text-4xl">
+                🧂
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Dry Ingredients & Spices</h3>
+        </a>
+        
+        <a href="/vendor/category/dairy" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 200ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-blue-100 flex items-center justify-center text-4xl">
+                🧀
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Dairy & Alternatives</h3>
+        </a>
+        
+        <a href="/vendor/category/breads" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 250ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-yellow-100 flex items-center justify-center text-4xl">
+                🍞
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Breads & Base Items</h3>
+        </a>
+        
+        <a href="/vendor/category/prepared" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 300ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-blue-100 flex items-center justify-center text-4xl">
+                🧊
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Prepared/Semi-Cooked</h3>
+        </a>
+        
+        <a href="/vendor/category/oils-sauces" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 350ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-yellow-100 flex items-center justify-center text-4xl">
+                🧴
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Oils & Sauces</h3>
+        </a>
+        
+        <a href="/vendor/category/snacks" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 400ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-amber-100 flex items-center justify-center text-4xl">
+                🍘
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Snacks & Dry Goods</h3>
+        </a>
+        
+        <a href="/vendor/category/beverage" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 450ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-purple-100 flex items-center justify-center text-4xl">
+                🧃
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Beverage Supplies</h3>
+        </a>
+        
+        <a href="/vendor/category/packaging" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 500ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-gray-100 flex items-center justify-center text-4xl">
+                🛍
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Packaging & Miscellaneous</h3>
+        </a>
+        
+        <a href="/vendor/category/desserts" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 550ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-pink-100 flex items-center justify-center text-4xl">
+                🍧
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Desserts & Sweets</h3>
+        </a>
+        
+        <a href="/vendor/category/seafood-meat" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 600ms;">
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-blue-100 flex items-center justify-center text-4xl">
+                🐟
+            </div>
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Seafood & Meat</h3>
+        </a>
+    </div>
+</section>
+
+<!-- Donation Banner Section -->
+<section class="mt-16 mb-16 reveal">
+    <!-- The main div now uses the new 'donation-banner' class -->
+    <div class="donation-banner p-6 rounded-2xl flex items-center justify-between">
+        <div>
+            <h3 class="font-bold text-xl text-green-800">Have leftover food? Donate and get rewarded!</h3>
+            <p class="mt-1 text-green-700">Contribute to reducing food waste. Donate now and receive credits for your next order.</p>
+        </div>
+        <button id="open-donation-modal-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors z-10">
+            Donate & Get Discount
+        </button>
+    </div>
+</section>
+
+<!-- Budget-Friendly Items Section -->
+<section class="mb-16">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold" style="color: var(--text-primary);">Find Budget-Friendly Items</h2>
+        <span class="text-lg font-medium text-green-600">Potential Savings: <span id="potential-savings">₹0</span></span>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="bg-[var(--background-secondary)] p-4 rounded-2xl border border-[var(--border-primary)] mb-8 flex flex-wrap items-center gap-4">
+        <div class="flex-grow">
+            <label for="max-budget" class="text-xs font-medium text-[var(--text-secondary)]">Max Budget (₹)</label>
+            <input type="number" id="max-budget" placeholder="500" class="w-full mt-1 p-2 bg-transparent border-b-2 border-[var(--border-primary)] focus:outline-none focus:border-[var(--accent-primary)]">
+        </div>
+        <div class="flex-grow">
+            <label for="category-filter" class="text-xs font-medium text-[var(--text-secondary)]">Category</label>
+            <select id="category-filter" class="w-full mt-1 p-2 bg-transparent border-b-2 border-[var(--border-primary)] focus:outline-none focus:border-[var(--accent-primary)]">
+                <option>All Categories</option>
+                <!-- This loop dynamically creates the category options -->
+                {% for category in all_categories %}
+                    <option>{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex-grow">
+            <label for="sort-by" class="text-xs font-medium text-[var(--text-secondary)]">Sort By</label>
+            <select id="sort-by" class="w-full mt-1 p-2 bg-transparent border-b-2 border-[var(--border-primary)] focus:outline-none focus:border-[var(--accent-primary)]">
+                <option>Highest Discount</option>
+                <option>Price Low to High</option>
+                <option>Price High to Low</option>
+            </select>
+        </div>
+        <button id="reset-filters" class="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] self-end pb-2">Reset Filters</button>
+    </div>
+
+    <!-- Product Grid -->
+    <div id="budget-product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Products will be dynamically inserted here by JavaScript -->
+    </div>
+</section>
+
+<!-- Top Rated Wholesalers Section -->
+<section class="mt-16">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold" style="color: var(--text-primary);">Top Rated Wholesalers</h2>
+        <div>
+            <button id="sort-rating-btn" onclick="sortWholesalers('rating', this)" class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg shadow-md">Rating</button>
+            <button id="sort-trust-btn" onclick="sortWholesalers('trust_score', this)" class="px-4 py-2 text-sm font-medium" style="color: var(--text-secondary);">Trust Score</button>
+            <button id="sort-price-btn" onclick="sortWholesalers('price', this)" class="px-4 py-2 text-sm font-medium" style="color: var(--text-secondary);">Price</button>
+        </div>
+    </div>
+
+    <div id="wholesaler-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {% for wholesaler in top_wholesalers %}
+        <div class="interactive-card p-6 flex flex-col">
+            <div class="flex-grow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold">{{ wholesaler.name }}</h3>
+                        <div class="flex items-center text-sm" style="color: var(--text-secondary);">
+                            <i data-feather="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                            <span class="ml-1 font-semibold">{{ "%.1f"|format(wholesaler.trust_score / 20) }}</span>
+                            <span class="ml-1">({{ wholesaler.review_count }} reviews)</span>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full">Premium</span>
+                </div>
+
+                <div class="space-y-2 text-sm mb-4" style="color: var(--text-secondary);">
+                    <p class="flex items-center"><i data-feather="map-pin" class="w-4 h-4 mr-2"></i>{{ wholesaler.location }}</p>
+                    <p class="flex items-center"><i data-feather="phone" class="w-4 h-4 mr-2"></i>{{ wholesaler.phone }}</p>
+                </div>
+
+                {% if wholesaler.specialties %}
+                <div class="mb-4">
+                    <h4 class="text-sm font-semibold mb-2">Specialties:</h4>
+                    <div class="flex flex-wrap gap-2">
+                        {% for specialty in wholesaler.specialties.split(',') %}
+                        <span class="px-3 py-1 text-xs bg-gray-200 text-gray-800 rounded-full">{{ specialty }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mt-auto flex justify-between items-center">
+                <p class="text-sm font-semibold text-green-600">Trust Score: {{ wholesaler.trust_score }}%</p>
+                <a href="{{ url_for('main.wholesaler_products_page', wholesaler_id=wholesaler.id) }}" class="gradient-button text-white font-semibold py-2 px-5 rounded-lg">
+                    View Products
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Cart Summary (Fixed Bottom) -->
+<div id="cartSummary" class="hidden fixed bottom-0 left-0 right-0 bg-[var(--background-primary)] border-t border-[var(--border-primary)] p-4 shadow-lg" style="z-index: 40; margin-left: var(--sidebar-width-collapsed);">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div>
+            <span id="cartItemsText" class="font-medium" style="color: var(--text-primary);">0 items in cart</span>
+            <span style="color: var(--text-secondary);" class="ml-2">|</span>
+            <span id="cartTotalText" class="font-bold text-xl ml-2" style="color: var(--accent-primary);">₹0.00</span>
+        </div>
+        <button onclick="viewCart()" 
+                class="gradient-button text-white px-6 py-3 rounded-xl font-semibold">
+            View Cart
+        </button>
+    </div>
+</div>
+
+<!-- NEW AI SLIDE-IN PANEL -->
+<div id="ai-panel-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+<div id="ai-panel" class="fixed top-0 right-0 h-full bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out" style="width: 400px;">
+    <div class="flex flex-col h-full">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">AI Market Insights</h3>
+            <button id="close-ai-panel" class="text-gray-500 hover:text-gray-800">
+                <i data-feather="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div id="ai-response-content" class="p-6 overflow-y-auto flex-grow">
+            <p class="text-sm text-gray-500">Ask a question to get the latest market insights.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Donation Modal -->
+<div id="donation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
+    <div class="relative mx-auto p-8 border w-full max-w-lg shadow-lg rounded-2xl bg-white">
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Have Leftover Food? Give & Get Rewarded!</h3>
+        <p class="text-gray-600 mb-6">Donate your leftover food to help those in need and get a discount on your next purchase!</p>
+
+        <form id="donation-form">
+            <div class="space-y-4">
+                <div>
+                    <label for="food_description" class="block text-sm font-medium text-gray-700">Type of Food/Description</label>
+                    <textarea id="food_description" name="food_description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="E.g. Rice, Samosa, etc."></textarea>
+                </div>
+                <div>
+                    <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity (approx)</label>
+                    <input type="text" id="quantity" name="quantity" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="e.g. 3 kg or 25 servings">
+                </div>
+                <div>
+                    <label for="pickup_address" class="block text-sm font-medium text-gray-700">Pickup Address</label>
+                    <input type="text" id="pickup_address" name="pickup_address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter your pickup address">
+                </div>
+                <div>
+                    <label for="pickup_time" class="block text-sm font-medium text-gray-700">Preferred Pickup Time</label>
+                    <input type="datetime-local" id="pickup_time" name="pickup_time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                </div>
+            </div>
+            <div class="mt-8 flex justify-end gap-4">
+                 <button type="button" id="close-donation-modal-btn" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
+                <button type="submit" class="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700">Donate & Get Discount</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock vendor_content %}
+
+{% block extra_scripts %}
+<style>
+    /* Custom styles for the slide-in panel */
+    #ai-panel.open {
+        transform: translateX(0);
+    }
+    #ai-panel-overlay.open {
+        display: block;
+    }
+    
+    /* Donation banner styles */
+    .donation-banner {
+        position: relative;
+        background-color: #D1FAE5; /* A light green */
+        border: 1px solid #A7F3D0;
+        box-shadow: 0 0 15px 5px rgba(16, 185, 129, 0.3); /* Green glow effect */
+        overflow: hidden; /* Important for the cutout effect */
+    }
+
+    .donation-banner::before,
+    .donation-banner::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 30px; /* Diameter of the circle */
+        height: 30px; /* Diameter of the circle */
+        background-color: var(--background-primary); /* This should match your page's main background color */
+        border-radius: 50%;
+        border: 1px solid #A7F3D0;
+    }
+
+    .donation-banner::before {
+        left: -15px; /* Half of the width to create the cutout */
+    }
+
+    .donation-banner::after {
+        right: -15px; /* Half of the width to create the cutout */
+    }
+</style>
+<script>
+// Search functionality (consistent with search results page)
+function performSearch() {
+    const query = document.getElementById('product-search-input').value;
+    if (query.trim()) {
+        window.location.href = `/vendor/search?q=${encodeURIComponent(query)}`;
+    }
+}
+
+function startVoiceSearch() {
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        
+        recognition.onstart = function() {
+            document.getElementById('mic-button').innerHTML = '<i data-feather="mic-off" class="w-6 h-6"></i>';
+            feather.replace();
+        };
+        
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('product-search-input').value = transcript;
+            performSearch();
+        };
+        
+        recognition.onend = function() {
+            document.getElementById('mic-button').innerHTML = '<i data-feather="mic" class="w-6 h-6"></i>';
+            feather.replace();
+        };
+        
+        recognition.start();
+    } else {
+        alert('Voice search is not supported in this browser');
+    }
+}
+
+// Category navigation
+function viewCategory(categoryId) {
+    window.location.href = `/vendor/category/${categoryId}`;
+}
+
+// Quantity controls
+function updateQuantity(button, change) {
+    const input = button.parentNode.querySelector('.quantity-input');
+    const newValue = parseInt(input.value) + change;
+    const max = parseInt(input.max) || 100;
+    
+    if (newValue >= 1 && newValue <= max) {
+        input.value = newValue;
+    }
+}
+
+// Page initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Search on Enter key
+    const searchInput = document.getElementById('product-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
+    
+    // --- Handle Add to Cart ---
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const productCard = this.closest('.product-card');
+            const productId = this.dataset.productId;
+            const quantityInput = productCard.querySelector('.quantity-input');
+            const quantity = quantityInput.value;
+
+            const formData = new FormData();
+            formData.append('product_id', productId);
+            formData.append('quantity', quantity);
+
+            fetch("{{ url_for('main.add_to_cart') }}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the cart count in the sidebar
+                    const cartCountElement = document.getElementById('cart-count-badge');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count;
+                        cartCountElement.classList.remove('hidden');
+                    }
+                    // Optionally, show a success message
+                    alert(data.message); 
+                } else {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error adding to cart:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    });
+
+    // --- Handle Quantity Buttons (+ / -) ---
+    const quantityContainers = document.querySelectorAll('.quantity-selector');
+
+    quantityContainers.forEach(container => {
+        const minusBtn = container.querySelector('.quantity-minus');
+        const plusBtn = container.querySelector('.quantity-plus');
+        const input = container.querySelector('.quantity-input');
+
+        minusBtn.addEventListener('click', function() {
+            let currentValue = parseInt(input.value);
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        });
+
+        plusBtn.addEventListener('click', function() {
+            let currentValue = parseInt(input.value);
+            input.value = currentValue + 1;
+        });
+    });
+    
+    // --- AI SLIDE-IN PANEL FUNCTIONALITY ---
+    const askAiButton = document.getElementById('ask-ai-btn');
+    const searchInputForAI = document.getElementById('product-search-input');
+    const aiPanel = document.getElementById('ai-panel');
+    const aiPanelOverlay = document.getElementById('ai-panel-overlay');
+    const aiResponseContent = document.getElementById('ai-response-content');
+    const closeAiPanelButton = document.getElementById('close-ai-panel');
+
+    if (askAiButton) {
+        askAiButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            const productName = searchInputForAI.value;
+            if (!productName.trim()) {
+                alert('Please enter a product name to ask the AI.');
+                return;
+            }
+
+            // Show the panel and overlay
+            aiPanel.classList.add('open');
+            aiPanelOverlay.classList.add('open');
+            aiResponseContent.innerHTML = '<p class="text-sm text-gray-500">Analyzing the market for ' + productName + '...</p>';
+
+            fetch("{{ url_for('main.ask_ai') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product_name: productName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    aiResponseContent.innerHTML = `<p class="text-red-500">Error: ${data.error}</p>`;
+                } else {
+                    // New logic to parse and style the AI response
+                    const insights = data.response.split('\n').filter(line => line.trim() !== '');
+                    let html = '<div>';
+
+                    const icons = {
+                        'Price': 'dollar-sign',
+                        'Trend': 'trending-up',
+                        'Demand': 'users',
+                        'Profit': 'bar-chart-2',
+                        'Tip': 'gift'
+                    };
+
+                    insights.forEach(line => {
+                        const parts = line.split(/:(.*)/s); // Split only on the first colon
+                        if (parts.length === 3) {
+                            const key = parts[0].trim();
+                            const value = parts[1].trim();
+                            const icon = icons[key] || 'chevrons-right'; // Default icon
+
+                            html += `
+                            <div class="ai-insight-row">
+                                <div class="ai-insight-icon">
+                                    <i data-feather="${icon}" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <div class="ai-insight-key">${key}</div>
+                                    <div class="ai-insight-value">${value}</div>
+                                </div>
+                            </div>
+                            `;
+                        }
+                    });
+
+                    html += '</div>';
+                    aiResponseContent.innerHTML = html;
+                    feather.replace(); // Important: Re-initialize Feather icons
+                }
+            })
+            .catch(error => {
+                aiResponseContent.innerHTML = '<p class="text-red-500">An unexpected error occurred. Please try again.</p>';
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    function closeAiPanel() {
+        aiPanel.classList.remove('open');
+        aiPanelOverlay.classList.remove('open');
+    }
+
+    if (closeAiPanelButton) {
+        closeAiPanelButton.addEventListener('click', closeAiPanel);
+    }
+    if (aiPanelOverlay) {
+        aiPanelOverlay.addEventListener('click', closeAiPanel);
+    }
+    // --- End of AI Panel Functionality ---
+
+    // --- Donation Modal Functionality ---
+    const openModalBtn = document.getElementById('open-donation-modal-btn');
+    const closeModalBtn = document.getElementById('close-donation-modal-btn');
+    const donationModal = document.getElementById('donation-modal');
+    const donationForm = document.getElementById('donation-form');
+
+    if (openModalBtn) {
+        openModalBtn.addEventListener('click', () => {
+            donationModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            donationModal.classList.add('hidden');
+        });
+    }
+
+    if (donationForm) {
+        donationForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(donationForm);
+            const data = {
+                food_description: formData.get('food_description'),
+                quantity: formData.get('quantity'),
+                pickup_address: formData.get('pickup_address'),
+                pickup_time: formData.get('pickup_time'),
+            };
+
+            fetch("{{ url_for('main.submit_donation') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                alert(result.message);
+                if (result.success) {
+                    donationModal.classList.add('hidden');
+                    donationForm.reset();
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting donation:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    }
+    // --- End of Donation Modal Functionality ---
+
+    // --- Top Rated Wholesalers Sorting Functionality ---
+    window.sortWholesalers = function(sortBy, clickedButton) {
+        // Update button styles to show the active filter
+        document.querySelectorAll('#sort-rating-btn, #sort-trust-btn, #sort-price-btn').forEach(btn => {
+            btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+            btn.classList.add('text-gray-600');
+        });
+        clickedButton.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+        clickedButton.classList.remove('text-gray-600');
+
+        // Fetch sorted data from the new API endpoint
+        fetch("{{ url_for('main.sort_wholesalers') }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sort_by: sortBy })
+        })
+        .then(response => response.json())
+        .then(wholesalers => {
+            renderWholesalers(wholesalers);
+        })
+        .catch(error => {
+            console.error('Error sorting wholesalers:', error);
+        });
+    };
+
+    window.renderWholesalers = function(wholesalers) {
+        const grid = document.getElementById('wholesaler-grid');
+        grid.innerHTML = ''; // Clear the existing cards
+
+        if (wholesalers.length === 0) {
+            grid.innerHTML = '<p class="col-span-full text-center text-gray-500">No wholesalers found.</p>';
+            return;
+        }
+
+        wholesalers.forEach(wholesaler => {
+            const specialtiesHtml = wholesaler.specialties ? wholesaler.specialties.split(',').map(s => 
+                `<span class="px-3 py-1 text-xs bg-gray-200 text-gray-800 rounded-full">${s}</span>`
+            ).join('') : '';
+
+            const cardHtml = `
+            <div class="interactive-card p-6 flex flex-col">
+                <div class="flex-grow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold">${wholesaler.name}</h3>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-feather="star" class="w-4 h-4 text-yellow-500 fill-current"></i>
+                                <span class="ml-1 font-semibold">${(wholesaler.trust_score / 20).toFixed(1)}</span>
+                                <span class="ml-1">(${wholesaler.review_count} reviews)</span>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full">Premium</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-600 mb-4">
+                        <p class="flex items-center"><i data-feather="map-pin" class="w-4 h-4 mr-2"></i>${wholesaler.location}</p>
+                        <p class="flex items-center"><i data-feather="phone" class="w-4 h-4 mr-2"></i>${wholesaler.phone}</p>
+                    </div>
+                    ${wholesaler.specialties ? `
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold mb-2">Specialties:</h4>
+                        <div class="flex flex-wrap gap-2">${specialtiesHtml}</div>
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="mt-auto flex justify-between items-center">
+                    <p class="text-sm font-semibold text-green-600">Trust Score: ${wholesaler.trust_score}%</p>
+                    <a href="/vendor/wholesaler/${wholesaler.id}" class="gradient-button text-white font-semibold py-2 px-5 rounded-lg">
+                        View Products
+                    </a>
+                </div>
+            </div>
+            `;
+            grid.innerHTML += cardHtml;
+        });
+
+        // Re-initialize Feather icons after re-rendering the cards
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    };
+    // --- End of Wholesalers Sorting ---
+    
+    // Initialize page
+    initializePage();
+
+    // Attach reorder button listeners
+    document.querySelectorAll('.reorder-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            reorderItem(productId, this);
+        });
+    });
+});
+
+// Initialize page functionality (from vendor_base.html)
+function initializePage() {
+    // Initialize Feather icons
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+    
+    // Initialize reveal animations
+    const revealElements = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    revealElements.forEach(el => observer.observe(el));
+    
+    // Initialize theme/reveal only (translations removed)
+}
+
+// Translation logic removed
+
+// Global cart functionality
+
+// Remove localStorage cart logic; use backend session cart only
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch cart count and total from backend and update UI
+    fetch('/vendor/get-cart-count')
+        .then(response => response.json())
+        .then(data => {
+            updateCartUI(data.count, data.total);
+            updateCartBadge(data.count);
+        });
+    // Add cart button event listener
+    const cartBtn = document.getElementById('cart-btn');
+    if (cartBtn) {
+        cartBtn.addEventListener('click', () => {
+            window.location.href = '/vendor/cart';
+        });
+    }
+});
+
+function updateQuantity(button, change) {
+    const quantityInput = button.parentElement.querySelector('.quantity-input');
+    let currentValue = parseInt(quantityInput.value);
+    let newValue = currentValue + change;
+    
+    if (newValue < 1) newValue = 1;
+    const maxValue = parseInt(quantityInput.getAttribute('max')) || 999;
+    if (newValue > maxValue) newValue = maxValue;
+    
+    quantityInput.value = newValue;
+}
+
+// NEW FUNCTION FOR REORDERING
+function reorderItem(productId, buttonElement) {
+    const card = buttonElement.closest('.order-card');
+    const quantity = card.querySelector('.quantity-input').value;
+
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', quantity);
+
+    // Show loading state
+    buttonElement.textContent = 'Adding...';
+    buttonElement.disabled = true;
+
+    fetch("{{ url_for('main.reorder_item') }}", {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message); // Or use a more sophisticated notification
+            // Update cart badge in the sidebar
+            const cartBadge = document.getElementById('cart-count-badge');
+            if(cartBadge) {
+                cartBadge.textContent = data.cart_count;
+                cartBadge.classList.remove('hidden');
+            }
+        } else {
+            alert('Error: ' + data.message);
+        }
+        // Restore button state
+        buttonElement.textContent = 'Reorder';
+        buttonElement.disabled = false;
+    })
+    .catch(error => {
+        console.error('Reorder Error:', error);
+        alert('An error occurred while reordering.');
+        buttonElement.textContent = 'Reorder';
+        buttonElement.disabled = false;
+    });
+}
+
+function addToCart(productId) {
+    const card = document.querySelector(`[data-product-id="${productId}"]`);
+    const quantity = parseInt(card.querySelector('.quantity-input').value) || 1;
+    const name = card.querySelector('h3').textContent;
+    // Show loading state
+    const button = card.querySelector('.add-to-cart-text');
+    const originalText = button.textContent;
+    button.textContent = 'Adding...';
+    button.parentElement.disabled = true;
+
+    fetch('/vendor/add-to-cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `product_id=${productId}&quantity=${quantity}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`${name} added to cart!`, 'success');
+            updateCartUI(data.cart_count, data.cart_total);
+            updateCartBadge(data.cart_count);
+            button.textContent = '✓ Added';
+            button.parentElement.classList.add('bg-green-500');
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.parentElement.classList.remove('bg-green-500');
+                button.parentElement.disabled = false;
+            }, 1200);
+        } else {
+            showNotification(data.message || 'Failed to add to cart', 'error');
+            button.textContent = originalText;
+            button.parentElement.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error adding to cart', 'error');
+        button.textContent = originalText;
+        button.parentElement.disabled = false;
+    });
+}
+
+function quickOrder(productId) {
+    const card = document.querySelector(`[data-product-id="${productId}"]`);
+    const quantity = parseInt(card.querySelector('.quantity-input').value);
+    
+    // Navigate to quick order page
+    window.location.href = `/vendor/quick-order/${productId}?quantity=${quantity}`;
+}
+
+// Use updateCartUI and updateCartBadge from vendor_base.html for UI updates
+
+function viewCart() {
+    window.location.href = '/vendor/cart';
+}
+
+function viewAllProducts() {
+    window.location.href = '/vendor/all-products';
+}
+
+// Update the enforceIconVisibility function to handle cart badge
+const originalEnforceIconVisibility = enforceIconVisibility;
+enforceIconVisibility = function() {
+    originalEnforceIconVisibility();
+    updateCartDisplay();
+};
+
+// --- Budget-Friendly Items Functionality ---
+document.addEventListener('DOMContentLoaded', function() {
+    const budgetGrid = document.getElementById('budget-product-grid');
+    const maxBudgetInput = document.getElementById('max-budget');
+    const categoryFilter = document.getElementById('category-filter');
+    const sortByFilter = document.getElementById('sort-by');
+    const resetFiltersBtn = document.getElementById('reset-filters');
+    const potentialSavingsEl = document.getElementById('potential-savings');
+
+    const fetchProducts = (limit = null) => { // Accept a limit argument
+        const filters = {
+            maxBudget: maxBudgetInput.value,
+            category: categoryFilter.value,
+            sortBy: sortByFilter.value,
+            limit: limit // Add limit to the filters object
+        };
+
+        fetch("{{ url_for('main.filter_products') }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(filters) // Send the filters
+        })
+        .then(response => response.json())
+        .then(products => {
+            renderProducts(products);
+        });
+    };
+
+    const renderProducts = (products) => {
+        budgetGrid.innerHTML = '';
+        let totalSavings = 0;
+        if (products.length === 0) {
+            budgetGrid.innerHTML = '<p class="col-span-full text-center text-gray-500">No products match your filters.</p>';
+        }
+        products.forEach(product => {
+            const originalPrice = product.original_price || (product.price * 1.25);
+            const discount = ((originalPrice - product.price) / originalPrice) * 100;
+            const savings = originalPrice - product.price;
+            totalSavings += savings;
+
+            const card = `
+            <div class="interactive-card p-4 flex flex-col">
+                <div class="flex justify-between items-start">
+                    <h3 class="font-bold text-lg">${product.name}</h3>
+                    ${discount > 0 ? `<span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">-${Math.round(discount)}%</span>` : ''}
+                </div>
+                <p class="text-xs text-gray-500">${product.wholesaler_name} ⭐ ${product.trust_score}</p>
+                <div class="my-4">
+                    <span class="text-2xl font-bold text-[var(--accent-primary)]">₹${product.price.toFixed(2)}</span>
+                    <span class="text-sm text-gray-400 line-through ml-2">₹${originalPrice.toFixed(2)}</span>
+                    <span class="text-xs text-gray-500"> per kg</span>
+                </div>
+                <p class="text-sm text-green-600 font-medium mb-4">💰 Save ₹${savings.toFixed(2)}</p>
+                <div class="mt-auto flex gap-2">
+                    <span class="px-3 py-1 text-xs rounded-full ${product.stock > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">${product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
+                    <button class="add-to-cart-btn gradient-button text-white text-sm font-semibold py-2 px-4 rounded-lg flex-grow" data-product-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>Add to Cart</button>
+                </div>
+            </div>
+            `;
+            budgetGrid.innerHTML += card;
+        });
+        potentialSavingsEl.textContent = `₹${totalSavings.toFixed(2)}`;
+        // Re-attach event listeners for new add to cart buttons
+        attachAddToCartListeners();
+    };
+
+    const attachAddToCartListeners = () => {
+        document.querySelectorAll('#budget-product-grid .add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                // Assuming quantity of 1 for simplicity
+                addToCart(productId, 1); 
+            });
+        });
+    };
+
+    const resetFilters = () => {
+        maxBudgetInput.value = '';
+        categoryFilter.selectedIndex = 0;
+        sortByFilter.selectedIndex = 0;
+        fetchProducts();
+    };
+
+    // Event Listeners
+    maxBudgetInput.addEventListener('input', () => fetchProducts()); // Updated
+    categoryFilter.addEventListener('change', () => fetchProducts()); // Updated
+    sortByFilter.addEventListener('change', () => fetchProducts()); // Updated
+    resetFiltersBtn.addEventListener('click', resetFilters);
+
+    // Initial Load - UPDATED to fetch only 8 items
+    fetchProducts(8);
+});
+
+// You need a generic addToCart function for this to work
+function addToCart(productId, quantity) {
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', quantity);
+
+    fetch("{{ url_for('main.add_to_cart') }}", {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Item added to cart!');
+            // Update cart badge in sidebar
+            const cartBadge = document.getElementById('cart-count-badge');
+            if (cartBadge) {
+                cartBadge.textContent = data.cart_count;
+                cartBadge.classList.remove('hidden');
+            }
+        } else {
+            alert('Error: ' + data.message);
+        }
+    });
+}
+</script>
+{% endblock %}

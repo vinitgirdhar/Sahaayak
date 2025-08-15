@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Registration - Sahaayak{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8">
+    {% if get_flashed_messages() %}
+      {% for message in get_flashed_messages(with_categories=true) %}
+        <div class="mb-4 p-3 rounded {% if message[0] == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+          {{ message[1] }}
+        </div>
+      {% endfor %}
+    {% endif %}
+    
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold text-gray-800">Vendor Registration</h2>
+      <p class="text-gray-600 mt-2">Join our community of street vendors</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      <!-- Personal Information Section -->
+      <div class="bg-blue-50 p-4 rounded-lg">
+        <h3 class="text-lg font-semibold text-blue-800 mb-3">📋 Personal Information</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label for="name" class="block text-gray-700 font-medium mb-1">Full Name *</label>
+            <input type="text" id="name" name="name" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" 
+                   required>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="phone" class="block text-gray-700 font-medium mb-1">Phone Number *</label>
+              <input type="tel" id="phone" name="phone" 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" 
+                     required>
+            </div>
+            <div>
+              <label for="alternate_contact" class="block text-gray-700 font-medium mb-1">Alternate Contact</label>
+              <input type="tel" id="alternate_contact" name="alternate_contact" 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+            </div>
+          </div>
+          
+          <div>
+            <label for="email" class="block text-gray-700 font-medium mb-1">Email Address *</label>
+            <input type="email" id="email" name="email" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" 
+                   required>
+          </div>
+          
+          <div>
+            <label for="password" class="block text-gray-700 font-medium mb-1">Password *</label>
+            <input type="password" id="password" name="password" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" 
+                   required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Details Section -->
+      <div class="bg-green-50 p-4 rounded-lg">
+        <h3 class="text-lg font-semibold text-green-800 mb-3">🏪 Business Details</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label for="shop_name" class="block text-gray-700 font-medium mb-1">Shop/Business Name</label>
+            <input type="text" id="shop_name" name="shop_name" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent">
+          </div>
+          
+          <div>
+            <label for="goods_type" class="block text-gray-700 font-medium mb-1">Type of Goods Sold</label>
+            <select id="goods_type" name="goods_type" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent">
+              <option value="">Select goods type</option>
+              <option value="vegetables">Vegetables</option>
+              <option value="fruits">Fruits</option>
+              <option value="groceries">Groceries</option>
+              <option value="snacks">Snacks & Beverages</option>
+              <option value="clothing">Clothing</option>
+              <option value="accessories">Accessories</option>
+              <option value="electronics">Electronics</option>
+              <option value="household">Household Items</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="working_hours" class="block text-gray-700 font-medium mb-1">Working Hours</label>
+            <input type="text" id="working_hours" name="working_hours" 
+                   placeholder="e.g., 8 AM - 8 PM"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent">
+          </div>
+          
+          <div>
+            <label for="photo" class="block text-gray-700 font-medium mb-1">Profile Photo</label>
+            <input type="file" id="photo" name="photo" accept="image/*"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent">
+            <p class="text-xs text-gray-500 mt-1">Optional: Upload a photo of yourself or your shop</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Details Section -->
+      <div class="bg-yellow-50 p-4 rounded-lg">
+        <h3 class="text-lg font-semibold text-yellow-800 mb-3">📍 Location Details</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label for="street_area" class="block text-gray-700 font-medium mb-1">Street/Area *</label>
+            <input type="text" id="street_area" name="street_area" 
+                   placeholder="e.g., Station Road, Market Area"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent" 
+                   required>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="city" class="block text-gray-700 font-medium mb-1">City *</label>
+              <input type="text" id="city" name="city" 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent" 
+                     required>
+            </div>
+            <div>
+              <label for="pincode" class="block text-gray-700 font-medium mb-1">Pincode *</label>
+              <input type="text" id="pincode" name="pincode" 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent" 
+                     required>
+            </div>
+          </div>
+          
+          <div>
+            <label for="location" class="block text-gray-700 font-medium mb-1">General Location/Landmark</label>
+            <input type="text" id="location" name="location" 
+                   placeholder="e.g., Near Railway Station, Market Square"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent">
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-4">
+        <button type="submit" 
+                class="w-full bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:from-blue-700 hover:to-green-700 transition-all duration-300 transform hover:scale-105">
+          🚀 Register as Vendor
+        </button>
+      </div>
+    </form>
+
+    <!-- Login Link -->
+    <div class="mt-8 text-center">
+      <p class="text-gray-600">
+        Already have an account? 
+        <a href="{{ url_for('main.vendor_login') }}" class="text-blue-600 hover:underline font-semibold">Login here</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

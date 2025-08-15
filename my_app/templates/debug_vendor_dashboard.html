@@ -1,0 +1,39 @@
+{% extends "vendor_base.html" %}
+
+{% block title %}Debug - Vendor Dashboard{% endblock %}
+
+{% block vendor_content %}
+<div class="container mx-auto p-8">
+    <h1 class="text-4xl font-bold text-blue-600 mb-8">🎉 Success! Dashboard is Working!</h1>
+    
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4">Debug Information</h2>
+        <ul class="space-y-2">
+            <li>✅ Flask route is working</li>
+            <li>✅ Template file is found</li>
+            <li>✅ HTML is rendering properly</li>
+            <li>✅ Tailwind CSS is loading</li>
+        </ul>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-blue-500 text-white p-6 rounded-lg">
+            <h3 class="text-xl font-bold">Total Products</h3>
+            <p class="text-3xl">150</p>
+        </div>
+        <div class="bg-green-500 text-white p-6 rounded-lg">
+            <h3 class="text-xl font-bold">Active Orders</h3>
+            <p class="text-3xl">25</p>
+        </div>
+        <div class="bg-purple-500 text-white p-6 rounded-lg">
+            <h3 class="text-xl font-bold">Revenue</h3>
+            <p class="text-3xl">₹45,000</p>
+        </div>
+    </div>
+
+    <div class="mt-8 p-4 bg-yellow-100 border border-yellow-400 rounded">
+        <p><strong>Note:</strong> If you can see this page, your Flask setup is working correctly!</p>
+        <p>Now you can replace this with the full modern dashboard.</p>
+    </div>
+</div>
+{% endblock %}

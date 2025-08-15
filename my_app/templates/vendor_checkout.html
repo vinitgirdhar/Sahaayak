@@ -1,0 +1,167 @@
+{% extends "vendor_base.html" %}
+
+{% block title %}Checkout - Sahaayak{% endblock %}
+
+{% block vendor_content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex items-center mb-8">
+        <a href="{{ url_for('main.vendor_cart') }}" class="mr-4 text-blue-600 hover:text-blue-800">
+            <i class="fas fa-arrow-left"></i> Back to Cart
+        </a>
+        <h1 class="text-3xl font-bold" style="color: var(--text-primary);">Checkout</h1>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="mb-6 p-4 rounded-lg {% if category == 'success' %}bg-green-100 text-green-700{% elif category == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-red-100 text-red-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if wholesaler_data %}
+    <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Order Review -->
+        <div class="lg:col-span-2">
+            <div class="interactive-card p-6 mb-6">
+                <h2 class="text-xl font-bold mb-6" style="color: var(--text-primary);">Review Your Order</h2>
+                
+                {% for wholesaler_id, data in wholesaler_data.items() %}
+                <div class="mb-8 pb-6 border-b border-[var(--border-primary)] last:border-0">
+                    <h3 class="font-bold text-lg mb-4" style="color: var(--text-primary);">
+                        Order from {{ data['name'] }}
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        {% for item in data['items'] %}
+                        <div class="flex items-center gap-4 py-3">
+                            <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/60x60/e2e8f0/64748b?text=N/A' }}" 
+                                 alt="{{ item.name }}" class="w-16 h-16 rounded-lg object-cover">
+                            <div class="flex-grow">
+                                <h4 class="font-semibold" style="color: var(--text-primary);">{{ item.name }}</h4>
+                                <p class="text-sm" style="color: var(--text-secondary);">₹{{ "%.2f"|format(item.price) }} × {{ item.quantity }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold" style="color: var(--text-primary);">₹{{ "%.2f"|format(item.item_total) }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-[var(--border-primary)]">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold" style="color: var(--text-secondary);">Subtotal from {{ data['name'] }}</span>
+                            <span class="font-bold text-lg" style="color: var(--text-primary);">₹{{ "%.2f"|format(data['subtotal']) }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Order Summary & Payment -->
+        <div class="lg:col-span-1">
+            <div class="interactive-card p-6 sticky top-24">
+                <h3 class="font-bold text-xl mb-6" style="color: var(--text-primary);">Order Summary</h3>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between">
+                        <span style="color: var(--text-secondary);">Total Items</span>
+                        <span style="color: var(--text-primary);">
+                            {% set total_items = [] %}
+                            {% for wholesaler_id, data in wholesaler_data.items() %}
+                                {% for item in data['items'] %}
+                                    {% set _ = total_items.append(item['quantity']) %}
+                                {% endfor %}
+                            {% endfor %}
+                            {{ total_items|sum }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span style="color: var(--text-secondary);">Total Wholesalers</span>
+                        <span style="color: var(--text-primary);">{{ wholesaler_data|length }}</span>
+                    </div>
+                    <div class="pt-3 border-t border-[var(--border-primary)]">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-lg" style="color: var(--text-primary);">Grand Total</span>
+                            <span class="font-bold text-2xl" style="color: var(--accent-primary);">₹{{ "%.2f"|format(total_amount) }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Method Selection -->
+                <div class="mb-6">
+                    <h4 class="font-semibold mb-3" style="color: var(--text-primary);">Payment Method</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-3 border border-[var(--border-primary)] rounded-lg cursor-pointer hover:bg-[var(--background-tertiary)]">
+                            <input type="radio" name="payment_method" value="cod" checked class="mr-3">
+                            <div>
+                                <div class="font-medium" style="color: var(--text-primary);">Cash on Delivery</div>
+                                <div class="text-sm" style="color: var(--text-secondary);">Pay when you receive the order</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-3 border border-[var(--border-primary)] rounded-lg cursor-pointer hover:bg-[var(--background-tertiary)]">
+                            <input type="radio" name="payment_method" value="upi" class="mr-3">
+                            <div>
+                                <div class="font-medium" style="color: var(--text-primary);">UPI Payment</div>
+                                <div class="text-sm" style="color: var(--text-secondary);">Pay now via UPI</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Place Order Form -->
+                <form method="POST" id="checkoutForm">
+                    <button type="submit" class="gradient-button w-full text-white font-bold py-4 rounded-xl mb-3">
+                        Place Order
+                    </button>
+                </form>
+                
+                <button onclick="window.history.back()" 
+                        class="w-full py-3 text-gray-500 hover:text-gray-700 font-medium">
+                    Back to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-16">
+        <div class="text-6xl mb-6">🛒</div>
+        <h3 class="text-2xl font-bold mb-4" style="color: var(--text-primary);">Your cart is empty</h3>
+        <p class="text-lg mb-8" style="color: var(--text-secondary);">Add some items to your cart before checkout</p>
+        <button onclick="window.location.href='{{ url_for('main.vendor_dashboard') }}'" 
+                class="gradient-button text-white px-8 py-4 rounded-xl font-semibold">
+            Start Shopping
+        </button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    
+    if (paymentMethod === 'upi') {
+        alert('UPI payment integration coming soon! For now, please use Cash on Delivery.');
+        return;
+    }
+    
+    // Show confirmation dialog
+    if (confirm('Are you sure you want to place this order?')) {
+        // Submit the form
+        this.submit();
+    }
+});
+
+// Initialize feather icons if available
+if (typeof feather !== 'undefined') {
+    feather.replace();
+}
+</script>
+{% endblock %}

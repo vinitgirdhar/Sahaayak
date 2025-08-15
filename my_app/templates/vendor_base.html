@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sahaayak{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <style>
+        :root {
+            --sidebar-width-collapsed: 5rem;
+            --sidebar-width-expanded: 16rem;
+        }
+
+        /* --- Light Theme (Daylight) --- */
+        .daylight-theme {
+            --background-primary: #f4f5f7;
+            --background-secondary: #ffffff;
+            --background-tertiary: #eef2f9;
+            --border-primary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --accent-primary: #db2777;
+            --accent-secondary: #7c3aed;
+            --glow-primary: rgba(219, 39, 119, 0.15);
+            --glow-secondary: rgba(124, 58, 237, 0.15);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07);
+        }
+        
+        /* --- Dark Theme (Emerald Depth) --- */
+        .aurora-theme {
+            --background-primary: #0F2027; /* Darkest shade for main background */
+            --background-secondary: #142d36; /* Slightly lighter for cards, sidebar */
+            --background-tertiary: #1a3a45; /* Lighter shade for hovers */
+            --border-primary: #28623A;     /* Green accent for borders */
+            --text-primary: #f0f6fc;       /* Off-white for primary text */
+            --text-secondary: #a0b0b5;     /* Muted gray for secondary text */
+            --accent-primary: #28623A;     /* Main green for accents */
+            --accent-secondary: #3a8c54;    /* Brighter green for gradients */
+            --glow-primary: rgba(40, 98, 58, 0.25); /* Green glow for buttons/cards */
+            --glow-secondary: rgba(58, 140, 84, 0.2);
+            --card-shadow: 0 0 0 1px rgba(40, 98, 58, 0.5);
+            --card-shadow-hover: 0 0 0 1px var(--accent-secondary), 0 10px 30px -5px var(--glow-primary);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--background-primary);
+            z-index: 100; display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 56px; height: 56px; border-radius: 50%;
+            background: conic-gradient(#0000 10%, var(--accent-primary));
+            mask: radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 0);
+            -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 0);
+            animation: spinner-spin 1s infinite linear;
+        }
+        @keyframes spinner-spin { to { transform: rotate(1turn) } }
+
+        .sidebar {
+            width: var(--sidebar-width-collapsed);
+            background-color: var(--background-secondary);
+            border-right: 1px solid var(--border-primary);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 50;
+        }
+
+        .sidebar:hover { 
+            width: var(--sidebar-width-expanded); 
+        }
+
+        /* --- FIX: Sidebar text visibility --- */
+        .sidebar .item-text {
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+        .sidebar:hover .item-text {
+            opacity: 1;
+        }
+
+        /* --- FIX: Missing button and card styles --- */
+        .gradient-button {
+            background-image: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+        .gradient-button:hover {
+            opacity: 0.9;
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .interactive-card {
+            background-color: var(--background-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .interactive-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        /* --- AI Insights Panel Styling --- */
+        .ai-insight-row {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-primary);
+        }
+        .ai-insight-row:last-child {
+            border-bottom: none;
+        }
+        .ai-insight-icon {
+            flex-shrink: 0;
+            margin-right: 1rem;
+            color: var(--accent-secondary);
+        }
+        .ai-insight-key {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .ai-insight-value {
+            color: var(--text-secondary);
+        }
+        
+        /* Minimal modal styles */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 60; align-items: center; justify-content: center; }
+        .modal-overlay.visible { display: flex; }
+        .modal-content { background: var(--background-secondary); border: 1px solid var(--border-primary); border-radius: 1rem; padding: 1.5rem; width: min(800px, 90vw); box-shadow: var(--card-shadow); }
+        
+        /* Profile banner styles */
+        .profile-banner {
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .banner-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, var(--background-primary), rgba(0,0,0,0.3));
+        }
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 9999px;
+            border: 4px solid var(--background-primary);
+            margin-top: -60px; /* Overlap the banner */
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="daylight-theme">
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- AI Response Modal -->
+    <div id="ai-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="ai-modal-title" class="text-2xl font-bold" style="color: var(--text-primary);">AI Assistant</h3>
+                <button id="ai-modal-close" class="p-2 rounded-full hover:bg-[var(--background-tertiary)]">
+                    <i data-feather="x" style="color: var(--text-secondary);"></i>
+                </button>
+            </div>
+            <div id="ai-modal-body" class="text-lg" style="color: var(--text-secondary); min-height: 100px;">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex h-screen">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar flex flex-col p-4">
+            <div class="flex-grow space-y-2">
+                <a href="{{ url_for('main.vendor_dashboard') }}" class="sidebar-item flex items-center p-3 h-14 rounded-lg">
+                    <i data-feather="box" class="w-8 h-8 flex-shrink-0"></i>
+                    <span class="item-text ml-4 font-semibold">Sahaayak</span>
+                </a>
+                <hr class="border-t border-[var(--border-primary)] my-2">
+                <a href="{{ url_for('main.vendor_profile') }}" class="sidebar-item flex items-center p-3 h-14 rounded-lg w-full text-left">
+                    <i data-feather="user" class="w-8 h-8 flex-shrink-0"></i>
+                    <span class="item-text ml-4 font-semibold">Profile</span>
+                </a>
+                <a href="{{ url_for('main.vendor_orders') }}" class="sidebar-item flex items-center p-3 h-14 rounded-lg w-full text-left">
+                    <i data-feather="shopping-bag" class="w-8 h-8 flex-shrink-0"></i>
+                    <span class="item-text ml-4 font-semibold">Recent Orders</span>
+                </a>
+                <a href="{{ url_for('main.saved_payment_info') }}" class="sidebar-item flex items-center p-3 h-14 rounded-lg w-full text-left">
+                    <i data-feather="credit-card" class="w-8 h-8 flex-shrink-0"></i>
+                    <span class="item-text ml-4 font-semibold">Saved Payment Info</span>
+                </a>
+                <hr class="border-t border-[var(--border-primary)] my-2">
+                <button id="offers-btn" class="sidebar-item flex items-center p-3 h-14 rounded-lg w-full text-left">
+                    <i data-feather="tag" class="w-8 h-8 flex-shrink-0"></i>
+                    <span class="item-text ml-4 font-semibold">Offers & Deals</span>
+                </button>
+                <!-- Single My Cart button with badge -->
+                <a href="{{ url_for('main.vendor_cart') }}" class="sidebar-item flex items-center p-3 h-14 rounded-lg w-full text-left relative">
+                    <i data-feather="shopping-cart" class="w-8 h-8 flex-shrink-0"></i>
+                    <span class="item-text ml-4 font-semibold">My Cart</span>
+                    <span id="cart-count-badge" class="cart-badge absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                </a>
+            </div>
+            
+            <!-- Bottom Icons Section - Properly Aligned -->
+            <div class="space-y-2">
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="sidebar-item flex items-center p-3 h-14 rounded-lg w-full text-left">
+                    <i data-feather="moon" class="w-8 h-8 flex-shrink-0"></i>
+                    <span class="item-text ml-4 font-semibold">Switch Theme</span>
+                </button>
+                
+                <!-- Logout Button -->
+                <a href="{{ url_for('main.vendor_logout') }}" class="sidebar-item flex items-center p-3 h-14 rounded-lg w-full text-left text-red-500 hover:text-red-400" style="color: #ef4444 !important;">
+                    <i data-feather="log-out" class="w-8 h-8 flex-shrink-0" style="color: #ef4444 !important;"></i>
+                    <span class="item-text ml-4 font-semibold" style="color: #ef4444 !important;">Logout</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-8" style="margin-left: var(--sidebar-width-collapsed); transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+            {% block vendor_content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- UNIFIED THEME & CART PERSISTENCE SYSTEM -->
+    <script>
+        // Global state management for theme and cart
+        window.SahaayakApp = {
+            // Theme Management
+            theme: {
+                init() {
+                    // Load saved theme or default to light
+                    const savedTheme = localStorage.getItem('sahaayak-theme') || 'daylight-theme';
+                    this.apply(savedTheme);
+                    this.setupToggleButton();
+                },
+                
+                apply(themeName) {
+                    document.body.classList.remove('daylight-theme', 'aurora-theme');
+                    document.body.classList.add(themeName);
+                    localStorage.setItem('sahaayak-theme', themeName);
+                    this.updateToggleIcon(themeName);
+                },
+                
+                toggle() {
+                    const current = document.body.classList.contains('aurora-theme') ? 'aurora-theme' : 'daylight-theme';
+                    const newTheme = current === 'aurora-theme' ? 'daylight-theme' : 'aurora-theme';
+                    this.apply(newTheme);
+                },
+                
+                updateToggleIcon(themeName) {
+                    const themeIcon = document.querySelector('#theme-toggle i');
+                    if (themeIcon) {
+                        themeIcon.setAttribute('data-feather', themeName === 'aurora-theme' ? 'sun' : 'moon');
+                        feather.replace();
+                    }
+                },
+                
+                setupToggleButton() {
+                    const themeToggle = document.getElementById('theme-toggle');
+                    if (themeToggle) {
+                        themeToggle.addEventListener('click', () => this.toggle());
+                    }
+                }
+            },
+            
+            // Cart Management
+            cart: {
+                data: [],
+                
+                init() {
+                    this.load();
+                    this.syncWithBackend();
+                    this.updateBadge();
+                },
+                
+                load() {
+                    try {
+                        const savedCart = localStorage.getItem('sahaayak-cart');
+                        this.data = savedCart ? JSON.parse(savedCart) : [];
+                    } catch (error) {
+                        console.error('Error loading cart from localStorage:', error);
+                        this.data = [];
+                    }
+                },
+                
+                save() {
+                    try {
+                        localStorage.setItem('sahaayak-cart', JSON.stringify(this.data));
+                        this.updateBadge();
+                        this.syncWithBackend();
+                    } catch (error) {
+                        console.error('Error saving cart to localStorage:', error);
+                    }
+                },
+                
+                syncWithBackend() {
+                    // Sync localStorage cart with backend session
+                    fetch('/vendor/cart/sync', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            cart: this.data
+                        })
+                    }).catch(error => {
+                        console.error('Error syncing cart with backend:', error);
+                    });
+                },
+                
+                loadFromBackend() {
+                    // Load cart data from backend and merge with localStorage
+                    return fetch('/vendor/cart/get')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.cart) {
+                                this.data = data.cart;
+                                this.save();
+                            }
+                            return data;
+                        })
+                        .catch(error => {
+                            console.error('Error loading cart from backend:', error);
+                            return { cart: [], count: 0, total: 0 };
+                        });
+                },
+                
+                add(product) {
+                    const existingIndex = this.data.findIndex(item => item.id === product.id);
+                    if (existingIndex > -1) {
+                        this.data[existingIndex].quantity += product.quantity || 1;
+                    } else {
+                        this.data.push({
+                            ...product,
+                            quantity: product.quantity || 1
+                        });
+                    }
+                    this.save();
+                },
+                
+                remove(productId) {
+                    this.data = this.data.filter(item => item.id !== productId);
+                    this.save();
+                },
+                
+                updateQuantity(productId, quantity) {
+                    const item = this.data.find(item => item.id === productId);
+                    if (item) {
+                        if (quantity <= 0) {
+                            this.remove(productId);
+                        } else {
+                            item.quantity = quantity;
+                            this.save();
+                        }
+                    }
+                },
+                
+                clear() {
+                    this.data = [];
+                    this.save();
+                },
+                
+                getCount() {
+                    return this.data.reduce((total, item) => total + item.quantity, 0);
+                },
+                
+                getTotal() {
+                    return this.data.reduce((total, item) => total + (item.price * item.quantity), 0);
+                },
+                
+                updateBadge() {
+                    const badge = document.getElementById('cart-count-badge');
+                    const count = this.getCount();
+                    if (badge) {
+                        if (count > 0) {
+                            badge.textContent = count;
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    }
+                }
+            },
+            
+            // Preloader Management
+            preloader: {
+                hide() {
+                    const preloader = document.querySelector('.preloader');
+                    if (preloader && preloader.style.display !== 'none') {
+                        preloader.style.opacity = '0';
+                        setTimeout(() => {
+                            preloader.style.display = 'none';
+                        }, 500);
+                    }
+                },
+                
+                init() {
+                    window.addEventListener('load', () => this.hide());
+                    setTimeout(() => this.hide(), 1500); // Fallback
+                }
+            },
+            
+            // Initialize everything
+            init() {
+                this.theme.init();
+                this.cart.init();
+                this.preloader.init();
+                
+                // Initialize Feather icons
+                if (typeof feather !== 'undefined') {
+                    feather.replace();
+                }
+            }
+        };
+
+        // Initialize app when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.SahaayakApp.init();
+        });
+
+        // Expose cart functions globally for backward compatibility
+        window.addToCart = function(product) {
+            window.SahaayakApp.cart.add(product);
+        };
+
+        window.removeFromCart = function(productId) {
+            window.SahaayakApp.cart.remove(productId);
+        };
+
+        window.updateCartQuantity = function(productId, quantity) {
+            window.SahaayakApp.cart.updateQuantity(productId, quantity);
+        };
+
+        window.clearCart = function() {
+            window.SahaayakApp.cart.clear();
+        };
+
+        window.getCartData = function() {
+            return window.SahaayakApp.cart.data;
+        };
+
+        window.getCartCount = function() {
+            return window.SahaayakApp.cart.getCount();
+        };
+
+        window.getCartTotal = function() {
+            return window.SahaayakApp.cart.getTotal();
+        };
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

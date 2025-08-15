@@ -1,0 +1,774 @@
+{% extends "base.html" %}
+
+{% block title %}Wholesaler Dashboard - Sahaayak{% endblock %}
+
+{% block content %}
+<!-- Top Navigation Bar -->
+<div class="bg-white border-b border-gray-200 px-6 py-4 mb-6">
+    <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <h1 class="text-2xl font-bold text-blue-600">Sahaayak</h1>
+            <span class="text-gray-400">|</span>
+            <span class="text-gray-600">Wholesaler Dashboard</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button onclick="showAddProductModal()" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                <span>+</span>
+                <span>Add Product</span>
+            </button>
+            <button onclick="window.location.href='{{ url_for('main.wholesaler_profile') }}'" 
+                    class="flex items-center space-x-2 text-gray-600 hover:text-gray-800">
+                <span>👤</span>
+                <span>My Account</span>
+            </button>
+            <button onclick="window.location.href='{{ url_for('main.index') }}'" 
+                    class="text-gray-600 hover:text-gray-800 flex items-center space-x-1">
+                <span>🚪</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div id="addProductModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Add New Product</h3>
+                <button onclick="hideAddProductModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <form id="addProductForm" method="POST" enctype="multipart/form-data" action="{{ url_for('main.add_product') }}">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Category Selection -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Category *</label>
+                        <select id="categorySelect" name="category" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                onchange="updateSubcategories()">
+                            <option value="">Select Main Category</option>
+                            <option value="Dairy & Alternatives">Dairy & Alternatives</option>
+                            <option value="Produce">Produce</option>
+                            <option value="Pantry Staples">Pantry Staples</option>
+                            <option value="Sauces & Pastes">Sauces & Pastes</option>
+                            <option value="Bakery & Base Items">Bakery & Base Items</option>
+                            <option value="Snacks & Dessert Ingredients">Snacks & Dessert Ingredients</option>
+                            <option value="Prepared & Semi-Cooked">Prepared & Semi-Cooked</option>
+                            <option value="Beverages">Beverages</option>
+                            <option value="Packaging & Disposables">Packaging & Disposables</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Subcategory Selection -->
+                    <div class="md:col-span-2" id="subcategoryContainer" style="display: none;">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Type *</label>
+                        <select id="subcategorySelect" name="subcategory" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                onchange="updateProductName()">
+                            <option value="">Select Product Type</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Product Name -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
+                        <input type="text" id="productName" name="name" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Product name will be auto-filled based on selection">
+                    </div>
+                    
+                    <!-- Price -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Price per Unit (₹) *</label>
+                        <input type="number" name="price" step="0.01" min="0" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="0.00">
+                    </div>
+                    
+                    <!-- Stock -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity *</label>
+                        <input type="number" name="stock" min="0" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Available quantity">
+                    </div>
+                    
+                    <!-- Product Image -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+                        <input type="file" name="product_image" accept="image/*"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Upload product image (optional)</p>
+                    </div>
+                </div>
+                
+                <!-- Group Buy Eligible -->
+                <div class="mt-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="group_buy_eligible" checked 
+                               class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="text-sm text-gray-700">Eligible for Group Buying</span>
+                    </label>
+                    <p class="text-xs text-gray-500 mt-1">Allow vendors to form buying clubs for bulk orders</p>
+                </div>
+                
+                <div class="mt-6 flex space-x-4">
+                    <button type="submit" 
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                        Add Product
+                    </button>
+                    <button type="button" onclick="hideAddProductModal()" 
+                           class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Section -->
+<div class="px-6 mb-8">
+    <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome back, {{ session.wholesaler_name }}!</h2>
+    <p class="text-gray-600 mb-4">Manage your wholesale business and track performance on Sahaayak</p>
+    <div class="flex items-center space-x-4">
+        <span class="text-sm text-gray-600">Trust Score:</span>
+        <span class="text-lg font-bold text-blue-600">{{ stats.trust_score }}/5.0</span>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="px-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Products - Click to view all products -->
+        <div onclick="window.location.href='{{ url_for('main.wholesaler_products') }}'" 
+             class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-shadow hover:bg-gray-50">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Total Products</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">{{ stats.total_products }}</p>
+                    <p class="text-xs text-blue-600 mt-1">Click to manage →</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-lg">
+                    <span class="text-2xl text-blue-600">📦</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Orders - Click to view orders -->
+        <div onclick="window.location.href='{{ url_for('main.wholesaler_orders') }}'" 
+             class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-shadow hover:bg-gray-50">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Pending Orders</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">{{ stats.pending_orders }}</p>
+                    <p class="text-xs text-yellow-600 mt-1">Click to process →</p>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded-lg">
+                    <span class="text-2xl text-yellow-600">⏳</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- This Month Revenue - Click to view analytics -->
+        <div onclick="window.location.href='{{ url_for('main.wholesaler_analytics') }}'" 
+             class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-shadow hover:bg-gray-50">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">This Month</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">₹{{ "{:,.0f}".format(stats.month_revenue) }}</p>
+                    <p class="text-xs text-green-600 mt-1">Click for details →</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-lg">
+                    <span class="text-2xl text-green-600">💰</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Customers - Click to view customer insights -->
+        <div onclick="showCustomerModal()" 
+             class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition-shadow hover:bg-gray-50">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Active Customers</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">{{ stats.active_customers }}</p>
+                    <p class="text-xs text-purple-600 mt-1">Click for insights →</p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-lg">
+                    <span class="text-2xl text-purple-600">👥</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Insights Modal -->
+<div id="customerModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Customer Insights</h3>
+                <button onclick="hideCustomerModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Customer Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg text-center">
+                        <p class="text-2xl font-bold text-blue-600">{{ stats.active_customers }}</p>
+                        <p class="text-sm text-blue-800">Active This Month</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg text-center">
+                        <p class="text-2xl font-bold text-green-600">78%</p>
+                        <p class="text-sm text-green-800">Repeat Customers</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg text-center">
+                        <p class="text-2xl font-bold text-purple-600">{{ stats.trust_score }}</p>
+                        <p class="text-sm text-purple-800">Avg. Rating</p>
+                    </div>
+                </div>
+                
+                <!-- Top Customers -->
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-3">Top Customers This Month</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <span class="text-blue-600 font-semibold">R</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Raj Patel</p>
+                                    <p class="text-sm text-gray-600">Ghatkopar</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold">₹25,400</p>
+                                <p class="text-sm text-gray-600">12 orders</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                    <span class="text-green-600 font-semibold">P</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Priya Shah</p>
+                                    <p class="text-sm text-gray-600">Andheri</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold">₹18,900</p>
+                                <p class="text-sm text-gray-600">8 orders</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <span class="text-purple-600 font-semibold">A</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Amit Kumar</p>
+                                    <p class="text-sm text-gray-600">Bandra</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold">₹15,600</p>
+                                <p class="text-sm text-gray-600">6 orders</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex space-x-3 pt-4">
+                    <button onclick="window.location.href='{{ url_for('main.wholesaler_orders') }}'" 
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                        View All Orders
+                    </button>
+                    <button onclick="window.location.href='{{ url_for('main.wholesaler_analytics') }}'" 
+                            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">
+                        View Analytics
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Column - Products -->
+    <div class="lg:col-span-2">
+        <!-- Your Products Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-800">Your Products</h3>
+                    <p class="text-sm text-gray-600">Manage your wholesale inventory</p>
+                </div>
+            </div>
+            <div class="p-6">
+                {% if recent_products %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {% for product in recent_products %}
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-start space-x-4">
+                                <div class="bg-blue-100 p-3 rounded-lg flex-shrink-0">
+                                    {% if product[7] %}
+                                    <img src="{{ url_for('static', filename=product[7]) }}" 
+                                         alt="{{ product[2] }}" class="w-12 h-12 object-cover rounded">
+                                    {% else %}
+                                    <span class="text-2xl">📦</span>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-gray-800 truncate">{{ product[2] }}</h4>
+                                    <p class="text-sm text-gray-600">₹{{ product[4] }}/kg</p>
+                                    <p class="text-xs text-gray-500">{{ product[3] }}</p>
+                                    
+                                    <div class="flex items-center justify-between mt-3">
+                                        <div class="flex items-center space-x-3 text-sm text-gray-600">
+                                            <span>👁 {{ product[8] or 0 }}</span>
+                                            <span>❤ {{ product[9] or 0 }}</span>
+                                        </div>
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium
+                                            {% if product[10] == 'In Stock' %}bg-green-100 text-green-800
+                                            {% elif product[10] == 'Low Stock' %}bg-yellow-100 text-yellow-800
+                                            {% else %}bg-red-100 text-red-800{% endif %}">
+                                            {{ product[10] or 'In Stock' }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between mt-3">
+                                        <div class="flex items-center space-x-2">
+                                            <button onclick="updateStock({{ product[0] }}, -10)" 
+                                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-sm">−</button>
+                                            <input type="number" value="{{ product[5] }}" min="0" 
+                                                   onchange="updateStockManual({{ product[0] }}, this.value)"
+                                                   class="w-16 text-center text-sm border rounded px-1 py-1">
+                                            <button onclick="updateStock({{ product[0] }}, 10)" 
+                                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-sm">+</button>
+                                        </div>
+                                        <button onclick="editProduct({{ product[0] }})" 
+                                                class="text-blue-600 hover:text-blue-800 text-sm">✏ Edit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-6 text-center">
+                        <button onclick="window.location.href='{{ url_for('main.wholesaler_products') }}'" 
+                                class="text-blue-600 hover:text-blue-800 font-medium">View All Products →</button>
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <div class="text-4xl mb-4">📦</div>
+                        <h4 class="text-lg font-semibold text-gray-700 mb-2">No Products Yet</h4>
+                        <p class="text-gray-600 mb-4">Start by adding your first product</p>
+                        <button onclick="showAddProductModal()" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">Add Product</button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column - Performance & Reviews -->
+    <div class="lg:col-span-1">
+        <!-- Performance Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">Performance</h3>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Response Rate -->
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 flex items-center space-x-2">
+                        <span class="text-green-500">✓</span>
+                        <span>Response Rate</span>
+                    </span>
+                    <span class="font-semibold text-gray-800">{{ "{:.0f}".format(stats.response_rate) }}%</span>
+                </div>
+                
+                <!-- Average Rating -->
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 flex items-center space-x-2">
+                        <span class="text-yellow-500">⭐</span>
+                        <span>Avg. Rating</span>
+                    </span>
+                    <span class="font-semibold text-gray-800">{{ stats.trust_score }}</span>
+                </div>
+                
+                <!-- Delivery Rate -->
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 flex items-center space-x-2">
+                        <span class="text-blue-500">📈</span>
+                        <span>Delivery Rate</span>
+                    </span>
+                    <span class="font-semibold text-gray-800">{{ "{:.0f}".format(stats.delivery_rate) }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Reviews Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">Recent Reviews</h3>
+            </div>
+            <div class="p-6">
+                {% if recent_reviews %}
+                    <div class="space-y-4">
+                        {% for review in recent_reviews %}
+                        <div class="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
+                            <div class="flex items-start justify-between mb-2">
+                                <h4 class="font-medium text-gray-800">{{ review[4] }}</h4>
+                                <div class="flex items-center">
+                                    {% for i in range(review[1]) %}
+                                    <span class="text-yellow-400">⭐</span>
+                                    {% endfor %}
+                                    <span class="ml-1 text-sm font-bold">{{ review[1] }}</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed mb-3">{{ review[2] }}</p>
+                            
+                            {% if review[3] %}
+                            <div class="bg-blue-50 p-3 rounded-lg">
+                                <p class="text-sm text-blue-800"><strong>Your Reply:</strong> {{ review[3] }}</p>
+                            </div>
+                            {% else %}
+                            <div class="mt-2">
+                                <button onclick="showReplyForm({{ review[0] }})" 
+                                        class="text-blue-600 hover:text-blue-800 text-sm">Reply to Review</button>
+                                <div id="reply-form-{{ review[0] }}" class="hidden mt-2">
+                                    <textarea id="reply-text-{{ review[0] }}" 
+                                              class="w-full p-2 border rounded text-sm" 
+                                              rows="2" placeholder="Write your reply..."></textarea>
+                                    <div class="mt-2 flex space-x-2">
+                                        <button onclick="submitReply({{ review[0] }})" 
+                                                class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Send Reply</button>
+                                        <button onclick="hideReplyForm({{ review[0] }})" 
+                                                class="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-6">
+                        <div class="text-3xl mb-2">⭐</div>
+                        <p class="text-gray-600">No reviews yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Section -->
+<div class="px-6 mt-8 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-6">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button onclick="showAddProductModal()" 
+                    class="bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg p-4 text-center transition-colors">
+                <div class="text-2xl mb-2">➕</div>
+                <p class="font-medium text-blue-800">Add Product</p>
+                <p class="text-sm text-blue-600">Add new inventory</p>
+            </button>
+            
+            <button onclick="window.location.href='{{ url_for('main.wholesaler_orders') }}'" 
+                    class="bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg p-4 text-center transition-colors">
+                <div class="text-2xl mb-2">📋</div>
+                <p class="font-medium text-green-800">Manage Orders</p>
+                <p class="text-sm text-green-600">Process pending orders</p>
+            </button>
+            
+            <button onclick="window.location.href='{{ url_for('main.wholesaler_analytics') }}'" 
+                    class="bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg p-4 text-center transition-colors">
+                <div class="text-2xl mb-2">📊</div>
+                <p class="font-medium text-purple-800">View Analytics</p>
+                <p class="text-sm text-purple-600">Track performance</p>
+            </button>
+            
+            <button onclick="window.location.href='{{ url_for('main.wholesaler_products') }}'" 
+                    class="bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg p-4 text-center transition-colors">
+                <div class="text-2xl mb-2">📦</div>
+                <p class="font-medium text-orange-800">All Products</p>
+                <p class="text-sm text-orange-600">Manage inventory</p>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Product categories and subcategories data structure
+const productCategories = {
+    "Dairy & Alternatives": {
+        "Core Dairy": ["Milk", "Butter", "Curd (Dahi)", "Paneer", "Ghee"],
+        "Processed & Dessert Dairy": ["Cheese Slices", "Condensed Milk", "Khoya / Mawa"]
+    },
+    "Produce": {
+        "Vegetables": ["Potatoes (Boiled/Raw)", "Onions", "Tomatoes", "Green Chillies", "Cabbage", "Carrot", "Capsicum", "Beetroot", "Garlic", "Ginger"],
+        "Fresh Herbs & Citrus": ["Coriander (Dhania)", "Lemon", "Mint (Pudina)"]
+    },
+    "Pantry Staples": {
+        "Flours & Thickeners": ["Besan", "Maida/Wheat Flour", "Cornflour"],
+        "Spices & Seasonings": ["Salt", "Turmeric", "Red Chilli Powder", "Cumin (Jeera)", "Mustard Seeds", "Asafoetida (Hing)", "Chaat Masala", "Garam Masala", "Amchur Powder", "Cardamom Powder"],
+        "Oils & Vinegars": ["Vegetable Oil", "Vinegar"],
+        "Sweeteners": ["Sugar", "Sugar Syrup"],
+        "Legumes": ["Chana Dal"]
+    },
+    "Sauces & Pastes": [
+        "Soy Sauce", "Tamarind Pulp", "Imli Chutney", "Green Chutney", "Red Garlic Chutney", "Tomato Ketchup", "Rose Water / Kewra Essence"
+    ],
+    "Bakery & Base Items": {
+        "Breads & Buns": ["Pav", "Buns", "Bread Loaves"],
+        "Flatbreads": ["Roti/Paratha (Precooked)"]
+    },
+    "Snacks & Dessert Ingredients": {
+        "Dry Snacks (Namkeen)": ["Puffed Rice", "Sev", "Papdi", "Puris", "Fryums", "Boondi", "Nylon Sev"],
+        "Nuts, Seeds & Fruits": ["Roasted Peanuts", "Sabja Seeds", "Dry Fruits"],
+        "Dessert Mixes & Components": ["Vermicelli", "Custard Powder", "Coconut", "Food Colors"]
+    },
+    "Prepared & Semi-Cooked": [
+        "Boiled Potatoes", "Ragda", "Chole (Precooked)", "Boiled Rice", "Samosa Fillings", "Ready Gravy Base"
+    ],
+    "Beverages": {
+        "Drink Mixes": ["Tea Powder", "Coffee", "Lemon Concentrate"],
+        "Carbonated Drinks": ["Soda"]
+    },
+    "Packaging & Disposables": {
+        "Tableware & Containers": ["Paper Plates", "Foil Containers", "Plastic Spoons", "Plastic Cups"],
+        "Supplies": ["Napkins", "Carry Bags", "Gloves", "Tissue Paper"]
+    }
+};
+
+// Modal functions for Add Product
+function showAddProductModal() {
+    document.getElementById('addProductModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Reset form
+    document.getElementById('addProductForm').reset();
+    document.getElementById('subcategoryContainer').style.display = 'none';
+    document.getElementById('subcategorySelect').innerHTML = '<option value="">Select Product Type</option>';
+    document.getElementById('subcategorySelect').removeAttribute('required');
+}
+
+function hideAddProductModal() {
+    document.getElementById('addProductModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function updateSubcategories() {
+    const categorySelect = document.getElementById('categorySelect');
+    const subcategoryContainer = document.getElementById('subcategoryContainer');
+    const subcategorySelect = document.getElementById('subcategorySelect');
+    const productNameInput = document.getElementById('productName');
+    
+    const selectedCategory = categorySelect.value;
+    
+    // Clear previous options
+    subcategorySelect.innerHTML = '<option value="">Select Product Type</option>';
+    productNameInput.value = '';
+    
+    if (selectedCategory && productCategories[selectedCategory]) {
+        const categoryData = productCategories[selectedCategory];
+        
+        // Show subcategory container
+        subcategoryContainer.style.display = 'block';
+        
+        // If category data is an array (simple list), add items directly
+        if (Array.isArray(categoryData)) {
+            categoryData.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                subcategorySelect.appendChild(option);
+            });
+        } else {
+            // If category data is an object (grouped), add subcategories
+            Object.keys(categoryData).forEach(subcategory => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = subcategory;
+                
+                categoryData[subcategory].forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    optgroup.appendChild(option);
+                });
+                
+                subcategorySelect.appendChild(optgroup);
+            });
+        }
+        
+        // Make subcategory required
+        subcategorySelect.setAttribute('required', 'required');
+    } else {
+        // Hide subcategory container
+        subcategoryContainer.style.display = 'none';
+        subcategorySelect.removeAttribute('required');
+    }
+}
+
+function updateProductName() {
+    const subcategorySelect = document.getElementById('subcategorySelect');
+    const productNameInput = document.getElementById('productName');
+    
+    const selectedSubcategory = subcategorySelect.value;
+    
+    if (selectedSubcategory) {
+        productNameInput.value = selectedSubcategory;
+    }
+}
+
+// Form validation to ensure both category and subcategory are selected
+document.getElementById('addProductForm').addEventListener('submit', function(e) {
+    const categorySelect = document.getElementById('categorySelect');
+    const subcategorySelect = document.getElementById('subcategorySelect');
+    
+    if (!categorySelect.value) {
+        e.preventDefault();
+        alert('Please select a product category');
+        return;
+    }
+    
+    if (subcategorySelect.style.display !== 'none' && subcategorySelect.hasAttribute('required') && !subcategorySelect.value) {
+        e.preventDefault();
+        alert('Please select a product type');
+        return;
+    }
+});
+
+function updateStock(productId, change) {
+    const inputElement = event.target.parentElement.querySelector('input[type="number"]');
+    const currentStock = parseInt(inputElement.value);
+    const newStock = Math.max(0, currentStock + change);
+    
+    inputElement.value = newStock;
+    updateStockOnServer(productId, newStock);
+}
+
+function updateStockManual(productId, newStock) {
+    updateStockOnServer(productId, parseInt(newStock));
+}
+
+function updateStockOnServer(productId, newStock) {
+    fetch('/api/update-stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId, stock: newStock })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update status badge
+            const productCard = document.querySelector(`input[onchange*="${productId}"]`).closest('.border');
+            const statusBadge = productCard.querySelector('.px-2');
+            statusBadge.textContent = data.status;
+            
+            // Update badge color
+            statusBadge.className = 'px-2 py-1 rounded-full text-xs font-medium ';
+            if (data.status === 'In Stock') {
+                statusBadge.className += 'bg-green-100 text-green-800';
+            } else if (data.status === 'Low Stock') {
+                statusBadge.className += 'bg-yellow-100 text-yellow-800';
+            } else {
+                statusBadge.className += 'bg-red-100 text-red-800';
+            }
+        }
+    })
+    .catch(error => console.error('Error updating stock:', error));
+}
+
+function editProduct(productId) {
+    window.location.href = `/wholesaler/edit-product/${productId}`;
+}
+
+function showReplyForm(reviewId) {
+    document.getElementById(`reply-form-${reviewId}`).classList.remove('hidden');
+}
+
+function hideReplyForm(reviewId) {
+    document.getElementById(`reply-form-${reviewId}`).classList.add('hidden');
+}
+
+function submitReply(reviewId) {
+    const replyText = document.getElementById(`reply-text-${reviewId}`).value;
+    
+    if (!replyText.trim()) {
+        alert('Please enter a reply');
+        return;
+    }
+    
+    fetch('/api/reply-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review_id: reviewId, reply: replyText })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Refresh to show the reply
+        }
+    })
+    .catch(error => console.error('Error submitting reply:', error));
+}
+
+// Customer Modal Functions
+function showCustomerModal() {
+    document.getElementById('customerModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function hideCustomerModal() {
+    document.getElementById('customerModal').classList.add('hidden');
+    document.body.style.overflow = 'auto'; // Restore scrolling
+}
+
+// Close modals when clicking outside
+document.getElementById('customerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideCustomerModal();
+    }
+});
+
+document.getElementById('addProductModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideAddProductModal();
+    }
+});
+
+// Add keyboard shortcut to close modals
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hideCustomerModal();
+        hideAddProductModal();
+    }
+});
+
+// Add click animations to stat cards
+document.querySelectorAll('[onclick*="window.location"]').forEach(card => {
+    card.addEventListener('mousedown', function() {
+        this.style.transform = 'scale(0.98)';
+    });
+    
+    card.addEventListener('mouseup', function() {
+        this.style.transform = 'scale(1)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+    });
+});
+</script>
+{% endblock %}

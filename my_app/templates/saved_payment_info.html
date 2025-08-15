@@ -1,0 +1,188 @@
+{% extends "vendor_base.html" %}
+
+{% block title %}Saved Payment Info - Sahaayak{% endblock %}
+
+{% block vendor_content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex items-center mb-8">
+        <a href="{{ url_for('main.vendor_dashboard') }}" class="mr-4 p-2 rounded-full hover:bg-[var(--background-tertiary)]">
+            <i data-feather="arrow-left" class="w-6 h-6"></i>
+        </a>
+        <h1 class="text-3xl font-bold" style="color: var(--text-primary);">Saved Payment Info</h1>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-2">
+            <div class="interactive-card p-6">
+                <h2 class="text-xl font-semibold mb-4" style="color: var(--text-primary);">Your Saved Payment Methods</h2>
+                <div id="payment-methods-list" class="divide-y divide-[var(--border-primary)]">
+                    {% for method in payment_methods %}
+                    <div class="payment-method-card flex items-center gap-4 py-4" data-id="{{ method.id }}">
+                        <div class="p-3 rounded-lg bg-[var(--background-tertiary)]">
+                            <i data-feather="{{ 'credit-card' if method.method_type == 'card' else 'send' }}" class="w-6 h-6" style="color: var(--text-primary);"></i>
+                        </div>
+                        <div class="flex-grow">
+                            {% if method.method_type == 'card' %}
+                                <h3 class="font-medium">**** **** **** {{ method.details.card_number }}</h3>
+                                <p class="text-sm" style="color: var(--text-secondary);">Expires {{ method.details.expiry }}</p>
+                            {% else %}
+                                <h3 class="font-medium">{{ method.details.upi_id }}</h3>
+                                <p class="text-sm" style="color: var(--text-secondary);">UPI</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% if method.is_default %}
+                                <span class="default-badge text-xs font-medium bg-green-500/20 text-green-400 px-2 py-1 rounded-full">Primary</span>
+                            {% else %}
+                                <button onclick="setDefault({{ method.id }})" class="set-default-btn text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">Set as Primary</button>
+                            {% endif %}
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="removeMethod({{ method.id }})" class="text-red-500 hover:text-red-400 text-sm font-medium">Remove</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                 <div class="mt-4">
+                    <button onclick="openAddModal()" class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-[var(--border-primary)] rounded-lg text-sm font-medium hover:bg-[var(--background-tertiary)]">
+                        <i data-feather="plus" class="w-4 h-4 mr-2"></i> Add New Payment Method
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="md:col-span-1">
+            <div class="interactive-card p-6">
+                <h2 class="text-xl font-semibold mb-4" style="color: var(--text-primary);">Recent Transactions</h2>
+                <div class="divide-y divide-[var(--border-primary)]">
+                    {% for tx in transactions %}
+                    <div class="py-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-medium">Order #{{ tx.id }}</h3>
+                                <p class="text-sm" style="color: var(--text-secondary);">{{ tx.date }}</p>
+                            </div>
+                            <span class="font-medium">₹{{ "%.2f"|format(tx.amount) }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                     <div class="pt-3 text-center">
+                        <a href="#" class="text-sm font-medium" style="color: var(--accent-secondary);">View All Transactions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="payment-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 id="modal-title" class="text-2xl font-bold mb-6" style="color: var(--text-primary);">Add a New Payment Method</h2>
+        <form id="payment-form">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Payment Type</label>
+                    <select id="method_type" class="w-full p-2 border rounded bg-transparent border-[var(--border-primary)]">
+                        <option value="upi">UPI</option>
+                        <option value="card">Credit/Debit Card</option>
+                    </select>
+                </div>
+                <div id="upi-fields">
+                    <label class="block text-sm font-medium mb-1">UPI ID</label>
+                    <input type="text" id="upi_id" placeholder="yourname@okbank" class="w-full p-2 border rounded bg-transparent border-[var(--border-primary)]" required>
+                </div>
+                <div id="card-fields" class="hidden">
+                    <label class="block text-sm font-medium mb-1">Cardholder Name</label>
+                    <input type="text" id="card_holder" class="w-full p-2 mb-2 border rounded bg-transparent border-[var(--border-primary)]">
+                    <label class="block text-sm font-medium mb-1">Card Number (Last 4 digits)</label>
+                    <input type="text" id="card_number" maxlength="4" pattern="\d{4}" class="w-full p-2 mb-2 border rounded bg-transparent border-[var(--border-primary)]">
+                    <label class="block text-sm font-medium mb-1">Expiry Date (MM/YY)</label>
+                    <input type="text" id="expiry" placeholder="MM/YY" class="w-full p-2 border rounded bg-transparent border-[var(--border-primary)]">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeAddModal()" class="interactive-card px-4 py-2 text-sm font-semibold">Cancel</button>
+                <button type="submit" class="gradient-button text-white px-4 py-2 rounded-lg text-sm font-semibold">Save Method</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const modal = document.getElementById('payment-modal');
+    const form = document.getElementById('payment-form');
+    const methodTypeSelect = document.getElementById('method_type');
+    
+    methodTypeSelect.addEventListener('change', (e) => {
+        document.getElementById('upi-fields').classList.toggle('hidden', e.target.value !== 'upi');
+        document.getElementById('card-fields').classList.toggle('hidden', e.target.value !== 'card');
+    });
+
+    function openAddModal() {
+        form.reset();
+        methodTypeSelect.dispatchEvent(new Event('change'));
+        modal.classList.add('visible');
+    }
+
+    function closeAddModal() {
+        modal.classList.remove('visible');
+    }
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const type = methodTypeSelect.value;
+        let details = {};
+        if (type === 'upi') {
+            details.upi_id = document.getElementById('upi_id').value;
+        } else {
+            details.card_holder = document.getElementById('card_holder').value;
+            details.card_number = document.getElementById('card_number').value;
+            details.expiry = document.getElementById('expiry').value;
+            details.card_brand = 'visa'; // Simplified for now
+        }
+
+        const response = await fetch('{{ url_for("main.add_payment_method") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ method_type: type, details: details }),
+        });
+        const result = await response.json();
+        if (result.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    });
+
+    async function removeMethod(id) {
+        if (!confirm('Are you sure you want to remove this payment method?')) return;
+        const response = await fetch('{{ url_for("main.delete_payment_method") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ method_id: id }),
+        });
+        const result = await response.json();
+        if (result.success) {
+            document.querySelector(`.payment-method-card[data-id='${id}']`).remove();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    }
+
+    async function setDefault(id) {
+        const response = await fetch('{{ url_for("main.set_default_payment_method") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ method_id: id }),
+        });
+        const result = await response.json();
+        if (result.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    }
+</script>
+{% endblock %}

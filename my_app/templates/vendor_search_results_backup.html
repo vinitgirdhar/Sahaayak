@@ -1,0 +1,222 @@
+{% extends "vendor_base.html" %}
+
+{% block title %}Deprecated Template{% endblock %}
+
+{% block vendor_content %}
+<div class="p-8">
+    <h2 class="text-2xl font-bold" style="color: var(--text-primary);">This template is deprecated and no longer used.</h2>
+    <p class="mt-2" style="color: var(--text-secondary);">Please use the current search results templates instead.</p>
+    <a href="{{ url_for('main.vendor_dashboard') }}" class="inline-block mt-4 gradient-button text-white px-6 py-3 rounded-xl font-semibold">Go to Dashboard</a>
+    <!-- All multilingual/translation logic has been removed from this file. -->
+    <!-- Kept intentionally as a harmless stub in case any old links reference it. -->
+</div>
+{% endblock vendor_content %}
+    document.getElementById('search-input').value = term;
+    performSearch();
+}
+
+function clearSearch() {
+    document.getElementById('search-input').value = '';
+    window.location.href = `/vendor/search?lang=${currentLanguage}`;
+}
+
+function startVoiceSearch() {
+    const searchInput = document.getElementById('search-input');
+    const micBtn = document.getElementById('mic-button');
+    
+    // Check if browser supports speech recognition
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Voice search is not supported in your browser. Please try typing your search.');
+        return;
+    }
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    // Configure recognition
+    recognition.lang = currentLanguage === 'hi' ? 'hi-IN' : currentLanguage === 'mr' ? 'mr-IN' : 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    // Visual feedback
+    micBtn.innerHTML = '<i data-feather="mic" class="w-6 h-6 text-red-500"></i>';
+    feather.replace();
+    
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        searchInput.value = transcript;
+        performSearch();
+    };
+    
+    recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+        micBtn.innerHTML = '<i data-feather="mic" class="w-6 h-6"></i>';
+        feather.replace();
+    };
+    
+    recognition.onend = function() {
+        micBtn.innerHTML = '<i data-feather="mic" class="w-6 h-6"></i>';
+        feather.replace();
+    };
+    
+    recognition.start();
+}
+
+function updateQuantity(button, change) {
+    const card = button.closest('.product-card');
+    const input = card.querySelector('.quantity-input');
+    const priceElement = card.querySelector('.total-price');
+    const unitPrice = parseFloat(card.dataset.price);
+    
+    let newQuantity = parseInt(input.value) + change;
+    const maxStock = parseInt(input.max);
+    
+    if (newQuantity < 1) newQuantity = 1;
+    if (newQuantity > maxStock) newQuantity = maxStock;
+    
+    input.value = newQuantity;
+    if (priceElement) {
+        priceElement.textContent = `₹${(unitPrice * newQuantity).toFixed(2)}`;
+    }
+}
+
+function addToCart(productId) {
+    const card = document.querySelector(`[data-product-id="${productId}"]`) || 
+                document.querySelector('.product-card');
+    const quantity = parseInt(card.querySelector('.quantity-input').value);
+    
+    // Add to cart logic
+    const existingItem = cart.find(item => item.productId === productId);
+    if (existingItem) {
+        existingItem.quantity += quantity;
+    } else {
+        cart.push({
+            productId: productId,
+            quantity: quantity,
+            price: parseFloat(card.dataset.price)
+        });
+    }
+    
+    localStorage.setItem('vendorCart', JSON.stringify(cart));
+    updateCartSummary();
+    
+    // Show success feedback
+    const button = card.querySelector('.add-to-cart-text');
+    if (button) {
+        const originalText = button.textContent;
+        button.textContent = '✓ Added';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 1500);
+    }
+}
+
+function quickOrder(productId) {
+    const card = document.querySelector(`[data-product-id="${productId}"]`) || 
+                document.querySelector('.product-card');
+    const quantity = parseInt(card.querySelector('.quantity-input').value);
+    
+    // Navigate to quick order page
+    window.location.href = `/vendor/quick-order/${productId}?quantity=${quantity}&lang=${currentLanguage}`;
+}
+
+function updateCartSummary() {
+    const cartSummary = document.getElementById('cartSummary');
+    const cartItemsText = document.getElementById('cartItemsText');
+    const cartTotalText = document.getElementById('cartTotalText');
+    
+    if (cart.length > 0) {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        
+        cartItemsText.textContent = `${totalItems} ${translations[currentLanguage].itemsInCart || 'items in cart'}`;
+        cartTotalText.textContent = `₹${totalAmount.toFixed(2)}`;
+        cartSummary.classList.remove('hidden');
+    } else {
+        cartSummary.classList.add('hidden');
+    }
+}
+
+function viewCart() {
+    window.location.href = `/vendor/cart?lang=${currentLanguage}`;
+}
+
+function sortProducts() {
+    const sortBy = document.getElementById('sortFilter').value;
+    const grid = document.getElementById('resultsGrid');
+    const cards = Array.from(grid.querySelectorAll('.product-card'));
+    
+    cards.sort((a, b) => {
+        switch (sortBy) {
+            case 'price-low':
+                return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+            case 'price-high':
+                return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+            case 'trust':
+                return parseFloat(b.dataset.trust) - parseFloat(a.dataset.trust);
+            case 'stock':
+                return parseInt(b.dataset.stock) - parseInt(a.dataset.stock);
+            default:
+                return 0; // relevance - keep original order
+        }
+    });
+    
+    cards.forEach(card => grid.appendChild(card));
+}
+
+function filterByLocation() {
+    const location = document.getElementById('locationFilter').value;
+    const cards = document.querySelectorAll('.product-card');
+    
+    cards.forEach(card => {
+        if (!location || card.dataset.location.includes(location)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function filterByPrice() {
+    const maxPrice = parseInt(document.getElementById('priceRange').value);
+    const cards = document.querySelectorAll('.product-card');
+    
+    cards.forEach(card => {
+        const price = parseFloat(card.dataset.price);
+        if (price <= maxPrice) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    updatePriceRangeDisplay();
+}
+
+function updatePriceRangeDisplay() {
+    const priceRange = document.getElementById('priceRange');
+    const priceValue = document.getElementById('priceValue');
+    if (priceRange && priceValue) {
+        priceValue.textContent = `₹0-${priceRange.value}`;
+    }
+}
+
+function loadMoreResults() {
+    // This would typically load more results via AJAX
+    alert('Load more functionality would be implemented here');
+}
+
+// Search on Enter key
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
+    
+    // Initialize page
+    initializePage();
+{% endblock vendor_content %}

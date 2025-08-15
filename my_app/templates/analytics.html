@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Sahaayak{% endblock %}
+
+{% block content %}
+<!-- Top Navigation -->
+<div class="bg-white border-b border-gray-200 px-6 py-4 mb-6">
+    <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('main.wholesaler_dashboard') }}" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
+            <h1 class="text-2xl font-bold text-gray-800">Analytics & Performance</h1>
+        </div>
+        <div class="flex space-x-4">
+            <select class="border border-gray-300 rounded-lg px-3 py-2">
+                <option>Last 30 Days</option>
+                <option>Last 7 Days</option>
+                <option>This Month</option>
+                <option>Last Month</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Content -->
+<div class="px-6">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-600">Total Orders</p>
+                    <p class="text-2xl font-bold text-gray-900">485</p>
+                    <p class="text-sm text-blue-600">+8.2% from last month</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-lg">
+                    <span class="text-2xl text-blue-600">📦</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-600">New Customers</p>
+                    <p class="text-2xl font-bold text-gray-900">28</p>
+                    <p class="text-sm text-purple-600">+15.8% from last month</p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-lg">
+                    <span class="text-2xl text-purple-600">👥</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-600">Avg. Order Value</p>
+                    <p class="text-2xl font-bold text-gray-900">₹1,247</p>
+                    <p class="text-sm text-orange-600">+5.1% from last month</p>
+                </div>
+                <div class="bg-orange-100 p-3 rounded-lg">
+                    <span class="text-2xl text-orange-600">💳</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Revenue Chart -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Revenue Trend</h3>
+            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                <canvas id="revenueChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Orders Chart -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Orders Overview</h3>
+            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                <canvas id="ordersChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Top Products -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Top Selling Products</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🍅</span>
+                        <div>
+                            <p class="font-medium text-gray-800">Organic Tomatoes</p>
+                            <p class="text-sm text-gray-600">156 orders</p>
+                        </div>
+                    </div>
+                    <span class="text-green-600 font-semibold">₹45,680</span>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🧅</span>
+                        <div>
+                            <p class="font-medium text-gray-800">Red Onions</p>
+                            <p class="text-sm text-gray-600">128 orders</p>
+                        </div>
+                    </div>
+                    <span class="text-green-600 font-semibold">₹38,240</span>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🌾</span>
+                        <div>
+                            <p class="font-medium text-gray-800">Basmati Rice</p>
+                            <p class="text-sm text-gray-600">95 orders</p>
+                        </div>
+                    </div>
+                    <span class="text-green-600 font-semibold">₹32,150</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Insights -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Customer Insights</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Repeat Customers</span>
+                    <span class="font-semibold text-gray-800">78%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: 78%"></div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Customer Satisfaction</span>
+                    <span class="font-semibold text-gray-800">4.7/5.0</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-green-600 h-2 rounded-full" style="width: 94%"></div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">On-time Delivery</span>
+                    <span class="font-semibold text-gray-800">92%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-purple-600 h-2 rounded-full" style="width: 92%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
+            <div class="space-y-4">
+                <div class="flex items-start space-x-3">
+                    <div class="bg-green-100 p-2 rounded-full">
+                        <span class="text-green-600 text-sm">✓</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">Order #485 completed</p>
+                        <p class="text-xs text-gray-600">2 hours ago</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-full">
+                        <span class="text-blue-600 text-sm">📦</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">New order #486 received</p>
+                        <p class="text-xs text-gray-600">4 hours ago</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="bg-yellow-100 p-2 rounded-full">
+                        <span class="text-yellow-600 text-sm">⭐</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">New 5-star review received</p>
+                        <p class="text-xs text-gray-600">6 hours ago</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="bg-purple-100 p-2 rounded-full">
+                        <span class="text-purple-600 text-sm">👤</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">New customer registered</p>
+                        <p class="text-xs text-gray-600">8 hours ago</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueChart = new Chart(revenueCtx, {
+    type: 'line',
+    data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+            label: 'Revenue (₹)',
+            data: [45000, 52000, 61000, 68000],
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Orders Chart
+const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+const ordersChart = new Chart(ordersCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Completed', 'Processing', 'Pending'],
+        datasets: [{
+            data: [65, 25, 10],
+            backgroundColor: [
+                'rgb(34, 197, 94)',
+                'rgb(59, 130, 246)', 
+                'rgb(245, 158, 11)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %} Revenue</p>
+                    <p class="text-2xl font-bold text-gray-900">₹2,45,670</p>
+                    <p class="text-sm text-green-600">+12.5% from last month</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-lg">
+                    <span class="text-2xl text-green-600">💰</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-600">Total

@@ -1,0 +1,136 @@
+{% extends "vendor_base.html" %}
+{% block title %}My Profile - Sahaayak{% endblock %}
+
+{% block vendor_content %}
+<div class="max-w-7xl mx-auto">
+    <div class="interactive-card rounded-2xl overflow-hidden mb-8">
+        <div class="profile-banner" style="background-image: url('{{ url_for('static', filename='uploads/groceries.jpg') }}');">
+            <div class="banner-overlay"></div>
+        </div>
+        
+        <div class="p-6 relative">
+            <div class="flex flex-col sm:flex-row items-center sm:items-end">
+                <img src="{{ url_for('static', filename=vendor.photo_path) if vendor.photo_path else 'https://placehold.co/120x120/142d36/f0f6fc?text=' + vendor.name[0] }}" 
+                     alt="{{ vendor.name }}" 
+                     class="profile-picture object-cover">
+                
+                <div class="sm:ml-6 mt-4 sm:mt-0 text-center sm:text-left flex-grow">
+                    <h1 class="text-4xl font-extrabold" style="color: var(--text-primary);">{{ vendor.name }}</h1>
+                    <p class="text-lg mt-1" style="color: var(--text-secondary);">{{ vendor.shop_name or 'Street Vendor' }}</p>
+                    <div class="flex items-center justify-center sm:justify-start gap-4 mt-2" style="color: var(--text-secondary);">
+                        <div class="flex items-center gap-1">
+                            <i data-feather="map-pin" class="w-4 h-4"></i> {{ vendor.location or 'Not set' }}
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <i data-feather="mail" class="w-4 h-4"></i> {{ vendor.email }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 sm:mt-0">
+                    <button onclick="showEditModal()" class="gradient-button text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2">
+                        <i data-feather="edit-2" class="w-5 h-5"></i> Edit Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="interactive-card p-6 flex items-center gap-4">
+            <div class="p-3 rounded-full bg-blue-500/20"><i data-feather="shopping-bag" class="w-7 h-7 text-blue-400"></i></div>
+            <div>
+                <p class="text-sm" style="color: var(--text-secondary);">Total Orders</p>
+                <h4 class="text-2xl font-bold" style="color: var(--text-primary);">{{ stats.total_orders }}</h4>
+            </div>
+        </div>
+        <div class="interactive-card p-6 flex items-center gap-4">
+            <div class="p-3 rounded-full bg-green-500/20"><i data-feather="dollar-sign" class="w-7 h-7 text-green-400"></i></div>
+            <div>
+                <p class="text-sm" style="color: var(--text-secondary);">Total Spent</p>
+                <h4 class="text-2xl font-bold" style="color: var(--text-primary);">₹{{ "%.2f"|format(stats.total_spent) }}</h4>
+            </div>
+        </div>
+        <div class="interactive-card p-6 flex items-center gap-4">
+            <div class="p-3 rounded-full bg-pink-500/20"><i data-feather="award" class="w-7 h-7 text-pink-400"></i></div>
+            <div>
+                <p class="text-sm" style="color: var(--text-secondary);">Member Since</p>
+                <h4 class="text-2xl font-bold" style="color: var(--text-primary);">{{ vendor.created_at[:4] }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <h2 class="text-3xl font-bold mb-6" style="color: var(--text-primary);">Recent Activity</h2>
+        <div class="interactive-card p-6">
+            <ul class="divide-y divide-[var(--border-primary)]">
+                {% for item in recent_activity %}
+                <li class="py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/64x64/1a3a45/f0f6fc?text=N/A' }}" class="w-16 h-16 rounded-lg object-cover">
+                        <div>
+                            <p class="font-semibold text-lg" style="color: var(--text-primary);">{{ item.name }}</p>
+                            <p style="color: var(--text-secondary);">Quantity: {{ item.quantity }}</p>
+                        </div>
+                    </div>
+                    <p class="text-sm" style="color: var(--text-secondary);">{{ item.created_at.split(' ')[0] }}</p>
+                </li>
+                {% else %}
+                <p style="color: var(--text-secondary);">No recent activity to show.</p>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+</div>
+
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color: var(--text-primary);">Edit Your Profile</h3>
+            <button onclick="hideEditModal()" class="p-2 rounded-full hover:bg-[var(--background-tertiary)]">
+                <i data-feather="x" style="color: var(--text-secondary);"></i>
+            </button>
+        </div>
+        <form method="POST">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold mb-1">Name</label>
+                    <input type="text" name="name" value="{{ vendor.name }}" class="w-full p-2 border rounded bg-transparent border-[var(--border-primary)]" required>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1">Phone Number</label>
+                    <input type="text" name="phone" value="{{ vendor.phone }}" class="w-full p-2 border rounded bg-transparent border-[var(--border-primary)]" required>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block font-semibold mb-1">Address</label>
+                    <input type="text" name="location" value="{{ vendor.location }}" class="w-full p-2 border rounded bg-transparent border-[var(--border-primary)]">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block font-semibold mb-1">Email</label>
+                    <input type="email" name="email" value="{{ vendor.email }}" class="w-full p-2 border rounded bg-transparent border-[var(--border-primary)]">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="gradient-button text-white px-6 py-2 rounded-lg font-bold">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function showEditModal() {
+        document.getElementById('edit-modal').classList.add('visible');
+    }
+    function hideEditModal() {
+        document.getElementById('edit-modal').classList.remove('visible');
+    }
+    // This script ensures the Feather icons are rendered correctly.
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    });
+</script>
+{% endblock %}

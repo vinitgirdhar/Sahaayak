@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Orders - Sahaayak{% endblock %}
+
+{% block content %}
+<!-- Top Navigation -->
+<div class="bg-white border-b border-gray-200 px-6 py-4 mb-6">
+    <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('main.wholesaler_dashboard') }}" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
+            <h1 class="text-2xl font-bold text-gray-800">Manage Orders</h1>
+        </div>
+        <div class="flex space-x-4">
+            <select class="border border-gray-300 rounded-lg px-3 py-2">
+                <option>All Orders</option>
+                <option>Pending</option>
+                <option>Processing</option>
+                <option>Completed</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Orders List -->
+<div class="px-6">
+    {% if orders %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for order in orders %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                #{{ order[0] }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ order[8] if order[8] else 'Unknown Vendor' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ order[9] if order[9] else 'Unknown Product' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ order[4] }} units
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ₹{{ "%.2f"|format(order[5] or 0) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if order[6] == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif order[6] == 'processing' %}bg-blue-100 text-blue-800
+                                    {% elif order[6] == 'completed' %}bg-green-100 text-green-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ order[6].title() if order[6] else 'Unknown' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {% if order[7] %}
+                                    {{ order[7][:10] }}
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                {% if order[6] == 'pending' %}
+                                <button onclick="updateOrderStatus({{ order[0] }}, 'processing')" 
+                                        class="text-blue-600 hover:text-blue-900 mr-3">Accept</button>
+                                <button onclick="updateOrderStatus({{ order[0] }}, 'cancelled')" 
+                                        class="text-red-600 hover:text-red-900">Reject</button>
+                                {% elif order[6] == 'processing' %}
+                                <button onclick="updateOrderStatus({{ order[0] }}, 'completed')" 
+                                        class="text-green-600 hover:text-green-900">Complete</button>
+                                {% else %}
+                                <span class="text-gray-400">No actions</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Order Summary Stats -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="bg-yellow-100 p-3 rounded-lg">
+                        <span class="text-2xl text-yellow-600">⏳</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Pending Orders</p>
+                        <p class="text-xl font-bold text-gray-800">
+                            {{ orders | selectattr('6', 'equalto', 'pending') | list | length }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-lg">
+                        <span class="text-2xl text-blue-600">🔄</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Processing</p>
+                        <p class="text-xl font-bold text-gray-800">
+                            {{ orders | selectattr('6', 'equalto', 'processing') | list | length }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-3 rounded-lg">
+                        <span class="text-2xl text-green-600">✅</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Completed</p>
+                        <p class="text-xl font-bold text-gray-800">
+                            {{ orders | selectattr('6', 'equalto', 'completed') | list | length }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-lg">
+                        <span class="text-2xl text-purple-600">💰</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Total Revenue</p>
+                        <p class="text-xl font-bold text-gray-800">
+                            ₹{{ "%.0f"|format((orders | selectattr('6', 'equalto', 'completed') | map(attribute='5') | sum) or 0) }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-16">
+            <div class="text-6xl mb-4">📋</div>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">No Orders Yet</h3>
+            <p class="text-gray-600 mb-6">Orders from vendors will appear here</p>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
+                <h4 class="font-semibold text-blue-800 mb-2">How to get orders:</h4>
+                <ul class="text-blue-700 text-sm space-y-1">
+                    <li>• Add products to your inventory</li>
+                    <li>• Wait for vendors to place orders</li>
+                    <li>• Process and fulfill orders here</li>
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function updateOrderStatus(orderId, newStatus) {
+    fetch('/api/update-order-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId, status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
+            notification.textContent = `Order ${newStatus} successfully!`;
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+                location.reload(); // Refresh to show updated status
+            }, 1500);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating order status. Please try again.');
+    });
+}
+
+// Filter orders by status
+document.querySelector('select').addEventListener('change', function() {
+    const filterValue = this.value;
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        if (filterValue === 'All Orders') {
+            row.style.display = '';
+        } else {
+            const statusCell = row.querySelector('td:nth-child(6) span');
+            const status = statusCell.textContent.toLowerCase();
+            if (status.includes(filterValue.toLowerCase())) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

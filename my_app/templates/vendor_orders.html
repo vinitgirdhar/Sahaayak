@@ -1,0 +1,138 @@
+{% extends "vendor_base.html" %}
+
+{% block title %}My Orders - Sahaayak{% endblock %}
+
+{% block vendor_content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- UPDATED: Replaced header with a flex container for icon and title -->
+    <div class="flex items-center mb-10">
+        <a href="{{ url_for('main.vendor_dashboard') }}" 
+           class="mr-4 text-gray-600 hover:text-gray-900 h-10 w-10 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors duration-200">
+            <i data-feather="arrow-left" class="w-6 h-6"></i>
+        </a>
+        <h1 id="main-title" class="text-4xl font-extrabold" style="color: var(--text-primary);">My Orders</h1>
+    </div>
+
+    <!-- Order Summary Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <!-- Pending Orders -->
+        <div class="bg-[var(--background-secondary)] p-6 rounded-2xl shadow-lg border border-[var(--border-primary)] transition-transform transform hover:scale-105">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-500/20">
+                    <i data-feather="loader" class="w-6 h-6 text-yellow-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p id="pendingOrdersLabel" class="text-sm font-medium text-[var(--text-secondary)]">Pending</p>
+                    <p class="text-2xl font-bold text-[var(--text-primary)]">{{ stats.pending_count }}</p>
+                </div>
+            </div>
+        </div>
+        <!-- Processing Orders -->
+        <div class="bg-[var(--background-secondary)] p-6 rounded-2xl shadow-lg border border-[var(--border-primary)] transition-transform transform hover:scale-105">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-500/20">
+                    <i data-feather="refresh-cw" class="w-6 h-6 text-blue-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p id="processingLabel" class="text-sm font-medium text-[var(--text-secondary)]">Processing</p>
+                    <p class="text-2xl font-bold text-[var(--text-primary)]">{{ stats.processing_count }}</p>
+                </div>
+            </div>
+        </div>
+        <!-- Completed Orders -->
+        <div class="bg-[var(--background-secondary)] p-6 rounded-2xl shadow-lg border border-[var(--border-primary)] transition-transform transform hover:scale-105">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-500/20">
+                    <i data-feather="check-circle" class="w-6 h-6 text-green-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p id="completedLabel" class="text-sm font-medium text-[var(--text-secondary)]">Completed</p>
+                    <p class="text-2xl font-bold text-[var(--text-primary)]">{{ stats.completed_count }}</p>
+                </div>
+            </div>
+        </div>
+        <!-- Total Spent -->
+        <div class="bg-[var(--background-secondary)] p-6 rounded-2xl shadow-lg border border-[var(--border-primary)] transition-transform transform hover:scale-105">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-indigo-500/20">
+                    <i data-feather="dollar-sign" class="w-6 h-6 text-indigo-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p id="totalSpentLabel" class="text-sm font-medium text-[var(--text-secondary)]">Total Spent</p>
+                    <p class="text-2xl font-bold text-[var(--text-primary)]">₹{{ "%.2f"|format(stats.total_spent or 0) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="bg-[var(--background-secondary)] rounded-2xl shadow-lg border border-[var(--border-primary)] overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-[var(--border-primary)]">
+                <thead class="bg-[var(--background-tertiary)]">
+                    <tr>
+                        <th id="orderIdHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Order ID</th>
+                        <th id="wholesalerHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Wholesaler</th>
+                        <th id="productHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Product</th>
+                        <th id="quantityHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Quantity</th>
+                        <th id="amountHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Amount</th>
+                        <th id="statusHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Status</th>
+                        <th id="dateHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Date</th>
+                        <th id="actionsHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border-primary)]">
+                    {% for order in orders %}
+                    <tr class="hover:bg-[var(--background-tertiary)] transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">#{{ order.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.wholesaler_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.product_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.quantity }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">₹{{ "%.2f"|format(order.total_amount) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if order.status == 'pending' %} bg-yellow-500/20 text-yellow-500
+                                {% elif order.status == 'processing' %} bg-blue-500/20 text-blue-500
+                                {% elif order.status == 'completed' %} bg-green-500/20 text-green-500
+                                {% elif order.status == 'cancelled' %} bg-red-500/20 text-red-500
+                                {% else %} bg-gray-500/20 text-gray-500 {% endif %}">
+                                {{ order.status.title() }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.order_date.strftime('%Y-%m-%d') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="#" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if not orders %}
+    <div class="text-center py-16">
+        <i data-feather="inbox" class="w-16 h-16 mx-auto text-[var(--text-secondary)]"></i>
+        <h3 id="noOrdersTitle" class="mt-4 text-xl font-semibold text-[var(--text-primary)]">No Orders Found</h3>
+        <p id="noOrdersMessage" class="mt-2 text-sm text-[var(--text-secondary)]">You haven't placed any orders yet. Start shopping to see your orders here.</p>
+        <a href="{{ url_for('main.vendor_dashboard') }}" class="mt-6 inline-block px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">
+            <span id="startShoppingText">Start Shopping</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Page-specific JS
+        console.log("Vendor orders page loaded.");
+
+        // Ensure Feather icons are replaced
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,396 @@
+{% extends "vendor_base.html" %}
+
+{% block title %}Search Results - Sahaayak{% endblock %}
+
+{% block vendor_content %}
+<!-- Main Content -->
+<header class="flex justify-between items-center mb-10">
+    <h1 id="main-title" class="text-4xl font-extrabold" style="color: var(--text-primary);">Sahaayak</h1>
+</header>
+
+<!-- AI Search Section -->
+<div class="mb-12 reveal">
+    <div class="relative flex items-center gap-4">
+        <div class="relative flex-grow">
+            <i data-feather="search" class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-[var(--text-secondary)] pointer-events-none"></i>
+            <input id="product-search-input" type="text" placeholder="Search products..." value="{{ query }}" class="w-full pl-16 pr-16 py-5 bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl text-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all" style="color: var(--text-primary);">
+            <button id="mic-button" class="absolute right-6 top-1/2 -translate-y-1/2 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors" onclick="startVoiceSearch()">
+                <i data-feather="mic" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <!-- NEW SEARCH BUTTON ADDED -->
+        <button type="button" onclick="performSearch()" class="bg-blue-600 hover:bg-blue-700 font-semibold text-white px-6 py-4 rounded-2xl flex-shrink-0">Search</button>
+        <!-- ASK AI BUTTON UPDATED -->
+        <button type="button" id="ask-ai-btn" class="gradient-button font-semibold text-white px-6 py-4 rounded-2xl flex-shrink-0">Ask AI</button>
+    </div>
+</div>
+
+<!-- Search Info -->
+<div class="mb-8">
+    {% if query %}
+    <p class="text-lg" style="color: var(--text-secondary);">
+        <span id="searchingForText">Searching for</span> "<strong>{{ query }}</strong>" - 
+        <span id="foundResultsText">Found {{ products|length if products else 0 }} results</span>
+    </p>
+    {% endif %}
+    
+    <!-- Quick Suggestions -->
+    <div class="mt-4">
+        <p class="text-sm mb-2" style="color: var(--text-secondary);" id="suggestionsText">Popular searches:</p>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="quickSearch('Tomatoes')" class="interactive-card px-4 py-2 text-sm rounded-xl" style="color: var(--text-primary);" id="suggestion-tomatoes">Tomatoes</button>
+            <button onclick="quickSearch('Onions')" class="interactive-card px-4 py-2 text-sm rounded-xl" style="color: var(--text-primary);" id="suggestion-onions">Onions</button>
+            <button onclick="quickSearch('Rice')" class="interactive-card px-4 py-2 text-sm rounded-xl" style="color: var(--text-primary);" id="suggestion-rice">Rice</button>
+            <button onclick="quickSearch('Oil')" class="interactive-card px-4 py-2 text-sm rounded-xl" style="color: var(--text-primary);" id="suggestion-oil">Oil</button>
+            <button onclick="quickSearch('Spices')" class="interactive-card px-4 py-2 text-sm rounded-xl" style="color: var(--text-primary);" id="suggestion-spices">Spices</button>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results -->
+<section class="mb-16">
+    {% if products %}
+        <!-- Filter Options -->
+        <div class="mb-8 p-6 bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl reveal">
+            <div class="flex flex-wrap items-center gap-4">
+                <select id="sortFilter" onchange="sortProducts()" 
+                        class="px-4 py-2 bg-[var(--background-primary)] border border-[var(--border-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="color: var(--text-primary);">
+                    <option value="relevance">Sort by Relevance</option>
+                    <option value="trust">Trust Score</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="stock">Stock Available</option>
+                </select>
+                
+                <select id="locationFilter" onchange="filterByLocation()" 
+                        class="px-4 py-2 bg-[var(--background-primary)] border border-[var(--border-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" style="color: var(--text-primary);">
+                    <option value="">All Locations</option>
+                    <option value="Ghatkopar">Ghatkopar</option>
+                    <option value="Andheri">Andheri</option>
+                    <option value="Bandra">Bandra</option>
+                    <option value="Kurla">Kurla</option>
+                    <option value="Powai">Powai</option>
+                    <option value="Malad">Malad</option>
+                    <option value="Borivali">Borivali</option>
+                    <option value="Thane">Thane</option>
+                </select>
+                
+                <div class="flex items-center space-x-2">
+                    <span id="priceRangeLabel" class="text-sm" style="color: var(--text-secondary);">Price Range:</span>
+                    <input type="range" id="priceRange" min="0" max="1000" value="1000" 
+                           onchange="filterByPrice()" class="w-24">
+                    <span id="priceValue" class="text-sm font-medium" style="color: var(--text-primary);">₹0-1000</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Grid -->
+        <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {% for product in products %}
+            <div class="order-card reveal product-card" 
+                 data-price="{{ product[4] }}" 
+                 data-location="{{ product[14] }}" 
+                 data-stock="{{ product[5] }}"
+                 data-trust="{{ product[16] }}"
+                 data-name="{{ product[2]|lower }}"
+                 data-product-id="{{ product[0] }}">
+                
+                <!-- Product Image -->
+                {% if product[7] %}
+                <div class="mb-4 rounded-xl overflow-hidden">
+                    <img src="{{ url_for('static', filename=product[7]) }}" 
+                         alt="{{ product[2] }}" class="w-full h-48 object-cover">
+                </div>
+                {% else %}
+                <div class="mb-4 rounded-xl overflow-hidden bg-[var(--background-tertiary)] flex items-center justify-center h-48">
+                    <span class="text-4xl opacity-50">📦</span>
+                </div>
+                {% endif %}
+                
+                <!-- Product Info -->
+                <h3 class="font-bold text-lg product-name mb-2" style="color: var(--text-primary);">{{ product[2] }}</h3>
+                <div class="text-sm mb-4" style="color: var(--text-secondary);">
+                    <p>{{ product[13] }} • {{ product[14] }}</p>
+                    <p>⭐ {{ product[16] }}/5.0 • Stock: {{ product[5] }}</p>
+                </div>
+                
+                <!-- Price -->
+                <div class="text-2xl font-bold mb-4" style="color: var(--accent-primary);">₹{{ "%.2f"|format(product[4]) }}</div>
+                
+                <!-- Quantity Controls -->
+                <div class="quantity-selector flex items-center justify-center gap-3 mb-6">
+                    <button type="button" class="quantity-minus quantity-button">
+                        <i data-feather="minus" class="w-4 h-4"></i>
+                    </button>
+                    <input type="number" class="quantity-input w-16 text-center" value="1" min="1" max="{{ product[5] }}">
+                    <button type="button" class="quantity-plus quantity-button">
+                        <i data-feather="plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <button type="button" data-product-id="{{ product[0] }}" class="add-to-cart-btn gradient-button w-full text-white font-semibold py-3 rounded-xl text-md shadow-lg" style="box-shadow: 0 10px 20px -5px var(--glow-primary);">Add to Cart</button>
+                    <button type="button" class="quick-order-btn p-3 rounded-xl bg-[var(--background-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] transition-colors" data-product-id="{{ product[0] }}">
+                        <i data-feather="shopping-cart" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Load More Button -->
+        <div class="text-center mt-8">
+            <button id="loadMoreBtn" onclick="loadMoreResults()" 
+                    class="gradient-button text-white px-8 py-3 rounded-xl font-medium">
+                <span id="loadMoreText">Load More Results</span>
+            </button>
+        </div>
+        
+    {% else %}
+        <!-- No Results -->
+        <div class="text-center py-16 reveal">
+            <div class="text-6xl mb-6">🔍</div>
+            <h3 id="noResultsTitle" class="text-2xl font-bold mb-4" style="color: var(--text-primary);">No Results Found</h3>
+            <p id="noResultsSubtitle" class="text-lg mb-8" style="color: var(--text-secondary);">
+                {% if query %}
+                    No products found for "{{ query }}". Try different keywords or browse categories.
+                {% else %}
+                    Enter a search term to find products from wholesalers.
+                {% endif %}
+            </p>
+            
+            <!-- Search Suggestions -->
+            <div class="bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl p-8 max-w-md mx-auto mb-8">
+                <h4 id="searchTipsTitle" class="font-bold text-lg mb-4" style="color: var(--text-primary);">Search Tips:</h4>
+                <ul class="text-left space-y-2" style="color: var(--text-secondary);">
+                    <li id="tip1">• Try using voice search for better results</li>
+                    <li id="tip2">• Use simple keywords like "tomato", "rice", "oil"</li>
+                    <li id="tip3">• Check spelling and try synonyms</li>
+                    <li id="tip4">• Browse categories for specific items</li>
+                </ul>
+            </div>
+            
+            <div class="flex gap-4 justify-center">
+                <a href="{{ url_for('main.vendor_dashboard') }}" 
+                   class="gradient-button text-white px-8 py-4 rounded-xl font-semibold">
+                    <span id="browseCategoriesText">Browse Categories</span>
+                </a>
+                <button onclick="clearSearch()" 
+                        class="interactive-card px-8 py-4 rounded-xl font-semibold" style="color: var(--text-primary);">
+                    <span id="clearSearchText">Clear Search</span>
+                </button>
+            </div>
+        </div>
+    {% endif %}
+</section>
+
+<!-- Cart Summary (Fixed Bottom) -->
+<div id="cartSummary" class="hidden fixed bottom-0 left-0 right-0 bg-[var(--background-primary)] border-t border-[var(--border-primary)] p-4 shadow-lg" style="z-index: 50;">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div>
+            <span id="cartItemsText" class="font-medium" style="color: var(--text-primary);">0 items in cart</span>
+            <span style="color: var(--text-secondary);" class="ml-2">|</span>
+            <span id="cartTotalText" class="font-bold text-2xl ml-2" style="color: var(--accent-primary);">₹0.00</span>
+        </div>
+        <button onclick="viewCart()" 
+                class="gradient-button text-white px-8 py-4 rounded-xl font-semibold">
+            <span id="viewCartText">View Cart</span>
+        </button>
+    </div>
+</div>
+
+<!-- NEW AI SLIDE-IN PANEL -->
+<div id="ai-panel-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+<div id="ai-panel" class="fixed top-0 right-0 h-full bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out" style="width: 400px;">
+    <div class="flex flex-col h-full">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">AI Market Insights</h3>
+            <button id="close-ai-panel" class="text-gray-500 hover:text-gray-800">
+                <i data-feather="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div id="ai-response-content" class="p-6 overflow-y-auto flex-grow">
+            <p class="text-sm text-gray-500">Ask a question to get the latest market insights.</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+    /* Custom styles for the slide-in panel */
+    #ai-panel.open {
+        transform: translateX(0);
+    }
+    #ai-panel-overlay.open {
+        display: block;
+    }
+</style>
+<script>
+// Search and filter functionality
+function performSearch() {
+    const query = document.getElementById('product-search-input').value;
+    if (query.trim()) {
+        window.location.href = `/vendor/search?q=${encodeURIComponent(query)}`;
+    }
+}
+
+function quickSearch(term) {
+    document.getElementById('product-search-input').value = term;
+    performSearch();
+}
+
+function startVoiceSearch() {
+    // Voice search logic...
+    alert('Voice search not implemented yet.');
+}
+
+function clearSearch() {
+    document.getElementById('product-search-input').value = '';
+    window.location.href = '/vendor/dashboard';
+}
+
+function updateQuantity(button, change) {
+    const input = button.parentNode.querySelector('.quantity-input');
+    const newValue = parseInt(input.value) + change;
+    const max = parseInt(input.max);
+    
+    if (newValue >= 1 && newValue <= max) {
+        input.value = newValue;
+    }
+}
+
+function addToCart(productId) {
+    // Add to cart logic...
+    alert(`Added item ${productId} to cart!`);
+}
+
+function quickOrder(productId) {
+    const card = document.querySelector(`[data-product-id="${productId}"]`);
+    const quantity = card.querySelector('.quantity-input').value;
+    window.location.href = `/vendor/quick-order/${productId}?quantity=${quantity}`;
+}
+
+function viewCart() {
+    window.location.href = '/vendor/cart';
+}
+
+// Sorting and filtering functions
+function sortProducts() {
+    // Sorting logic...
+}
+
+function filterByLocation() {
+    // Filtering logic...
+}
+
+function filterByPrice() {
+    // Filtering logic...
+}
+
+function updatePriceRangeDisplay() {
+    const priceRange = document.getElementById('priceRange');
+    const priceValue = document.getElementById('priceValue');
+    if (priceRange && priceValue) {
+        priceValue.textContent = `₹0-${priceRange.value}`;
+    }
+}
+
+function loadMoreResults() {
+    alert('Load more functionality would be implemented here');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('product-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
+    
+    // Initialize page
+    initializePage();
+    updatePriceRangeDisplay();
+
+    // --- AI SLIDE-IN PANEL FUNCTIONALITY ---
+    const askAiButton = document.getElementById('ask-ai-btn');
+    const searchInputForAI = document.getElementById('product-search-input');
+    const aiPanel = document.getElementById('ai-panel');
+    const aiPanelOverlay = document.getElementById('ai-panel-overlay');
+    const aiResponseContent = document.getElementById('ai-response-content');
+    const closeAiPanelButton = document.getElementById('close-ai-panel');
+
+    if (askAiButton) {
+        askAiButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            const productName = searchInputForAI.value;
+            if (!productName.trim()) {
+                alert('Please enter a product name to ask the AI.');
+                return;
+            }
+
+            aiPanel.classList.add('open');
+            aiPanelOverlay.classList.add('open');
+            aiResponseContent.innerHTML = '<p class="text-sm text-gray-500">Analyzing the market for ' + productName + '...</p>';
+
+            fetch("{{ url_for('main.ask_ai') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product_name: productName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    aiResponseContent.innerHTML = `<p class="text-red-500">Error: ${data.error}</p>`;
+                } else {
+                    const formattedResponse = data.response.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    aiResponseContent.innerHTML = formattedResponse;
+                }
+            })
+            .catch(error => {
+                aiResponseContent.innerHTML = '<p class="text-red-500">An unexpected error occurred. Please try again.</p>';
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    function closeAiPanel() {
+        aiPanel.classList.remove('open');
+        aiPanelOverlay.classList.remove('open');
+    }
+
+    if (closeAiPanelButton) {
+        closeAiPanelButton.addEventListener('click', closeAiPanel);
+    }
+    if (aiPanelOverlay) {
+        aiPanelOverlay.addEventListener('click', closeAiPanel);
+    }
+    // --- End of AI Panel Functionality ---
+    
+    // Wire up action buttons
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-product-id');
+            addToCart(id);
+        });
+    });
+    document.querySelectorAll('.quick-order-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-product-id');
+            quickOrder(id);
+        });
+    });
+});
+
+function initializePage() {
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+    // Other initialization logic...
+}
+</script>
+{% endblock %}

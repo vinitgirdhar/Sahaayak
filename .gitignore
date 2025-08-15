@@ -1,0 +1,33 @@
+# Environment variables
+.env
+
+# API Keys (backup security)
+*.key
+secrets/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Flask
+instance/
+.webassets-cache
+
+# Database
+*.db
+*.sqlite
+
+# Uploads
+static/uploads/*
+!static/uploads/.gitkeep
+
+.env
+*.key
+__pycache__/
+*.pyc

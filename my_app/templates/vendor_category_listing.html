@@ -1,0 +1,218 @@
+{% extends "vendor_base.html" %}
+
+{% block title %}{{ category_name }} - Sahaayak{% endblock %}
+
+{% block vendor_content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <nav class="flex items-center gap-2 text-sm mb-4" style="color: var(--text-secondary);">
+            <a href="{{ url_for('main.vendor_dashboard') }}" class="hover:text-[var(--text-primary)]">Dashboard</a>
+            <span>/</span>
+            <span style="color: var(--text-primary);">{{ category_name }}</span>
+        </nav>
+        <h1 class="text-4xl font-extrabold tracking-tight" style="color: var(--text-primary);">{{ category_name }}</h1>
+        <p class="mt-2 text-lg" style="color: var(--text-secondary);">
+            {% if products %}
+                Found <span class="font-bold text-[var(--accent-primary)]">{{ products|length }}</span> products from trusted wholesalers.
+            {% else %}
+                No products currently available in this category.
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Products Grid -->
+    {% if products %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {% for product in products %}
+        <div class="product-card interactive-card flex flex-col h-full reveal overflow-hidden">
+            <!-- Product Image -->
+            <div class="w-full h-56 relative overflow-hidden bg-[var(--background-tertiary)]">
+                {% if product[5] and product[5] != 'None' %}
+                <img src="{{ url_for('static', filename=product[5]) }}" 
+                     alt="{{ product[1] }}" 
+                     class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center text-5xl opacity-50">
+                    {% set cat_lower = product[2]|lower %}
+                    {% if 'vegetable' in cat_lower or 'produce' in cat_lower %}🥬
+                    {% elif 'dairy' in cat_lower %}🧀
+                    {% elif 'spice' in cat_lower or 'pantry' in cat_lower %}🧂
+                    {% elif 'bread' in cat_lower or 'bakery' in cat_lower %}🍞
+                    {% elif 'beverage' in cat_lower %}🥤
+                    {% else %}📦
+                    {% endif %}
+                </div>
+                {% endif %}
+                <div class="absolute top-3 right-3 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-800">
+                    {{ product[2] }}
+                </div>
+            </div>
+            
+            <div class="p-5 flex-grow flex flex-col">
+                <!-- Product Info -->
+                <div class="flex-grow">
+                    <h3 class="font-bold text-xl mb-2" style="color: var(--text-primary);">{{ product[1] }}</h3>
+                    
+                    <!-- Wholesaler Info -->
+                    <div class="flex items-center gap-3 mb-4 text-sm">
+                        <div class="w-8 h-8 rounded-full bg-[var(--accent-secondary)] text-white flex items-center justify-center text-sm font-bold">
+                            {{ product[6][0] if product[6] else 'W' }}
+                        </div>
+                        <div>
+                            <p class="font-semibold" style="color: var(--text-primary);">{{ product[6] }}</p>
+                            <p class="text-xs" style="color: var(--text-secondary);">{{ product[7] }}</p>
+                        </div>
+                        {% if product[8] and product[8] >= 4.5 %}
+                        <div class="ml-auto flex items-center gap-1 text-yellow-500">
+                            <i data-feather="star" class="w-4 h-4 fill-current"></i>
+                            <span class="text-sm font-bold" style="color: var(--text-primary);">{{ "%.1f"|format(product[8]) }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Price and Stock -->
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <p class="text-3xl font-extrabold" style="color: var(--accent-primary);">₹{{ "%.2f"|format(product[3]) }}</p>
+                            <p class="text-sm" style="color: var(--text-secondary);">per unit</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium" style="color: var(--text-secondary);">In Stock</p>
+                            <p class="font-bold text-lg" style="color: {% if product[4] > 50 %}#22c55e{% elif product[4] > 10 %}#f59e0b{% else %}#ef4444{% endif %};">
+                                {{ product[4] }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quantity and Actions -->
+                <div class="mt-auto pt-4 border-t border-[var(--border-primary)]">
+                    <div class="quantity-selector flex items-center justify-center gap-3 mb-3">
+                        <button type="button" class="quantity-minus quantity-button">
+                            <i data-feather="minus" class="w-5 h-5"></i>
+                        </button>
+                        <input type="number" class="quantity-input w-16 text-center" value="1" min="1" max="{{ product[4] }}">
+                        <button type="button" class="quantity-plus quantity-button">
+                            <i data-feather="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    
+                    <button type="button" 
+                            data-product-id="{{ product[0] }}" 
+                            class="add-to-cart-btn gradient-button w-full text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2">
+                        <i data-feather="shopping-cart" class="w-5 h-5"></i>
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- No Products Message -->
+    <div class="text-center py-20">
+        <div class="text-7xl mb-6 opacity-30">🛒</div>
+        <h3 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">No Products Found</h3>
+        <p class="text-xl mb-8" style="color: var(--text-secondary);">
+            It seems no wholesalers are currently offering products in the "{{ category_name }}" category.
+        </p>
+        <button onclick="window.location.href='{{ url_for('main.vendor_dashboard') }}'" 
+                class="gradient-button text-white px-8 py-4 rounded-xl font-semibold text-lg">
+            Explore Other Categories
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Cart Summary (Fixed Bottom) -->
+<div id="cartSummary" class="hidden fixed bottom-0 left-0 right-0 bg-[var(--background-secondary)]/80 backdrop-blur-lg border-t border-[var(--border-primary)] p-4 shadow-2xl z-50" style="margin-left: var(--sidebar-width-collapsed);">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div>
+            <span id="cartItemsText" class="font-semibold text-lg" style="color: var(--text-primary);">0 items in cart</span>
+            <span style="color: var(--text-secondary);" class="mx-3">|</span>
+            <span id="cartTotalText" class="font-bold text-2xl" style="color: var(--accent-primary);">₹0.00</span>
+        </div>
+        <button onclick="viewCart()" 
+                class="gradient-button text-white px-10 py-4 rounded-xl font-bold text-lg flex items-center gap-2">
+            View Cart <i data-feather="arrow-right" class="w-5 h-5"></i>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Handle Add to Cart ---
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const productCard = this.closest('.product-card'); // Assuming each product is in a container with this class
+            const productId = this.dataset.productId;
+            const quantityInput = productCard.querySelector('.quantity-input');
+            const quantity = quantityInput.value;
+
+            const formData = new FormData();
+            formData.append('product_id', productId);
+            formData.append('quantity', quantity);
+
+            fetch("{{ url_for('main.add_to_cart') }}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the cart count in the sidebar
+                    const cartCountElement = document.getElementById('cart-count-badge');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cart_count;
+                        cartCountElement.classList.remove('hidden');
+                    }
+                    // Optionally, show a success message
+                    alert(data.message); 
+                } else {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error adding to cart:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    });
+
+    // --- Handle Quantity Buttons (+ / -) ---
+    const quantityContainers = document.querySelectorAll('.quantity-selector');
+
+    quantityContainers.forEach(container => {
+        const minusBtn = container.querySelector('.quantity-minus');
+        const plusBtn = container.querySelector('.quantity-plus');
+        const input = container.querySelector('.quantity-input');
+
+        minusBtn.addEventListener('click', function() {
+            let currentValue = parseInt(input.value);
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        });
+
+        plusBtn.addEventListener('click', function() {
+            let currentValue = parseInt(input.value);
+            input.value = currentValue + 1;
+        });
+    });
+
+    // Initialize feather icons
+    feather.replace();
+});
+</script>
+{% endblock %}

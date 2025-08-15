@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Product - Sahaayak{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center mb-8">
+        <a href="{{ url_for('main.wholesaler_products') }}" 
+           class="text-blue-600 hover:text-blue-800 mr-4">← Back to Products</a>
+        <h2 class="text-3xl font-bold text-gray-800">Edit Product</h2>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="mb-4 p-4 rounded-lg bg-green-100 text-green-700">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST" action="{{ url_for('main.edit_product', product_id=product[0]) }}" enctype="multipart/form-data" class="bg-white shadow-md rounded-lg p-6">
+        <!-- Current Product Image -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Current Product Image</label>
+            {% if product[7] %}
+            <div class="mb-4">
+                <img src="{{ url_for('static', filename=product[7]) }}" 
+                     alt="{{ product[2] }}" class="w-32 h-32 object-cover rounded-lg border">
+            </div>
+            {% else %}
+            <div class="w-32 h-32 bg-gray-100 rounded-lg border flex items-center justify-center mb-4">
+                <span class="text-gray-400 text-2xl">📦</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Category Selection -->
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Product Category *</label>
+                <select id="categorySelect" name="category" required 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onchange="updateSubcategories()">
+                    <option value="">Select Main Category</option>
+                    <option value="Dairy & Alternatives" {% if product[3] == 'Dairy & Alternatives' %}selected{% endif %}>Dairy & Alternatives</option>
+                    <option value="Produce" {% if product[3] == 'Produce' %}selected{% endif %}>Produce</option>
+                    <option value="Pantry Staples" {% if product[3] == 'Pantry Staples' %}selected{% endif %}>Pantry Staples</option>
+                    <option value="Sauces & Pastes" {% if product[3] == 'Sauces & Pastes' %}selected{% endif %}>Sauces & Pastes</option>
+                    <option value="Bakery & Base Items" {% if product[3] == 'Bakery & Base Items' %}selected{% endif %}>Bakery & Base Items</option>
+                    <option value="Snacks & Dessert Ingredients" {% if product[3] == 'Snacks & Dessert Ingredients' %}selected{% endif %}>Snacks & Dessert Ingredients</option>
+                    <option value="Prepared & Semi-Cooked" {% if product[3] == 'Prepared & Semi-Cooked' %}selected{% endif %}>Prepared & Semi-Cooked</option>
+                    <option value="Beverages" {% if product[3] == 'Beverages' %}selected{% endif %}>Beverages</option>
+                    <option value="Packaging & Disposables" {% if product[3] == 'Packaging & Disposables' %}selected{% endif %}>Packaging & Disposables</option>
+                </select>
+            </div>
+            
+            <!-- Subcategory Selection -->
+            <div class="md:col-span-2" id="subcategoryContainer" style="display: none;">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Product Type *</label>
+                <select id="subcategorySelect" name="subcategory" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onchange="updateProductName()">
+                    <option value="">Select Product Type</option>
+                </select>
+            </div>
+            
+            <!-- Product Name -->
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
+                <input type="text" id="productName" name="name" value="{{ product[2] }}" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="Product name">
+            </div>
+            
+            <!-- Price -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Price per Unit (₹) *</label>
+                <input type="number" name="price" step="0.01" min="0" value="{{ product[4] }}" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="0.00">
+            </div>
+            
+            <!-- Stock -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity *</label>
+                <input type="number" name="stock" min="0" value="{{ product[5] }}" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="Available quantity">
+            </div>
+            
+            <!-- New Product Image -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Update Product Image</label>
+                <input type="file" name="product_image" accept="image/*"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex space-x-4">
+            <button type="submit" 
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                Update Product
+            </button>
+            <a href="{{ url_for('main.wholesaler_products') }}" 
+               class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 text-center py-2 px-4 rounded-md transition-colors">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+// Product categories and subcategories data structure
+const productCategories = {
+    "Dairy & Alternatives": {
+        "Core Dairy": ["Milk", "Butter", "Curd (Dahi)", "Paneer", "Ghee"],
+        "Processed & Dessert Dairy": ["Cheese Slices", "Condensed Milk", "Khoya / Mawa"]
+    },
+    "Produce": {
+        "Vegetables": ["Potatoes (Boiled/Raw)", "Onions", "Tomatoes", "Green Chillies", "Cabbage", "Carrot", "Capsicum", "Beetroot", "Garlic", "Ginger"],
+        "Fresh Herbs & Citrus": ["Coriander (Dhania)", "Lemon", "Mint (Pudina)"]
+    },
+    "Pantry Staples": {
+        "Flours & Thickeners": ["Besan", "Maida/Wheat Flour", "Cornflour"],
+        "Spices & Seasonings": ["Salt", "Turmeric", "Red Chilli Powder", "Cumin (Jeera)", "Mustard Seeds", "Asafoetida (Hing)", "Chaat Masala", "Garam Masala", "Amchur Powder", "Cardamom Powder"],
+        "Oils & Vinegars": ["Vegetable Oil", "Vinegar"],
+        "Sweeteners": ["Sugar", "Sugar Syrup"],
+        "Legumes": ["Chana Dal"]
+    },
+    "Sauces & Pastes": [
+        "Soy Sauce", "Tamarind Pulp", "Imli Chutney", "Green Chutney", "Red Garlic Chutney", "Tomato Ketchup", "Rose Water / Kewra Essence"
+    ],
+    "Bakery & Base Items": {
+        "Breads & Buns": ["Pav", "Buns", "Bread Loaves"],
+        "Flatbreads": ["Roti/Paratha (Precooked)"]
+    },
+    "Snacks & Dessert Ingredients": {
+        "Dry Snacks (Namkeen)": ["Puffed Rice", "Sev", "Papdi", "Puris", "Fryums", "Boondi", "Nylon Sev"],
+        "Nuts, Seeds & Fruits": ["Roasted Peanuts", "Sabja Seeds", "Dry Fruits"],
+        "Dessert Mixes & Components": ["Vermicelli", "Custard Powder", "Coconut", "Food Colors"]
+    },
+    "Prepared & Semi-Cooked": [
+        "Boiled Potatoes", "Ragda", "Chole (Precooked)", "Boiled Rice", "Samosa Fillings", "Ready Gravy Base"
+    ],
+    "Beverages": {
+        "Drink Mixes": ["Tea Powder", "Coffee", "Lemon Concentrate"],
+        "Carbonated Drinks": ["Soda"]
+    },
+    "Packaging & Disposables": {
+        "Tableware & Containers": ["Paper Plates", "Foil Containers", "Plastic Spoons", "Plastic Cups"],
+        "Supplies": ["Napkins", "Carry Bags", "Gloves", "Tissue Paper"]
+    }
+};
+
+// Store the current product name for comparison
+const currentProductName = "{{ product[2] }}";
+
+function updateSubcategories() {
+    const categorySelect = document.getElementById('categorySelect');
+    const subcategoryContainer = document.getElementById('subcategoryContainer');
+    const subcategorySelect = document.getElementById('subcategorySelect');
+    const productNameInput = document.getElementById('productName');
+    
+    const selectedCategory = categorySelect.value;
+    
+    // Clear previous options
+    subcategorySelect.innerHTML = '<option value="">Select Product Type</option>';
+    
+    if (selectedCategory && productCategories[selectedCategory]) {
+        const categoryData = productCategories[selectedCategory];
+        
+        // Show subcategory container
+        subcategoryContainer.style.display = 'block';
+        
+        // If category data is an array (simple list), add items directly
+        if (Array.isArray(categoryData)) {
+            categoryData.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                // Select current product if it matches
+                if (item === currentProductName) {
+                    option.selected = true;
+                }
+                subcategorySelect.appendChild(option);
+            });
+        } else {
+            // If category data is an object (grouped), add subcategories
+            Object.keys(categoryData).forEach(subcategory => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = subcategory;
+                
+                categoryData[subcategory].forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    // Select current product if it matches
+                    if (item === currentProductName) {
+                        option.selected = true;
+                    }
+                    optgroup.appendChild(option);
+                });
+                
+                subcategorySelect.appendChild(optgroup);
+            });
+        }
+        
+        // Make subcategory required
+        subcategorySelect.setAttribute('required', 'required');
+    } else {
+        // Hide subcategory container
+        subcategoryContainer.style.display = 'none';
+        subcategorySelect.removeAttribute('required');
+    }
+}
+
+function updateProductName() {
+    const subcategorySelect = document.getElementById('subcategorySelect');
+    const productNameInput = document.getElementById('productName');
+    
+    const selectedSubcategory = subcategorySelect.value;
+    
+    if (selectedSubcategory) {
+        productNameInput.value = selectedSubcategory;
+    }
+}
+
+// Initialize dropdowns on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Trigger the category change to populate subcategories if a category is already selected
+    const categorySelect = document.getElementById('categorySelect');
+    if (categorySelect.value) {
+        updateSubcategories();
+    }
+});
+
+// Form validation to ensure both category and subcategory are selected
+document.querySelector('form').addEventListener('submit', function(e) {
+    const categorySelect = document.getElementById('categorySelect');
+    const subcategorySelect = document.getElementById('subcategorySelect');
+    
+    if (!categorySelect.value) {
+        e.preventDefault();
+        alert('Please select a product category');
+        return;
+    }
+    
+    if (subcategorySelect.style.display !== 'none' && subcategorySelect.hasAttribute('required') && !subcategorySelect.value) {
+        e.preventDefault();
+        alert('Please select a product type');
+        return;
+    }
+});
+</script>
+{% endblock %}

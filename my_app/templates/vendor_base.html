@@ -232,6 +232,52 @@
             text-align: right;
             font-weight: 500;
         }
+
+        /* --- Theme-Aware Quantity Controls --- */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .quantity-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem; /* 40px */
+            height: 2.5rem; /* 40px */
+            border-radius: 0.5rem; /* 8px */
+            border: 1px solid var(--border-primary);
+            background-color: var(--background-tertiary);
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .quantity-button:hover {
+            border-color: var(--accent-secondary);
+            color: var(--text-primary);
+        }
+        .quantity-input {
+            width: 4rem; /* 64px */
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid var(--border-primary);
+            background-color: var(--background-secondary);
+            color: var(--text-primary);
+            border-radius: 0.5rem; /* 8px */
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        /* Hide number input spinners for a cleaner look */
+        .quantity-input::-webkit-outer-spin-button,
+        .quantity-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .quantity-input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
     </style>
 </head>
 <body class="daylight-theme">

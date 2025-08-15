@@ -352,24 +352,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Build the new response card
+            // --- NEW REDESIGNED RENDERING LOGIC ---
             const rawText = data.response;
-            const insightsHtml = rawText.split('\\n').map(line => {
+            const productName = searchInputForAI.value;
+
+            // Icon mapping for each key insight
+            const icons = {
+                'Price': 'dollar-sign',
+                'Trend': 'trending-up',
+                'Demand': 'users',
+                'Profit': 'bar-chart-2',
+                'Tip': 'gift'
+            };
+
+            // Process each line into a key-value pair with an icon
+            const insightsHtml = rawText.split('\n').map(line => {
                 if (!line.trim()) return '';
-                const [key, ...valueParts] = line.split(':');
-                const value = valueParts.join(':').trim();
-                return `<div class="flex justify-between py-2"><strong class="text-[var(--text-secondary)]">${key}:</strong> <span class="text-right">${value}</span></div>`;
+                const parts = line.split(/:(.*)/s);
+                if (parts.length < 2) return '';
+                const key = parts[0].trim();
+                const value = parts[1].trim();
+                const icon = icons[key] || 'chevrons-right'; // A default icon if the key doesn't match
+
+                return `
+                    <div class="insight-item">
+                        <div class="flex items-center">
+                            <i data-feather="${icon}" class="w-5 h-5 insight-item-key"></i>
+                            <span class="ml-3 font-semibold" style="color: var(--text-primary);">${key}</span>
+                        </div>
+                        <span class="insight-item-value">${value}</span>
+                    </div>
+                `;
             }).join('');
 
+            // Assemble the final HTML for the card
             aiPanelContent.innerHTML = `
                 <div class="ai-response-card">
-                    <p class="mb-4">Showing insights for: <strong class="text-[var(--accent-secondary)]">${productName}</strong></p>
+                    <p class="mb-2 text-sm" style="color: var(--text-secondary);">
+                        Showing insights for: <strong style="color: var(--accent-secondary);">${productName}</strong>
+                    </p>
                     <div class="divide-y divide-[var(--border-primary)]" id="ai-insights-text">
                         ${insightsHtml}
                     </div>
-                    <div class="mt-6 pt-4 border-t border-[var(--border-primary)] flex justify-end gap-3">
-                        <button id="copy-ai-btn" class="ai-action-btn flex items-center gap-2"><i data-feather="copy" class="w-4 h-4"></i> Copy</button>
-                        <button id="regen-ai-btn" class="ai-action-btn flex items-center gap-2"><i data-feather="refresh-cw" class="w-4 h-4"></i> Regenerate</button>
+                    <div class="mt-6 flex justify-center gap-4">
+                        <button id="copy-ai-btn" class="ai-action-btn"><i data-feather="copy" class="w-4 h-4"></i> Copy</button>
+                        <button id="regen-ai-btn" class="ai-action-btn"><i data-feather="refresh-cw" class="w-4 h-4"></i> Regenerate</button>
                     </div>
                 </div>
             `;
@@ -377,9 +404,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Re-initialize Feather Icons
             feather.replace();
 
-            // Add event listeners to new buttons
+            // Add event listeners to the new buttons
             document.getElementById('copy-ai-btn').addEventListener('click', () => {
-                navigator.clipboard.writeText(rawText).then(() => {
+                const textToCopy = rawText.replace(/\n/g, '\r\n');
+                navigator.clipboard.writeText(textToCopy).then(() => {
                     alert('Insights copied to clipboard!');
                 });
             });

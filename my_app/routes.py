@@ -1502,19 +1502,21 @@ def ask_ai():
 
         # UPDATED PROMPT: Create a concise, structured prompt for vendor insights
         prompt = f"""
-        Generate concise market insights for a street vendor in India for the product '{product_name}'.
-        Follow these rules strictly:
-        - Provide exactly 5 points: Price, Trend, Demand, Profit, Tip.
-        - Each point must be on a new line.
-        - Use short phrases and precise numbers/ranges.
-        - Do not add any introductory or concluding text, explanations, or warnings.
+        Generate market insights for a street vendor in India for the product '{product_name}'.
+        Follow these rules STRICTLY:
+        1. Provide EXACTLY 5 points, each on a new line: Price, Trend, Demand, Profit, Tip.
+        2. Use very short, direct phrases. No filler words or long sentences.
+        3. For "Price", give a realistic price range in INR (e.g., ₹20-₹30/kg).
+        4. For "Profit", give a realistic margin range (e.g., 20-35% margin).
+        5. For "Tip", provide one short, actionable piece of advice.
+        6. Do NOT add any introductory text, concluding text, explanations, or warnings.
 
         Example for "Potato":
         Price: ₹15-₹25/kg (check local mandi)
-        Trend: Slight rise expected
-        Demand: Strong and stable
-        Profit: ~25-40% margin
-        Tip: Good time to buy, prices are stable
+        Trend: Seasonal fluctuations expected
+        Demand: High, especially evenings
+        Profit: 20-35% margin possible
+        Tip: Offer boiled/fried options
         """
 
         # Generate the content

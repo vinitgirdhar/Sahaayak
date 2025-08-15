@@ -176,6 +176,46 @@
             margin-top: -60px; /* Overlap the banner */
             box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
         }
+
+        /* --- Enhanced AI Panel Styles --- */
+        #ai-panel {
+            background-color: var(--background-secondary);
+            border-left: 1px solid var(--border-primary);
+        }
+        #ai-panel-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-primary);
+        }
+        #ai-panel-content {
+            padding: 1.5rem;
+        }
+        .ai-response-card {
+            background-color: var(--background-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.5s forwards;
+        }
+        .ai-action-btn {
+            background-color: var(--background-tertiary);
+            border: 1px solid var(--border-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .ai-action-btn:hover {
+            background-color: var(--background-primary);
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body class="daylight-theme">

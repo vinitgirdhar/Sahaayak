@@ -278,16 +278,19 @@
 
 <!-- NEW AI SLIDE-IN PANEL -->
 <div id="ai-panel-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
-<div id="ai-panel" class="fixed top-0 right-0 h-full bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out" style="width: 400px;">
+<div id="ai-panel" class="fixed top-0 right-0 h-full z-50 transform translate-x-full transition-transform duration-300 ease-in-out" style="width: 400px;">
     <div class="flex flex-col h-full">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-800">AI Market Insights</h3>
-            <button id="close-ai-panel" class="text-gray-500 hover:text-gray-800">
+        <div id="ai-panel-header" class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i data-feather="box" class="w-6 h-6" style="color: var(--accent-secondary);"></i>
+                <h3 class="text-lg font-semibold" style="color: var(--text-primary);">AI Market Insights</h3>
+            </div>
+            <button id="close-ai-panel" class="p-1 rounded-full hover:bg-[var(--background-tertiary)]">
                 <i data-feather="x" class="w-6 h-6"></i>
             </button>
         </div>
-        <div id="ai-response-content" class="p-6 overflow-y-auto flex-grow">
-            <p class="text-sm text-gray-500">Ask a question to get the latest market insights.</p>
+        <div id="ai-panel-content" class="overflow-y-auto flex-grow">
+             <div class="spinner"></div>
         </div>
     </div>
 </div>
@@ -502,92 +505,89 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // --- AI SLIDE-IN PANEL FUNCTIONALITY ---
     const askAiButton = document.getElementById('ask-ai-btn');
-    const searchInputForAI = document.getElementById('product-search-input');
+    const searchInputForAI = document.getElementById('product-search-input'); // Ensure this ID exists on your search input
     const aiPanel = document.getElementById('ai-panel');
     const aiPanelOverlay = document.getElementById('ai-panel-overlay');
-    const aiResponseContent = document.getElementById('ai-response-content');
+    const aiPanelContent = document.getElementById('ai-panel-content');
     const closeAiPanelButton = document.getElementById('close-ai-panel');
 
-    if (askAiButton) {
-        askAiButton.addEventListener('click', function(event) {
-            event.preventDefault();
-            const productName = searchInputForAI.value;
-            if (!productName.trim()) {
-                alert('Please enter a product name to ask the AI.');
+    // Function to trigger the AI fetch
+    const getAiInsights = () => {
+        const productName = searchInputForAI.value;
+        if (!productName.trim()) {
+            alert('Please enter a product name to ask the AI.');
+            return;
+        }
+
+        // Show panel and loading spinner
+        aiPanel.classList.add('open');
+        aiPanelOverlay.classList.add('open');
+        aiPanelContent.innerHTML = '<div class="spinner"></div>'; // Show loading spinner
+
+        fetch("{{ url_for('main.ask_ai') }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product_name: productName })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                aiPanelContent.innerHTML = `<p class="text-red-500">Error: ${data.error}</p>`;
                 return;
             }
 
-            // Show the panel and overlay
-            aiPanel.classList.add('open');
-            aiPanelOverlay.classList.add('open');
-            aiResponseContent.innerHTML = '<p class="text-sm text-gray-500">Analyzing the market for ' + productName + '...</p>';
+            // Build the new response card
+            const rawText = data.response;
+            const insightsHtml = rawText.split('\\n').map(line => {
+                if (!line.trim()) return '';
+                const [key, ...valueParts] = line.split(':');
+                const value = valueParts.join(':').trim();
+                return `<div class="flex justify-between py-2"><strong class="text-[var(--text-secondary)]">${key}:</strong> <span class="text-right">${value}</span></div>`;
+            }).join('');
 
-            fetch("{{ url_for('main.ask_ai') }}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ product_name: productName })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    aiResponseContent.innerHTML = `<p class="text-red-500">Error: ${data.error}</p>`;
-                } else {
-                    // New logic to parse and style the AI response
-                    const insights = data.response.split('\n').filter(line => line.trim() !== '');
-                    let html = '<div>';
+            aiPanelContent.innerHTML = `
+                <div class="ai-response-card">
+                    <p class="mb-4">Showing insights for: <strong class="text-[var(--accent-secondary)]">${productName}</strong></p>
+                    <div class="divide-y divide-[var(--border-primary)]" id="ai-insights-text">
+                        ${insightsHtml}
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-[var(--border-primary)] flex justify-end gap-3">
+                        <button id="copy-ai-btn" class="ai-action-btn flex items-center gap-2"><i data-feather="copy" class="w-4 h-4"></i> Copy</button>
+                        <button id="regen-ai-btn" class="ai-action-btn flex items-center gap-2"><i data-feather="refresh-cw" class="w-4 h-4"></i> Regenerate</button>
+                    </div>
+                </div>
+            `;
+            
+            // Re-initialize Feather Icons
+            feather.replace();
 
-                    const icons = {
-                        'Price': 'dollar-sign',
-                        'Trend': 'trending-up',
-                        'Demand': 'users',
-                        'Profit': 'bar-chart-2',
-                        'Tip': 'gift'
-                    };
-
-                    insights.forEach(line => {
-                        const parts = line.split(/:(.*)/s); // Split only on the first colon
-                        if (parts.length === 3) {
-                            const key = parts[0].trim();
-                            const value = parts[1].trim();
-                            const icon = icons[key] || 'chevrons-right'; // Default icon
-
-                            html += `
-                            <div class="ai-insight-row">
-                                <div class="ai-insight-icon">
-                                    <i data-feather="${icon}" class="w-6 h-6"></i>
-                                </div>
-                                <div>
-                                    <div class="ai-insight-key">${key}</div>
-                                    <div class="ai-insight-value">${value}</div>
-                                </div>
-                            </div>
-                            `;
-                        }
-                    });
-
-                    html += '</div>';
-                    aiResponseContent.innerHTML = html;
-                    feather.replace(); // Important: Re-initialize Feather icons
-                }
-            })
-            .catch(error => {
-                aiResponseContent.innerHTML = '<p class="text-red-500">An unexpected error occurred. Please try again.</p>';
-                console.error('Error:', error);
+            // Add event listeners to new buttons
+            document.getElementById('copy-ai-btn').addEventListener('click', () => {
+                navigator.clipboard.writeText(rawText).then(() => {
+                    alert('Insights copied to clipboard!');
+                });
             });
+
+            document.getElementById('regen-ai-btn').addEventListener('click', getAiInsights);
+        })
+        .catch(error => {
+            aiPanelContent.innerHTML = '<p class="text-red-500">An unexpected error occurred. Please try again.</p>';
+            console.error('Error:', error);
         });
+    };
+
+    if (askAiButton) {
+        askAiButton.addEventListener('click', getAiInsights);
     }
 
-    function closeAiPanel() {
+    // Functions to close the panel
+    const closeAiPanel = () => {
         aiPanel.classList.remove('open');
         aiPanelOverlay.classList.remove('open');
-    }
+    };
 
-    if (closeAiPanelButton) {
-        closeAiPanelButton.addEventListener('click', closeAiPanel);
-    }
-    if (aiPanelOverlay) {
-        aiPanelOverlay.addEventListener('click', closeAiPanel);
-    }
+    if (closeAiPanelButton) closeAiPanelButton.addEventListener('click', closeAiPanel);
+    if (aiPanelOverlay) aiPanelOverlay.addEventListener('click', closeAiPanel);
     // --- End of AI Panel Functionality ---
 
     // --- Donation Modal Functionality ---

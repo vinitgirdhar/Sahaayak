@@ -916,10 +916,20 @@ def vendor_category(category_id):
         return redirect(url_for('main.vendor_login'))
     
     category_mapping = {
-        'vegetables': 'Vegetables', 'dry-ingredients': 'Pantry Staples', 'dairy': 'Dairy Products',
-        'breads': 'Bakery & Base Items', 'prepared': 'Prepared & Semi-Cooked', 'oils-sauces': 'Sauces & Pastes',
-        'snacks': 'Snacks & Beverages', 'beverage': 'Snacks & Beverages', 'packaging': 'Other',
-        'desserts': 'Other', 'seafood-meat': 'Other'
+        'vegetables': 'Vegetables',
+        'dry-ingredients': 'Dry Ingredients', 
+        'dairy': 'Dairy Products',
+        'breads': 'Bread & Bakery',
+        'prepared': 'Ready-to-Eat',
+        'oils-sauces': 'Oils & Condiments',
+        'snacks': 'Snacks & Beverages',
+        'spices': 'Spices & Condiments',
+        'spreads': 'Spreads & Pantry',
+        'packaging': 'Other',
+        'grains': 'Grains & Cereals',
+        'beverage': 'Snacks & Beverages',  # Map beverage to snacks for compatibility
+        'desserts': 'Other',  # Map desserts to other for compatibility
+        'seafood-meat': 'Other'  # Map seafood-meat to other for compatibility
     }
     wholesaler_category = category_mapping.get(category_id, 'Produce')
     
@@ -936,10 +946,20 @@ def vendor_category(category_id):
     conn.close()
     
     category_display_names = {
-        'vegetables': 'Vegetables', 'dry-ingredients': 'Dry Ingredients & Spices', 'dairy': 'Dairy & Alternatives',
-        'breads': 'Breads & Base Items', 'prepared': 'Prepared/Semi-Cooked', 'oils-sauces': 'Oils & Sauces',
-        'snacks': 'Snacks & Dry Goods', 'beverage': 'Beverage Supplies', 'packaging': 'Packaging & Miscellaneous',
-        'desserts': 'Desserts & Sweets', 'seafood-meat': 'Seafood & Meat'
+        'vegetables': 'Fresh Vegetables',
+        'dry-ingredients': 'Dry Ingredients & Staples', 
+        'dairy': 'Dairy Products',
+        'breads': 'Bread & Bakery Items',
+        'prepared': 'Ready-to-Eat Meals',
+        'oils-sauces': 'Oils & Condiments',
+        'snacks': 'Snacks & Beverages',
+        'spices': 'Spices & Seasonings',
+        'spreads': 'Spreads & Pantry Items',
+        'packaging': 'Packaging & Others',
+        'grains': 'Grains & Cereals',
+        'beverage': 'Beverage Supplies',
+        'desserts': 'Desserts & Sweets',
+        'seafood-meat': 'Seafood & Meat'
     }
     category_name = category_display_names.get(category_id, 'Products')
     

@@ -17,28 +17,30 @@
                 <h2 class="text-xl font-semibold mb-4" style="color: var(--text-primary);">Your Saved Payment Methods</h2>
                 <div id="payment-methods-list" class="divide-y divide-[var(--border-primary)]">
                     {% for method in payment_methods %}
-                    <div class="payment-method-card flex items-center gap-4 py-4" data-id="{{ method.id }}">
-                        <div class="p-3 rounded-lg bg-[var(--background-tertiary)]">
-                            <i data-feather="{{ 'credit-card' if method.method_type == 'card' else 'send' }}" class="w-6 h-6" style="color: var(--text-primary);"></i>
+                    <div class="payment-method-card flex flex-col md:flex-row items-start md:items-center gap-4 py-4" data-id="{{ method.id }}">
+                        <div class="flex-grow flex items-center gap-4 w-full">
+                             <div class="p-3 rounded-lg bg-[var(--background-tertiary)]">
+                                <i data-feather="{{ 'credit-card' if method.method_type == 'card' else 'send' }}" class="w-6 h-6" style="color: var(--text-primary);"></i>
+                            </div>
+                            <div class="flex-grow">
+                                {% if method.method_type == 'card' %}
+                                    <h3 class="font-medium">**** **** **** {{ method.details.card_number }}</h3>
+                                    <p class="text-sm" style="color: var(--text-secondary);">Expires {{ method.details.expiry }}</p>
+                                {% else %}
+                                    <h3 class="font-medium">{{ method.details.upi_id }}</h3>
+                                    <p class="text-sm" style="color: var(--text-secondary);">UPI</p>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="flex-grow">
-                            {% if method.method_type == 'card' %}
-                                <h3 class="font-medium">**** **** **** {{ method.details.card_number }}</h3>
-                                <p class="text-sm" style="color: var(--text-secondary);">Expires {{ method.details.expiry }}</p>
-                            {% else %}
-                                <h3 class="font-medium">{{ method.details.upi_id }}</h3>
-                                <p class="text-sm" style="color: var(--text-secondary);">UPI</p>
-                            {% endif %}
-                        </div>
-                        <div>
-                            {% if method.is_default %}
-                                <span class="default-badge text-xs font-medium bg-green-500/20 text-green-400 px-2 py-1 rounded-full">Primary</span>
-                            {% else %}
-                                <button onclick="setDefault({{ method.id }})" class="set-default-btn text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">Set as Primary</button>
-                            {% endif %}
-                        </div>
-                        <div class="flex space-x-2">
-                            <button onclick="removeMethod({{ method.id }})" class="text-red-500 hover:text-red-400 text-sm font-medium">Remove</button>
+                        <div class="flex items-center justify-between w-full md:w-auto mt-2 md:mt-0">
+                            <div>
+                                {% if method.is_default %}
+                                    <span class="default-badge text-xs font-medium bg-green-500/20 text-green-400 px-3 py-1.5 rounded-full">Primary</span>
+                                {% else %}
+                                    <button onclick="setDefault({{ method.id }})" class="set-default-btn text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-3 py-1.5">Set as Primary</button>
+                                {% endif %}
+                            </div>
+                            <button onclick="removeMethod({{ method.id }})" class="text-red-500 hover:text-red-400 text-sm font-medium px-3 py-1.5">Remove</button>
                         </div>
                     </div>
                     {% endfor %}

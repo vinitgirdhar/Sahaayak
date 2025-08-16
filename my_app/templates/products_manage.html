@@ -3,8 +3,8 @@
 {% block title %}Manage Products - Sahaayak{% endblock %}
 
 {% block content %}
-<!-- Top Navigation -->
-<div class="bg-white border-b border-gray-200 px-6 py-4 mb-6">
+<!-- Top Navigation (Desktop) -->
+<div class="hidden md:block bg-white border-b border-gray-200 px-6 py-4 mb-6">
     <div class="flex justify-between items-center">
         <div class="flex items-center space-x-4">
             <a href="{{ url_for('main.wholesaler_dashboard') }}" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
@@ -17,8 +17,20 @@
     </div>
 </div>
 
+<!-- Mobile Header -->
+<div class="md:hidden px-4 pt-4 pb-2">
+    <div class="flex items-center justify-between mb-3">
+        <h1 class="text-2xl font-bold text-blue-600">Sahaayak</h1>
+        <div class="bg-blue-100 p-2 rounded-full">
+            <i data-feather="package" class="w-5 h-5 text-blue-600"></i>
+        </div>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-800">Manage Products</h2>
+    <p class="text-gray-600">View and manage your inventory</p>
+</div>
+
 <!-- Products Grid -->
-<div class="px-6">
+<div class="p-4 md:px-6">
     {% if products %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {% for product in products %}
@@ -317,6 +329,11 @@ window.onclick = function(event) {
         hideAddProductModal();
     }
 }
+
+// Initialize Feather icons
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+});
 </script>
 
 <!-- Add Product Modal -->

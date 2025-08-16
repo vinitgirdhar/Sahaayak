@@ -3,34 +3,68 @@
 {% block title %}Vendor Login - Sahaayak{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50">
-  <div class="max-w-md w-full bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl p-8">
-    {% if get_flashed_messages() %}
-      {% for message in get_flashed_messages(with_categories=true) %}
-        <div class="mb-4 p-3 rounded {% if message[0] == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
-          {{ message[1] }}
-        </div>
-      {% endfor %}
-    {% endif %}
-    
-    <h2 class="text-2xl font-bold mb-6 text-center">Vendor Login</h2>
-    
-    <form method="post">
-      <div class="mb-4">
-        <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
-        <input type="text" id="phone" name="phone" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+<style>
+    .back-to-home-btn {
+        position: absolute;
+        top: 1rem;      /* 16px */
+        left: 1rem;     /* 16px */
+        /* Applying safe-area for notched phones */
+        top: max(1rem, env(safe-area-inset-top));
+        left: max(1rem, env(safe-area-inset-left));
+        z-index: 10;
+    }
+    /* Larger spacing for desktop */
+    @media (min-width: 768px) {
+        .back-to-home-btn {
+            top: 1.25rem;  /* 20px */
+            left: 1.25rem;  /* 20px */
+        }
+    }
+</style>
+
+<div class="relative min-h-screen">
+
+    <a href="{{ url_for('main.index') }}" 
+       class="back-to-home-btn inline-flex items-center gap-2 p-3 rounded-lg text-gray-700 hover:bg-gray-200 transition-colors"
+       aria-label="Return to main website">
+        <i data-feather="arrow-left" class="w-5 h-5"></i>
+        <span class="font-semibold hidden sm:inline">Back to Home</span>
+    </a>
+
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+      <div class="max-w-md w-full bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl p-8">
+        {% if get_flashed_messages() %}
+          {% for message in get_flashed_messages(with_categories=true) %}
+            <div class="mb-4 p-3 rounded {% if message[0] == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+              {{ message[1] }}
+            </div>
+          {% endfor %}
+        {% endif %}
+        
+        <h2 class="text-2xl font-bold mb-6 text-center">Vendor Login</h2>
+        
+        <form method="post">
+          <div class="mb-4">
+            <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
+            <input type="text" id="phone" name="phone" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+          </div>
+          <div class="mb-6">
+            <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>
+            <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+          </div>
+          <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300">Login</button>
+        </form>
+        
+        <p class="text-center text-gray-600 mt-6">
+          Don't have an account? 
+          <a href="{{ url_for('main.register_vendor') }}" class="text-blue-600 hover:underline font-semibold">Register here</a>
+        </p>
       </div>
-      <div class="mb-6">
-        <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>
-        <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required>
-      </div>
-      <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300">Login</button>
-    </form>
-    
-    <p class="text-center text-gray-600 mt-6">
-      Don't have an account? 
-      <a href="{{ url_for('main.register_vendor') }}" class="text-blue-600 hover:underline font-semibold">Register here</a>
-    </p>
-  </div>
+    </div>
 </div>
+
+<script src="https://unpkg.com/feather-icons"></script>
+<script>
+    feather.replace();
+</script>
 {% endblock %}

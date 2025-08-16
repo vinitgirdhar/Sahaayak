@@ -5,11 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sahaayak{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        /* Hide mobile-only elements on desktop */
+        .mobile-nav, .floating-action-btn {
+            display: none;
+        }
+        /* Show and style mobile elements on smaller screens */
+        @media (max-width: 768px) {
+            body {
+                /* Add padding to the bottom to prevent content from being hidden by the nav bar */
+                padding-bottom: 80px;
+            }
+            .mobile-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background-color: #ffffff; /* Use a solid color for mobile nav */
+                border-top: 1px solid #e5e7eb;
+                justify-content: space-around;
+                padding: 8px 0;
+                z-index: 1000;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            }
+            .mobile-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                color: #6b7280; /* Gray-500 */
+                font-size: 12px;
+                text-decoration: none;
+            }
+            .mobile-nav-item.active {
+                color: #3b82f6; /* Blue-500 */
+            }
+            .floating-action-btn {
+                display: flex;
+                position: fixed;
+                bottom: 80px;
+                right: 20px;
+                background-color: #3b82f6; /* Blue-500 */
+                color: white;
+                width: 56px;
+                height: 56px;
+                border-radius: 9999px;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 1000;
+                border: none;
+                cursor: pointer;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     {# Removed navigation bar for full background effect #}
     <main>
         {% block content %}{% endblock %}
     </main>
+    
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-nav">
+        <a href="{{ url_for('main.wholesaler_dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'main.wholesaler_dashboard' %}active{% endif %}">
+            <i data-feather="home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('main.wholesaler_products') }}" class="mobile-nav-item {% if request.endpoint == 'main.wholesaler_products' %}active{% endif %}">
+            <i data-feather="package"></i>
+            <span>Products</span>
+        </a>
+        <a href="{{ url_for('main.wholesaler_orders') }}" class="mobile-nav-item {% if request.endpoint == 'main.wholesaler_orders' %}active{% endif %}">
+            <i data-feather="list"></i>
+            <span>Orders</span>
+        </a>
+        <a href="{{ url_for('main.wholesaler_profile') }}" class="mobile-nav-item {% if request.endpoint == 'main.wholesaler_profile' %}active{% endif %}">
+            <i data-feather="user"></i>
+            <span>Account</span>
+        </a>
+    </div>
+
+    <!-- Floating Action Button (Only on Dashboard and Products pages) -->
+    {% if request.endpoint in ['main.wholesaler_dashboard', 'main.wholesaler_products'] %}
+    <button onclick="showAddProductModal()" class="floating-action-btn">
+        <i data-feather="plus" class="w-6 h-6"></i>
+    </button>
+    {% endif %}
+    
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+    </script>
 </body>
 </html>

@@ -3,63 +3,60 @@
 {% block title %}My Orders - Sahaayak{% endblock %}
 
 {% block vendor_content %}
-<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Back button only - title now in mobile header -->
-    <div class="flex items-center mb-10">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section with Back Button and Title -->
+    <div class="flex items-center mb-8">
         <a href="{{ url_for('main.vendor_dashboard') }}" 
-           class="mr-4 text-gray-600 hover:text-gray-900 h-10 w-10 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors duration-200">
+           class="mr-4 p-2 rounded-full hover:bg-[var(--background-tertiary)] transition-colors duration-200"
+           style="color: var(--text-secondary);">
             <i data-feather="arrow-left" class="w-6 h-6"></i>
         </a>
-        <h1 class="text-4xl font-extrabold md:block hidden" style="color: var(--text-primary);">My Orders</h1>
+        <h1 class="text-3xl md:text-4xl font-bold" style="color: var(--text-primary);">My Orders</h1>
     </div>
 
     <!-- Order Summary Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <!-- Pending Orders -->
-        <div class="bg-[var(--background-secondary)] p-6 rounded-2xl shadow-lg border border-[var(--border-primary)] transition-transform transform hover:scale-105">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-yellow-500/20">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-10">
+        <div class="interactive-card p-4">
+            <div class="flex items-center gap-3">
+                <div class="p-3 rounded-full bg-yellow-500/20 flex-shrink-0">
                     <i data-feather="loader" class="w-6 h-6 text-yellow-500"></i>
                 </div>
-                <div class="ml-4">
-                    <p id="pendingOrdersLabel" class="text-sm font-medium text-[var(--text-secondary)]">Pending</p>
-                    <p class="text-2xl font-bold text-[var(--text-primary)]">{{ stats.pending_count }}</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-lg md:text-2xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ stats.pending_count }}</p>
+                    <p class="text-sm font-medium text-[var(--text-secondary)]">Pending</p>
                 </div>
             </div>
         </div>
-        <!-- Processing Orders -->
-        <div class="bg-[var(--background-secondary)] p-6 rounded-2xl shadow-lg border border-[var(--border-primary)] transition-transform transform hover:scale-105">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-blue-500/20">
+        <div class="interactive-card p-4">
+            <div class="flex items-center gap-3">
+                <div class="p-3 rounded-full bg-blue-500/20 flex-shrink-0">
                     <i data-feather="refresh-cw" class="w-6 h-6 text-blue-500"></i>
                 </div>
-                <div class="ml-4">
-                    <p id="processingLabel" class="text-sm font-medium text-[var(--text-secondary)]">Processing</p>
-                    <p class="text-2xl font-bold text-[var(--text-primary)]">{{ stats.processing_count }}</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-lg md:text-2xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ stats.processing_count }}</p>
+                    <p class="text-sm font-medium text-[var(--text-secondary)]">Processing</p>
                 </div>
             </div>
         </div>
-        <!-- Completed Orders -->
-        <div class="bg-[var(--background-secondary)] p-6 rounded-2xl shadow-lg border border-[var(--border-primary)] transition-transform transform hover:scale-105">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-green-500/20">
+        <div class="interactive-card p-4">
+            <div class="flex items-center gap-3">
+                <div class="p-3 rounded-full bg-green-500/20 flex-shrink-0">
                     <i data-feather="check-circle" class="w-6 h-6 text-green-500"></i>
                 </div>
-                <div class="ml-4">
-                    <p id="completedLabel" class="text-sm font-medium text-[var(--text-secondary)]">Completed</p>
-                    <p class="text-2xl font-bold text-[var(--text-primary)]">{{ stats.completed_count }}</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-lg md:text-2xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ stats.completed_count }}</p>
+                    <p class="text-sm font-medium text-[var(--text-secondary)]">Completed</p>
                 </div>
             </div>
         </div>
-        <!-- Total Spent -->
-        <div class="bg-[var(--background-secondary)] p-6 rounded-2xl shadow-lg border border-[var(--border-primary)] transition-transform transform hover:scale-105">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-indigo-500/20">
+        <div class="interactive-card p-4">
+            <div class="flex items-center gap-3">
+                <div class="p-3 rounded-full bg-indigo-500/20 flex-shrink-0">
                     <i data-feather="dollar-sign" class="w-6 h-6 text-indigo-500"></i>
                 </div>
-                <div class="ml-4">
-                    <p id="totalSpentLabel" class="text-sm font-medium text-[var(--text-secondary)]">Total Spent</p>
-                    <p class="text-2xl font-bold text-[var(--text-primary)]">₹{{ "%.2f"|format(stats.total_spent or 0) }}</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-base md:text-xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis" title="₹{{ '{:,.0f}'.format(stats.total_spent or 0) }}">₹{{ '{:,.0f}'.format(stats.total_spent or 0) }}</p>
+                    <p class="text-sm font-medium text-[var(--text-secondary)]">Total Spent</p>
                 </div>
             </div>
         </div>
@@ -71,14 +68,14 @@
             <table class="min-w-full divide-y divide-[var(--border-primary)]">
                 <thead class="bg-[var(--background-tertiary)]">
                     <tr>
-                        <th id="orderIdHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Order ID</th>
-                        <th id="wholesalerHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Wholesaler</th>
-                        <th id="productHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Product</th>
-                        <th id="quantityHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Quantity</th>
-                        <th id="amountHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Amount</th>
-                        <th id="statusHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Status</th>
-                        <th id="dateHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Date</th>
-                        <th id="actionsHeader" scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Actions</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Order ID</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Wholesaler</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Product</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Quantity</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Amount</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Date</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[var(--border-primary)]">

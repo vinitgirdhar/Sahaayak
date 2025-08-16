@@ -3,13 +3,29 @@
 {% block title %}My Account - Sahaayak{% endblock %}
 
 {% block content %}
-<!-- Top Navigation -->
-<div class="bg-white border-b border-gray-200 px-6 py-4 mb-6">
+<!-- Top Navigation (Desktop) -->
+<div class="hidden md:block bg-white border-b border-gray-200 px-6 py-4 mb-6">
     <div class="flex justify-between items-center">
         <div class="flex items-center space-x-4">
             <a href="{{ url_for('main.wholesaler_dashboard') }}" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
             <h1 class="text-2xl font-bold text-gray-800">My Account</h1>
         </div>
+    </div>
+</div>
+
+<!-- Mobile Header -->
+<div class="md:hidden px-4 pt-4 pb-2">
+    <div class="flex items-center justify-between mb-3">
+        <h1 class="text-2xl font-bold text-blue-600">Sahaayak</h1>
+        <div class="bg-blue-100 p-2 rounded-full">
+            <i data-feather="user" class="w-5 h-5 text-blue-600"></i>
+        </div>
+    </div>
+    <div class="flex items-center space-x-3 mb-2">
+        <a href="{{ url_for('main.wholesaler_dashboard') }}" class="text-blue-600 hover:text-blue-800">
+            <i data-feather="arrow-left" class="w-5 h-5 inline"></i>
+        </a>
+        <h2 class="text-2xl font-bold text-gray-800">My Account</h2>
     </div>
 </div>
 
@@ -27,8 +43,8 @@
 {% endwith %}
 
 <!-- Profile Content -->
-<div class="px-6 max-w-4xl mx-auto">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="p-4 md:px-6 max-w-4xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <!-- Profile Card -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -159,15 +175,31 @@
                 </div>
                 
                 <!-- Action Buttons -->
-                <div class="mt-8 flex space-x-4">
-                    <button onclick="window.location.href='{{ url_for('main.edit_profile') }}'" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-                        Edit Profile
-                    </button>
-                    <button onclick="showChangePasswordModal()" 
-                            class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg transition-colors">
-                        Change Password
-                    </button>
+                <div class="mt-8 space-y-4">
+                    <!-- Primary Actions -->
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                        <button onclick="window.location.href='{{ url_for('main.edit_profile') }}'" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                            <i data-feather="edit" class="w-4 h-4"></i>
+                            <span>Edit Profile</span>
+                        </button>
+                        <button onclick="showChangePasswordModal()" 
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                            <i data-feather="lock" class="w-4 h-4"></i>
+                            <span>Change Password</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Logout Section -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-medium text-gray-600 mb-3">Account Actions</h4>
+                        <button onclick="confirmLogout()" 
+                                class="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-6 py-3 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                            <i data-feather="log-out" class="w-4 h-4"></i>
+                            <span>Logout from Account</span>
+                        </button>
+                        <p class="text-xs text-gray-500 text-center mt-2">You will be logged out from all devices</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -274,7 +306,18 @@ function uploadProfilePhoto() {
             }
             
             // Show success message
-            showNotification('Profile photo updated successfully!', 'success');
+                showNotification('Profile photo updated successfully!', 'success');
+}
+
+// Logout confirmation function
+function confirmLogout() {
+    if (confirm('Are you sure you want to logout? You will be logged out from all devices.')) {
+        window.location.href = '{{ url_for("main.index") }}';
+    }
+}
+
+// Show notification helper
+function showNotification(message, type = 'success') {
         } else {
             showNotification(data.error || 'Error uploading photo', 'error');
         }
@@ -396,6 +439,11 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         hideChangePasswordModal();
     }
+});
+
+// Initialize Feather icons
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
 });
 </script>
 {% endblock %}

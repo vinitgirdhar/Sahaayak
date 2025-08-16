@@ -10,4 +10,4 @@ with app.app_context():
 
 if __name__ == '__main__':
     # The 'debug=True' mode should be False in a production environment
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -1641,3 +1641,43 @@ def set_default_payment_method():
     conn.close()
     
     return jsonify({'success': True})
+
+@bp.route('/api/wholesaler/<int:wholesaler_id>/filter-products', methods=['POST'])
+def filter_wholesaler_products(wholesaler_id):
+    if 'vendor_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    filters = request.get_json()
+    category = filters.get('category')
+    sort_by = filters.get('sortBy')
+    
+    # Base query
+    query = """
+        SELECT id, name, category, price, stock, image_path, status,
+               (price * 1.25) as original_price 
+        FROM products
+        WHERE wholesaler_id = ? AND stock > 0
+    """
+    params = [wholesaler_id]
+
+    # Add category filter if specified
+    if category and category != 'All Categories':
+        query += " AND category = ?"
+        params.append(category)
+
+    # Add sorting logic
+    if sort_by == 'Price: Low to High':
+        query += " ORDER BY price ASC"
+    elif sort_by == 'Price: High to Low':
+        query += " ORDER BY price DESC"
+    else: # Default sort (e.g., by name or relevance)
+        query += " ORDER BY name ASC"
+
+    conn = sqlite3.connect(DATABASE_NAME)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute(query, tuple(params))
+    products = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+
+    return jsonify(products)

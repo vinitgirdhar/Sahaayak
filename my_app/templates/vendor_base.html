@@ -278,6 +278,17 @@
             -moz-appearance: textfield;
             appearance: textfield;
         }
+
+        /* --- Fix for Dark Mode Dropdowns --- */
+        .aurora-theme select, .aurora-theme option {
+            background-color: var(--background-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
+        }
+        .aurora-theme select:focus {
+            border-color: var(--accent-secondary);
+            outline: none;
+        }
     </style>
 </head>
 <body class="daylight-theme">

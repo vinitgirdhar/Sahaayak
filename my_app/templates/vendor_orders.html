@@ -4,13 +4,13 @@
 
 {% block vendor_content %}
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- UPDATED: Replaced header with a flex container for icon and title -->
+    <!-- Back button only - title now in mobile header -->
     <div class="flex items-center mb-10">
         <a href="{{ url_for('main.vendor_dashboard') }}" 
            class="mr-4 text-gray-600 hover:text-gray-900 h-10 w-10 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors duration-200">
             <i data-feather="arrow-left" class="w-6 h-6"></i>
         </a>
-        <h1 id="main-title" class="text-4xl font-extrabold" style="color: var(--text-primary);">My Orders</h1>
+        <h1 class="text-4xl font-extrabold md:block hidden" style="color: var(--text-primary);">My Orders</h1>
     </div>
 
     <!-- Order Summary Stats -->

@@ -3,25 +3,20 @@
 {% block title %}Vendor Dashboard - Sahaayak{% endblock %}
 
 {% block vendor_content %}
-<!-- Main Content -->
-<header class="flex justify-between items-center mb-10">
-    <h1 id="main-title" class="text-4xl font-extrabold" style="color: var(--text-primary);">Sahaayak</h1>
-</header>
-
 <!-- AI Search Section -->
 <div class="mb-12 reveal">
-    <div class="relative flex items-center gap-4">
-        <div class="relative flex-grow">
+    <div class="flex flex-col md:flex-row items-center gap-4">
+        <div class="relative flex-grow w-full">
             <i data-feather="search" class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-[var(--text-secondary)] pointer-events-none"></i>
-            <input id="product-search-input" type="text" placeholder="Search products..." class="w-full pl-16 pr-16 py-5 bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl text-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all" style="color: var(--text-primary);">
+            <input id="product-search-input" type="text" placeholder="Search products..." class="w-full pl-16 pr-16 py-4 md:py-5 bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all" style="color: var(--text-primary);">
             <button id="mic-button" class="absolute right-6 top-1/2 -translate-y-1/2 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors" onclick="startVoiceSearch()">
                 <i data-feather="mic" class="w-6 h-6"></i>
             </button>
         </div>
-        <!-- NEW SEARCH BUTTON ADDED -->
-        <button type="button" onclick="performSearch()" class="bg-blue-600 hover:bg-blue-700 font-semibold text-white px-6 py-4 rounded-2xl flex-shrink-0">Search</button>
-        <!-- ASK AI BUTTON -->
-        <button type="button" id="ask-ai-btn" class="gradient-button font-semibold text-white px-6 py-4 rounded-2xl flex-shrink-0">Ask AI</button>
+        <div class="flex gap-3 w-full md:w-auto">
+            <button type="button" onclick="performSearch()" class="flex-grow md:flex-initial bg-blue-600 hover:bg-blue-700 font-semibold text-white px-4 py-3 md:px-6 md:py-4 rounded-2xl flex-shrink-0">Search</button>
+            <button type="button" id="ask-ai-btn" class="flex-grow md:flex-initial gradient-button font-semibold text-white px-4 py-3 md:px-6 md:py-4 rounded-2xl flex-shrink-0">Ask AI</button>
+        </div>
     </div>
 </div>
 

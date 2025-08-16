@@ -3,7 +3,6 @@
 {% block title %}Analytics - Sahaayak{% endblock %}
 
 {% block content %}
-<!-- Top Navigation -->
 <div class="bg-white border-b border-gray-200 px-6 py-4 mb-6">
     <div class="flex justify-between items-center">
         <div class="flex items-center space-x-4">
@@ -21,10 +20,21 @@
     </div>
 </div>
 
-<!-- Analytics Content -->
 <div class="px-6">
-    <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-600">Total Revenue</p>
+                    <p class="text-2xl font-bold text-gray-900">₹2,45,670</p>
+                    <p class="text-sm text-green-600">+12.5% from last month</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-lg">
+                    <span class="text-2xl text-green-600">💰</span>
+                </div>
+            </div>
+        </div>
+
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div class="flex items-center">
                 <div class="flex-1">
@@ -65,28 +75,23 @@
         </div>
     </div>
 
-    <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Revenue Chart -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Revenue Trend</h3>
             <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                <canvas id="revenueChart" width="400" height="200"></canvas>
+                <canvas id="revenueChart"></canvas>
             </div>
         </div>
 
-        <!-- Orders Chart -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Orders Overview</h3>
             <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                <canvas id="ordersChart" width="400" height="200"></canvas>
+                <canvas id="ordersChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Performance Metrics -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Top Products -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Top Selling Products</h3>
             <div class="space-y-4">
@@ -125,7 +130,6 @@
             </div>
         </div>
 
-        <!-- Customer Insights -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Customer Insights</h3>
             <div class="space-y-4">
@@ -155,7 +159,6 @@
             </div>
         </div>
 
-        <!-- Recent Activity -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
             <div class="space-y-4">
@@ -216,7 +219,8 @@ const revenueChart = new Chart(revenueCtx, {
             data: [45000, 52000, 61000, 68000],
             borderColor: 'rgb(59, 130, 246)',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            tension: 0.4
+            tension: 0.4,
+            fill: true
         }]
     },
     options: {
@@ -247,7 +251,8 @@ const ordersChart = new Chart(ordersCtx, {
                 'rgb(34, 197, 94)',
                 'rgb(59, 130, 246)', 
                 'rgb(245, 158, 11)'
-            ]
+            ],
+            hoverOffset: 4
         }]
     },
     options: {
@@ -261,17 +266,4 @@ const ordersChart = new Chart(ordersCtx, {
     }
 });
 </script>
-{% endblock %} Revenue</p>
-                    <p class="text-2xl font-bold text-gray-900">₹2,45,670</p>
-                    <p class="text-sm text-green-600">+12.5% from last month</p>
-                </div>
-                <div class="bg-green-100 p-3 rounded-lg">
-                    <span class="text-2xl text-green-600">💰</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-600">Total
+{% endblock %}

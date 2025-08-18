@@ -1401,7 +1401,38 @@ def update_cart():
     session['vendor_cart'] = cart
     session.modified = True
     
-    return jsonify({'success': True})
+    # Calculate updated totals
+    conn = sqlite3.connect(DATABASE_NAME)
+    cursor = conn.cursor()
+    
+    total_items = 0
+    grand_total = 0
+    item_subtotal = 0
+    
+    # Get the price of the updated product for item subtotal
+    cursor.execute('SELECT price FROM products WHERE id = ?', (product_id_str,))
+    updated_product = cursor.fetchone()
+    if updated_product:
+        item_subtotal = updated_product[0] * quantity
+    
+    for product_id, quantity_in_cart in cart.items():
+        cursor.execute('SELECT price FROM products WHERE id = ?', (product_id,))
+        product = cursor.fetchone()
+        if product:
+            total_items += quantity_in_cart
+            grand_total += product[0] * quantity_in_cart
+    
+    conn.close()
+    
+    return jsonify({
+        'success': True,
+        'totals': {
+            'total_items': total_items,
+            'grand_total': grand_total,
+            'item_subtotal': item_subtotal,
+            'updated_product_id': product_id_str
+        }
+    })
 
 @bp.route('/vendor/clear-cart', methods=['POST'])
 def clear_cart():

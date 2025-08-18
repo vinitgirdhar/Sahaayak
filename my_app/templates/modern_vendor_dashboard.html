@@ -468,14 +468,31 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Get product details for frontend cart
+                    const productName = productCard.querySelector('.product-name').textContent.trim();
+                    const productPrice = parseFloat(productCard.querySelector('.product-price').dataset.price || 0);
+                    const productImage = productCard.querySelector('.product-image').src;
+                    
+                    // Add to frontend cart as well
+                    if (window.SahaayakApp && window.SahaayakApp.cart) {
+                        window.SahaayakApp.cart.add({
+                            id: productId,
+                            name: productName,
+                            price: productPrice,
+                            image_path: productImage,
+                            quantity: parseInt(quantity)
+                        });
+                    }
+                    
                     // Update the cart count in the sidebar
                     const cartCountElement = document.getElementById('cart-count-badge');
                     if (cartCountElement) {
                         cartCountElement.textContent = data.cart_count;
                         cartCountElement.classList.remove('hidden');
                     }
-                    // Optionally, show a success message
-                    alert(data.message); 
+                    
+                    // Show success notification
+                    showNotification(data.message || 'Item added to cart!', 'success'); 
                 } else {
                     if (data.redirect) {
                         window.location.href = data.redirect;
@@ -980,22 +997,24 @@ document.addEventListener('DOMContentLoaded', function() {
             totalSavings += savings;
 
             const card = `
-            <div class="interactive-card p-4 flex flex-col">
+            <div class="interactive-card product-card p-4 flex flex-col">
                 <div class="flex justify-between items-start">
-                    <h3 class="font-bold text-lg">${product.name}</h3>
+                    <h3 class="product-name font-bold text-lg">${product.name}</h3>
                     ${discount > 0 ? `<span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">-${Math.round(discount)}%</span>` : ''}
                 </div>
                 <p class="text-xs text-gray-500">${product.wholesaler_name} ⭐ ${product.trust_score}</p>
                 <div class="my-4">
-                    <span class="text-2xl font-bold text-[var(--accent-primary)]">₹${product.price.toFixed(2)}</span>
+                    <span class="product-price text-2xl font-bold text-[var(--accent-primary)]" data-price="${product.price}">₹${product.price.toFixed(2)}</span>
                     <span class="text-sm text-gray-400 line-through ml-2">₹${originalPrice.toFixed(2)}</span>
                     <span class="text-xs text-gray-500"> per kg</span>
                 </div>
                 <p class="text-sm text-green-600 font-medium mb-4">💰 Save ₹${savings.toFixed(2)}</p>
                 <div class="mt-auto flex gap-2">
+                    <input type="number" value="1" min="1" max="${product.stock}" class="quantity-input w-16 px-2 py-1 border rounded text-sm" ${product.stock === 0 ? 'disabled' : ''}>
                     <span class="px-3 py-1 text-xs rounded-full ${product.stock > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">${product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
                     <button class="add-to-cart-btn gradient-button text-white text-sm font-semibold py-2 px-4 rounded-lg flex-grow" data-product-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>Add to Cart</button>
                 </div>
+                <img class="product-image hidden" src="${product.image_path || ''}" alt="${product.name}">
             </div>
             `;
             budgetGrid.innerHTML += card;

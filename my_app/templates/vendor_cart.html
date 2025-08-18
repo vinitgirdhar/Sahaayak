@@ -33,27 +33,31 @@
                              alt="{{ item.name }}" class="w-20 h-20 rounded-lg object-cover">
                         <div>
                             <h4 class="font-semibold" style="color: var(--text-primary);">{{ item.name }}</h4>
-                            <p class="font-bold mt-1" style="color: var(--accent-primary);">₹{{ "%.2f"|format(item.price) }} per unit</p>
+                            <p class="font-bold mt-1" style="color: var(--accent-primary);" 
+                               data-product-price="{{ item.id }}" data-price="{{ item.price }}">
+                               ₹{{ "%.2f"|format(item.price) }} per unit
+                            </p>
                         </div>
                     </div>
                     
                     <div class="flex items-center gap-2">
-                        <!-- Note: The JS for these buttons is in the extra_scripts block below -->
-                        <button onclick="updateQuantity('{{ item.id }}', -1)" 
-                                class="w-10 h-10 rounded-lg border border-[var(--border-primary)] flex items-center justify-center hover:bg-[var(--background-tertiary)]">
+                        <!-- Improved quantity controls with proper styling -->
+                        <button type="button" onclick="updateQuantity('{{ item.id }}', -1)" 
+                                class="quantity-button">
                             <i data-feather="minus" class="w-4 h-4"></i>
                         </button>
                         <input type="number" id="qty-{{ item.id }}" value="{{ item.quantity }}" min="1" 
-                               class="w-16 text-center border border-[var(--border-primary)] rounded-lg p-2"
+                               class="quantity-input"
                                onchange="updateQuantity('{{ item.id }}', 0)">
-                        <button onclick="updateQuantity('{{ item.id }}', 1)" 
-                                class="w-10 h-10 rounded-lg border border-[var(--border-primary)] flex items-center justify-center hover:bg-[var(--background-tertiary)]">
+                        <button type="button" onclick="updateQuantity('{{ item.id }}', 1)" 
+                                class="quantity-button">
                             <i data-feather="plus" class="w-4 h-4"></i>
                         </button>
                     </div>
                     
                     <div class="text-right">
-                        <p class="font-bold" style="color: var(--text-primary);">₹{{ "%.2f"|format(item.item_total) }}</p>
+                        <p class="font-bold" style="color: var(--text-primary);" 
+                           data-item-subtotal="{{ item.id }}">₹{{ "%.2f"|format(item.item_total) }}</p>
                         <button onclick="removeItem('{{ item.id }}')" 
                                 class="text-sm text-red-500 hover:text-red-700 mt-1">
                             Remove
@@ -65,7 +69,8 @@
                 <div class="mt-4 pt-4 border-t border-[var(--border-primary)]">
                     <div class="flex justify-between items-center">
                         <span class="font-semibold" style="color: var(--text-secondary);">Subtotal from {{ data['name'] }}</span>
-                        <span class="font-bold text-lg" style="color: var(--text-primary);">
+                        <span class="font-bold text-lg" style="color: var(--text-primary);" 
+                              data-vendor-subtotal="{{ data['vendor_id'] }}">
                             <!-- CRITICAL CHANGE: Use the subtotal calculated in Python -->
                             ₹{{ "%.2f"|format(data['subtotal']) }}
                         </span>
@@ -84,7 +89,7 @@
                     <div class="flex justify-between">
                         <span style="color: var(--text-secondary);">Total Items</span>
                         <!-- CRITICAL CHANGE: Calculate total items correctly -->
-                        <span style="color: var(--text-primary);">
+                        <span style="color: var(--text-primary);" data-total-items>
                             {% set total_items = [] %}
                             {% for wholesaler_id, data in wholesaler_data.items() %}
                                 {% for item in data['items'] %}
@@ -101,7 +106,7 @@
                     <div class="pt-3 border-t border-[var(--border-primary)]">
                         <div class="flex justify-between items-center">
                             <span class="font-bold text-lg" style="color: var(--text-primary);">Grand Total</span>
-                            <span class="font-bold text-2xl" style="color: var(--accent-primary);">₹{{ "%.2f"|format(total_amount) }}</span>
+                            <span class="font-bold text-2xl" style="color: var(--accent-primary);" data-grand-total>₹{{ "%.2f"|format(total_amount) }}</span>
                         </div>
                     </div>
                 </div>
@@ -134,9 +139,7 @@
 
 {% block extra_scripts %}
 <script>
-// This function updates the quantity of an item in the cart.
-// If change is 0, it reads the value from the input field.
-// Otherwise, it increments/decrements by the 'change' value.
+// Enhanced cart management with no page refresh
 function updateQuantity(productId, change) {
     const input = document.getElementById(`qty-${productId}`);
     let quantity = parseInt(input.value);
@@ -146,15 +149,32 @@ function updateQuantity(productId, change) {
         if (quantity < 1) quantity = 1;
         input.value = quantity;
     } else {
-        quantity = parseInt(input.value) || 1;
+        quantity = parseInt(input.value);
+        if (quantity < 1) {
+            quantity = 1;
+            input.value = quantity;
+        }
     }
     
-    // Use FormData to send the data
+    // Get the price for this product from the data attribute
+    const priceElement = document.querySelector(`[data-product-price="${productId}"]`);
+    const unitPrice = priceElement ? parseFloat(priceElement.dataset.price) : 0;
+    
+    // Update item subtotal immediately
+    const subtotalElement = document.querySelector(`[data-item-subtotal="${productId}"]`);
+    if (subtotalElement) {
+        const newSubtotal = unitPrice * quantity;
+        subtotalElement.textContent = `₹${newSubtotal.toFixed(2)}`;
+    }
+    
+    // Update the local cart for badge
+    window.SahaayakApp.cart.updateQuantity(productId, quantity);
+    
+    // Send update to server without reloading
     const formData = new FormData();
     formData.append('product_id', productId);
     formData.append('quantity', quantity);
 
-    // Send the update to the server
     fetch("{{ url_for('main.update_cart') }}", {
         method: 'POST',
         body: formData
@@ -162,14 +182,57 @@ function updateQuantity(productId, change) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            location.reload(); // Reload the page to show updated totals
+            // Update the UI dynamically instead of reloading
+            updateCartDisplay(data);
         } else {
             alert('Error: ' + data.message);
+            // Revert the change if it failed
+            location.reload();
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Revert on error
+        location.reload();
     });
 }
 
-// This function removes an item from the cart.
+function updateCartDisplay(data) {
+    // Update totals without page reload
+    if (data.totals) {
+        // Update grand total
+        const grandTotalElement = document.querySelector('[data-grand-total]');
+        if (grandTotalElement && data.totals.grand_total !== undefined) {
+            grandTotalElement.textContent = `₹${data.totals.grand_total.toFixed(2)}`;
+        }
+        
+        // Update total item count
+        const totalItemsElement = document.querySelector('[data-total-items]');
+        if (totalItemsElement && data.totals.total_items !== undefined) {
+            totalItemsElement.textContent = data.totals.total_items;
+        }
+        
+        // Recalculate vendor subtotals
+        const vendorSections = document.querySelectorAll('[data-vendor-subtotal]');
+        vendorSections.forEach(section => {
+            const vendorId = section.dataset.vendorSubtotal;
+            let vendorTotal = 0;
+            
+            // Find all items for this vendor and sum their subtotals
+            const vendorItems = section.querySelectorAll('[data-item-subtotal]');
+            vendorItems.forEach(item => {
+                const subtotalText = item.textContent.replace('₹', '').replace(',', '');
+                vendorTotal += parseFloat(subtotalText) || 0;
+            });
+            
+            section.textContent = `₹${vendorTotal.toFixed(2)}`;
+        });
+    }
+    
+    // Update cart badge
+    window.SahaayakApp.cart.updateBadge();
+}
+
 function removeItem(productId) {
     if (confirm('Are you sure you want to remove this item?')) {
         const formData = new FormData();
@@ -182,13 +245,19 @@ function removeItem(productId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload(); // Reload the page
+                // Remove from local cart
+                window.SahaayakApp.cart.remove(productId);
+                // Reload to update the entire cart display
+                location.reload();
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            location.reload();
         });
     }
 }
 
-// This function clears all items from the cart.
 function clearCart() {
     if (confirm('Are you sure you want to clear your entire cart?')) {
         fetch("{{ url_for('main.clear_cart') }}", {
@@ -197,20 +266,44 @@ function clearCart() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload(); // Reload the page
+                window.SahaayakApp.cart.clear();
+                location.reload();
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            location.reload();
         });
     }
 }
 
-// Redirects to the checkout page.
 function proceedToCheckout() {
     window.location.href = '{{ url_for("main.vendor_checkout") }}';
 }
 
-// Initialize feather icons if you are using them.
+// Initialize feather icons
 if (typeof feather !== 'undefined') {
     feather.replace();
 }
+
+// Initialize quantity controls styling after page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure all quantity inputs have proper styling
+    const quantityInputs = document.querySelectorAll('input[type="number"][id^="qty-"]');
+    quantityInputs.forEach(input => {
+        input.classList.add('quantity-input');
+    });
+    
+    // Ensure all quantity buttons have proper styling
+    const quantityButtons = document.querySelectorAll('button[onclick*="updateQuantity"]');
+    quantityButtons.forEach(button => {
+        button.classList.add('quantity-button');
+    });
+    
+    // Re-initialize feather icons
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+});
 </script>
 {% endblock %}

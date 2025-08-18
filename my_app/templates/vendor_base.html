@@ -46,8 +46,8 @@
             --border-primary: #28623A;     /* Green accent for borders */
             --text-primary: #f0f6fc;       /* Off-white for primary text */
             --text-secondary: #a0b0b5;     /* Muted gray for secondary text */
-            --accent-primary: #28623A;     /* Main green for accents */
-            --accent-secondary: #3a8c54;    /* Brighter green for gradients */
+            --accent-primary: #3a8c54;    /* Main green for accents */
+            --accent-secondary: #f0f6fc;   /* Changed for better contrast */
             --glow-primary: rgba(40, 98, 58, 0.25); /* Green glow for buttons/cards */
             --glow-secondary: rgba(58, 140, 84, 0.2);
             --card-shadow: 0 0 0 1px rgba(40, 98, 58, 0.5);
@@ -290,6 +290,50 @@
             outline: none;
         }
 
+        /* Enhanced Dark Mode Quantity Controls */
+        .aurora-theme .quantity-input,
+        .aurora-theme input[type="number"] {
+            background-color: var(--background-secondary) !important;
+            border: 1px solid var(--border-primary) !important;
+            color: var(--text-primary) !important;
+        }
+        .aurora-theme .quantity-button {
+            background-color: var(--background-tertiary) !important;
+            border: 1px solid var(--border-primary) !important;
+            color: var(--text-secondary) !important;
+        }
+        .aurora-theme .quantity-button:hover {
+            border-color: var(--accent-secondary) !important;
+            color: var(--text-primary) !important;
+            background-color: var(--background-secondary) !important;
+        }
+        
+        /* FIX: Ensure the feather icon color is dynamic */
+        .aurora-theme .quantity-button i {
+            color: var(--text-secondary) !important;
+        }
+        .aurora-theme .quantity-button:hover i {
+            color: var(--text-primary) !important;
+        }
+
+        /* FIX: Apply dark theme to all input elements in cart */
+        .aurora-theme input {
+            background-color: var(--background-secondary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-primary) !important;
+        }
+        .aurora-theme input:focus {
+            border-color: var(--accent-secondary) !important;
+            outline: none !important;
+        }
+        
+        /* Additional specific fixes for cart page inputs */
+        .aurora-theme input[id^="qty-"] {
+            background-color: var(--background-secondary) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-primary) !important;
+        }
+
         /* --- Fix for Table Header Visibility --- */
         thead {
             background-color: var(--background-tertiary);
@@ -465,9 +509,14 @@
                 data: [],
                 
                 init() {
+                    // First load from localStorage for quick UI update
                     this.load();
-                    this.syncWithBackend();
                     this.updateBadge();
+                    
+                    // Then load from backend and merge/sync
+                    this.loadFromBackend().then(() => {
+                        this.updateBadge();
+                    });
                 },
                 
                 load() {

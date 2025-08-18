@@ -5,10 +5,31 @@
 {% block vendor_content %}
 <div class="max-w-6xl mx-auto px-4 py-8">
     <div class="flex items-center mb-8">
-        <a href="{{ url_for('main.vendor_cart') }}" class="mr-4 text-blue-600 hover:text-blue-800">
-            <i data-feather="arrow-left" class="w-6 h-6"></i> Back to Cart
+        <a href="{{ url_for('main.vendor_cart') }}" class="mr-4 flex items-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 group">
+            <i data-feather="arrow-left" class="w-6 h-6 mr-2"></i>
+            <span class="font-medium group-hover:underline">Back to Cart</span>
         </a>
         <h1 class="text-3xl font-bold" style="color: var(--text-primary);">Checkout</h1>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="mb-8">
+        <div class="flex items-center justify-center space-x-8">
+            <div class="flex items-center">
+                <div id="step-1-indicator" class="w-10 h-10 bg-[var(--accent-primary)] text-white rounded-full flex items-center justify-center font-bold">1</div>
+                <span class="ml-2 font-medium" style="color: var(--text-primary);">Review Order</span>
+            </div>
+            <div id="progress-1-2" class="h-1 w-16 bg-[var(--border-primary)]"></div>
+            <div class="flex items-center">
+                <div id="step-2-indicator" class="w-10 h-10 bg-[var(--border-primary)] text-[var(--text-secondary)] rounded-full flex items-center justify-center font-bold">2</div>
+                <span id="step-2-text" class="ml-2 font-medium" style="color: var(--text-secondary);">Address & Payment</span>
+            </div>
+            <div id="progress-2-3" class="h-1 w-16 bg-[var(--border-primary)]"></div>
+            <div class="flex items-center">
+                <div id="step-3-indicator" class="w-10 h-10 bg-[var(--border-primary)] text-[var(--text-secondary)] rounded-full flex items-center justify-center font-bold">3</div>
+                <span id="step-3-text" class="ml-2 font-medium" style="color: var(--text-secondary);">Confirmation</span>
+            </div>
+        </div>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -22,106 +43,181 @@
     {% endwith %}
 
     {% if wholesaler_data %}
-    <div class="grid lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2">
-            <div class="interactive-card p-6 mb-6">
-                <h2 class="text-xl font-bold mb-6" style="color: var(--text-primary);">Review Your Order</h2>
-                
-                {% for wholesaler_id, data in wholesaler_data.items() %}
-                <div class="mb-8 pb-6 border-b border-[var(--border-primary)] last:border-0">
-                    <h3 class="font-bold text-lg mb-4" style="color: var(--text-primary);">
-                        Order from {{ data['name'] }}
-                    </h3>
-                    
-                    <div class="space-y-4">
-                        {% for item in data['items'] %}
-                        <div class="flex items-center gap-4 py-3">
-                            <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/60x60/e2e8f0/64748b?text=N/A' }}" 
-                                 alt="{{ item.name }}" class="w-16 h-16 rounded-lg object-cover">
-                            <div class="flex-grow">
-                                <h4 class="font-semibold" style="color: var(--text-primary);">{{ item.name }}</h4>
-                                <p class="text-sm" style="color: var(--text-secondary);">₹{{ "%.2f"|format(item.price) }} × {{ item.quantity }}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-bold" style="color: var(--text-primary);">₹{{ "%.2f"|format(item.item_total) }}</p>
-                            </div>
-                        </div>
-                        {% endfor %}
+    
+    <!-- Step 1: Order Review -->
+    <div id="step-review" class="checkout-step">
+        <div class="grid lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <div class="interactive-card p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold" style="color: var(--text-primary);">Review Your Order</h2>
+                        <a href="{{ url_for('main.vendor_cart') }}" class="gradient-button text-white px-4 py-2 rounded-lg font-medium">Edit Cart</a>
                     </div>
                     
-                    <div class="mt-4 pt-4 border-t border-[var(--border-primary)]">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold" style="color: var(--text-secondary);">Subtotal from {{ data['name'] }}</span>
-                            <span class="font-bold text-lg" style="color: var(--text-primary);">₹{{ "%.2f"|format(data['subtotal']) }}</span>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <div class="lg:col-span-1">
-            <div class="interactive-card p-6 sticky top-24">
-                <h3 class="font-bold text-xl mb-6" style="color: var(--text-primary);">Order Summary</h3>
-                
-                <div class="space-y-3 mb-6">
-                    <div class="flex justify-between">
-                        <span style="color: var(--text-secondary);">Total Items</span>
-                        <span style="color: var(--text-primary);">
-                            {% set total_items = [] %}
-                            {% for wholesaler_id, data in wholesaler_data.items() %}
-                                {% for item in data['items'] %}
-                                    {% set _ = total_items.append(item['quantity']) %}
-                                {% endfor %}
+                    {% for wholesaler_id, data in wholesaler_data.items() %}
+                    <div class="mb-8 pb-6 border-b border-[var(--border-primary)] last:border-0">
+                        <h3 class="font-bold text-lg mb-4" style="color: var(--text-primary);">
+                            Order from {{ data['name'] }}
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            {% for item in data['items'] %}
+                            <div class="flex items-center gap-4 py-3">
+                                <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/60x60/e2e8f0/64748b?text=N/A' }}" 
+                                     alt="{{ item.name }}" class="w-16 h-16 rounded-lg object-cover">
+                                <div class="flex-grow">
+                                    <h4 class="font-semibold" style="color: var(--text-primary);">{{ item.name }}</h4>
+                                    <p class="text-sm" style="color: var(--text-secondary);">₹{{ "%.2f"|format(item.price) }} × {{ item.quantity }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold" style="color: var(--text-primary);">₹{{ "%.2f"|format(item.item_total) }}</p>
+                                </div>
+                            </div>
                             {% endfor %}
-                            {{ total_items|sum }}
-                        </span>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-[var(--border-primary)]">
+                            <div class="flex justify-between">
+                                <span class="font-semibold" style="color: var(--text-primary);">Subtotal</span>
+                                <span class="font-bold" style="color: var(--text-primary);">₹{{ "%.2f"|format(data.subtotal) }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between">
-                        <span style="color: var(--text-secondary);">Total Wholesalers</span>
-                        <span style="color: var(--text-primary);">{{ wholesaler_data|length }}</span>
-                    </div>
-                    <div class="pt-3 border-t border-[var(--border-primary)]">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-lg" style="color: var(--text-primary);">Grand Total</span>
-                            <span class="font-bold text-2xl" style="color: var(--accent-primary);">₹{{ "%.2f"|format(total_amount) }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="interactive-card p-6 mb-6">
+                    <h3 class="text-lg font-bold mb-4" style="color: var(--text-primary);">Order Summary</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span style="color: var(--text-secondary);">Items Total</span>
+                            <span style="color: var(--text-primary);">₹{{ "%.2f"|format(total_amount) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span style="color: var(--text-secondary);">Delivery Charges</span>
+                            <span style="color: var(--text-primary);">₹0.00</span>
+                        </div>
+                        <div class="pt-3 border-t border-[var(--border-primary)]">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-lg" style="color: var(--text-primary);">Total Amount</span>
+                                <span class="font-bold text-2xl" style="color: var(--accent-primary);">₹{{ "%.2f"|format(total_amount) }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="mb-6">
-                    <h4 class="font-semibold mb-3" style="color: var(--text-primary);">Payment Method</h4>
-                    <div class="space-y-2">
-                        <label class="flex items-center p-3 border border-[var(--border-primary)] rounded-lg cursor-pointer hover:bg-[var(--background-tertiary)]">
-                            <input type="radio" name="payment_method" value="cod" checked class="mr-3">
-                            <div>
-                                <div class="font-medium" style="color: var(--text-primary);">Cash on Delivery</div>
-                                <div class="text-sm" style="color: var(--text-secondary);">Pay when you receive the order</div>
-                            </div>
-                        </label>
-                        <label class="flex items-center p-3 border border-[var(--border-primary)] rounded-lg cursor-pointer hover:bg-[var(--background-tertiary)]">
-                            <input type="radio" name="payment_method" value="upi" class="mr-3">
-                            <div>
-                                <div class="font-medium" style="color: var(--text-primary);">UPI Payment</div>
-                                <div class="text-sm" style="color: var(--text-secondary);">Pay now via UPI</div>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-                
-                <form method="POST" id="checkoutForm">
-                    <button type="submit" class="gradient-button w-full text-white font-bold py-4 rounded-xl mb-3">
-                        Place Order
-                    </button>
-                </form>
-                
-                <button onclick="window.history.back()" 
-                        class="w-full py-3 text-gray-500 hover:text-gray-700 font-medium">
-                    Back to Cart
+                <button onclick="nextStep()" class="gradient-button w-full text-white font-bold py-4 rounded-xl">
+                    Continue to Address & Payment
                 </button>
             </div>
         </div>
     </div>
+
+    <!-- Step 2: Address & Payment -->
+    <div id="step-address" class="checkout-step hidden">
+        <div class="grid lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <!-- Address Selection -->
+                <div class="interactive-card p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-6" style="color: var(--text-primary);">Delivery Address</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="address-option p-4 border-2 border-[var(--accent-primary)] bg-[var(--background-tertiary)] rounded-lg cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start gap-3">
+                                    <input type="radio" name="address" value="default" checked class="mt-1">
+                                    <div>
+                                        <h4 class="font-semibold" style="color: var(--text-primary);">Home</h4>
+                                        <p class="text-sm" style="color: var(--text-secondary);">
+                                            123, Street Name, City - 400001<br>
+                                            Maharashtra, India<br>
+                                            Phone: +91 9876543210
+                                        </p>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-1 bg-[var(--accent-primary)] text-white rounded">Default</span>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full p-4 border-2 border-dashed border-[var(--border-primary)] rounded-lg hover:border-[var(--accent-primary)] transition-colors">
+                            <i data-feather="plus" class="w-5 h-5 mx-auto mb-2"></i>
+                            <span style="color: var(--text-secondary);">Add New Address</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Payment Methods -->
+                <div class="interactive-card p-6">
+                    <h2 class="text-xl font-bold mb-6" style="color: var(--text-primary);">Payment Method</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="payment-option p-4 border border-[var(--border-primary)] rounded-lg cursor-pointer hover:border-[var(--accent-primary)] transition-colors">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="payment_method" value="cod" checked class="mr-3">
+                                <div class="flex items-center gap-3">
+                                    <i data-feather="truck" class="w-6 h-6" style="color: var(--accent-primary);"></i>
+                                    <div>
+                                        <div class="font-medium" style="color: var(--text-primary);">Cash on Delivery</div>
+                                        <div class="text-sm" style="color: var(--text-secondary);">Pay when your order arrives</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="payment-option p-4 border border-[var(--border-primary)] rounded-lg cursor-pointer hover:border-[var(--accent-primary)] transition-colors">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="payment_method" value="upi" class="mr-3">
+                                <div class="flex items-center gap-3">
+                                    <i data-feather="smartphone" class="w-6 h-6" style="color: var(--accent-primary);"></i>
+                                    <div>
+                                        <div class="font-medium" style="color: var(--text-primary);">UPI Payment</div>
+                                        <div class="text-sm" style="color: var(--text-secondary);">Pay now via UPI</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary (Repeated) -->
+            <div class="lg:col-span-1">
+                <div class="interactive-card p-6 mb-6">
+                    <h3 class="text-lg font-bold mb-4" style="color: var(--text-primary);">Order Summary</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span style="color: var(--text-secondary);">Items Total</span>
+                            <span style="color: var(--text-primary);">₹{{ "%.2f"|format(total_amount) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span style="color: var(--text-secondary);">Delivery Charges</span>
+                            <span style="color: var(--text-primary);">₹0.00</span>
+                        </div>
+                        <div class="pt-3 border-t border-[var(--border-primary)]">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-lg" style="color: var(--text-primary);">Total Amount</span>
+                                <span class="font-bold text-2xl" style="color: var(--accent-primary);">₹{{ "%.2f"|format(total_amount) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="previousStep()" class="w-full py-3 mb-3 border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium rounded-xl transition-colors">
+                    Back to Review
+                </button>
+                
+                <button onclick="placeOrder()" class="gradient-button w-full text-white font-bold py-4 rounded-xl">
+                    Place Order
+                </button>
+            </div>
+        </div>
+    </div>
+
     {% else %}
     <div class="text-center py-16">
         <div class="text-6xl mb-6">🛒</div>
@@ -134,13 +230,103 @@
     </div>
     {% endif %}
 </div>
+
+<!-- Order Confirmation Modal -->
+<div id="confirmation-modal" class="modal-overlay">
+    <div class="modal-content max-w-md">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-feather="check-circle" class="w-8 h-8 text-green-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-2" style="color: var(--text-primary);">Order Confirmed!</h3>
+            <p class="text-lg mb-6" style="color: var(--text-secondary);">Your order has been placed successfully.</p>
+            
+            <div class="space-y-3">
+                <button onclick="downloadReceipt()" class="gradient-button w-full text-white font-bold py-3 rounded-xl">
+                    <i data-feather="download" class="w-5 h-5 inline mr-2"></i>
+                    Download PDF Receipt
+                </button>
+                <button onclick="goToOrders()" class="w-full py-3 border border-[var(--border-primary)] text-[var(--text-primary)] font-medium rounded-xl transition-colors hover:bg-[var(--background-tertiary)]">
+                    View My Orders
+                </button>
+                <button onclick="continueShopping()" class="w-full py-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium transition-colors">
+                    Continue Shopping
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal for PDF Generation -->
+<div id="loading-modal" class="modal-overlay">
+    <div class="modal-content max-w-sm">
+        <div class="text-center">
+            <div class="spinner mx-auto mb-4"></div>
+            <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">Generating PDF Receipt</h3>
+            <p style="color: var(--text-secondary);">Please wait while we prepare your receipt...</p>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+let currentStep = 1;
+const totalSteps = 2;
+
+function nextStep() {
+    if (currentStep < totalSteps) {
+        currentStep++;
+        updateProgress();
+        showStep();
+    }
+}
+
+function previousStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        updateProgress();
+        showStep();
+    }
+}
+
+function updateProgress() {
+    // Reset all indicators
+    for (let i = 1; i <= 3; i++) {
+        const indicator = document.getElementById(`step-${i}-indicator`);
+        const text = document.getElementById(`step-${i}-text`);
+        
+        if (i <= currentStep) {
+            indicator.className = "w-10 h-10 bg-[var(--accent-primary)] text-white rounded-full flex items-center justify-center font-bold";
+            if (text) text.style.color = "var(--text-primary)";
+        } else {
+            indicator.className = "w-10 h-10 bg-[var(--border-primary)] text-[var(--text-secondary)] rounded-full flex items-center justify-center font-bold";
+            if (text) text.style.color = "var(--text-secondary)";
+        }
+    }
     
+    // Update progress bars
+    const progress12 = document.getElementById('progress-1-2');
+    const progress23 = document.getElementById('progress-2-3');
+    
+    progress12.className = currentStep >= 2 ? "h-1 w-16 bg-[var(--accent-primary)]" : "h-1 w-16 bg-[var(--border-primary)]";
+    progress23.className = currentStep >= 3 ? "h-1 w-16 bg-[var(--accent-primary)]" : "h-1 w-16 bg-[var(--border-primary)]";
+}
+
+function showStep() {
+    // Hide all steps
+    document.getElementById('step-review').classList.add('hidden');
+    document.getElementById('step-address').classList.add('hidden');
+    
+    // Show current step
+    if (currentStep === 1) {
+        document.getElementById('step-review').classList.remove('hidden');
+    } else if (currentStep === 2) {
+        document.getElementById('step-address').classList.remove('hidden');
+    }
+}
+
+function placeOrder() {
     const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
     
     if (paymentMethod === 'upi') {
@@ -148,16 +334,83 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e) {
         return;
     }
     
-    // Show confirmation dialog
-    if (confirm('Are you sure you want to place this order?')) {
-        // Submit the form
-        this.submit();
+    // Show loading modal briefly
+    showLoadingModal();
+    
+    // Simulate order processing
+    setTimeout(() => {
+        hideLoadingModal();
+        
+        // Submit form to backend
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ url_for("main.vendor_checkout") }}';
+        
+        const paymentInput = document.createElement('input');
+        paymentInput.type = 'hidden';
+        paymentInput.name = 'payment_method';
+        paymentInput.value = paymentMethod;
+        form.appendChild(paymentInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+        
+        // Show confirmation modal instead of page redirect
+        // showConfirmationModal();
+    }, 2000);
+}
+
+function showLoadingModal() {
+    document.getElementById('loading-modal').classList.add('visible');
+}
+
+function hideLoadingModal() {
+    document.getElementById('loading-modal').classList.remove('visible');
+}
+
+function showConfirmationModal() {
+    document.getElementById('confirmation-modal').classList.add('visible');
+}
+
+function hideConfirmationModal() {
+    document.getElementById('confirmation-modal').classList.remove('visible');
+}
+
+function downloadReceipt() {
+    // Redirect to PDF download route
+    window.location.href = '{{ url_for("main.download_receipt") }}';
+}
+
+function goToOrders() {
+    window.location.href = '{{ url_for("main.vendor_orders") }}';
+}
+
+function continueShopping() {
+    window.location.href = '{{ url_for("main.vendor_dashboard") }}';
+}
+
+// Initialize feather icons and progress
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+    updateProgress();
+    showStep();
+});
+
+// Handle modal clicks
+document.getElementById('confirmation-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideConfirmationModal();
+        goToOrders();
     }
 });
 
-// Initialize feather icons if available
-if (typeof feather !== 'undefined') {
-    feather.replace();
-}
+document.getElementById('loading-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        // Don't allow closing loading modal by clicking outside
+        return false;
+    }
+});
 </script>
 {% endblock %}

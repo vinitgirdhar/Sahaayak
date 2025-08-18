@@ -803,6 +803,15 @@ def vendor_checkout():
         session['vendor_cart'] = {}
         session.modified = True
         
+        # Store order IDs for receipt generation
+        order_ids = list(orders_by_wholesaler.keys())
+        session['last_order_ids'] = order_ids
+        session.modified = True
+        
+        # Return JSON response for AJAX handling
+        if request.headers.get('Content-Type') == 'application/json':
+            return jsonify({'success': True, 'message': 'Orders placed successfully!'})
+        
         flash('Orders placed successfully!', 'success')
         return redirect(url_for('main.vendor_orders'))
     
@@ -860,6 +869,175 @@ def vendor_checkout():
                            wholesaler_data=wholesaler_data, 
                            total_amount=total_amount,
                            lang=session.get('vendor_language', 'en'))
+
+@bp.route('/vendor/download-receipt')
+def download_receipt():
+    """Generate and download PDF receipt for the last order"""
+    if 'vendor_id' not in session:
+        return redirect(url_for('main.vendor_login'))
+    
+    order_ids = session.get('last_order_ids', [])
+    if not order_ids:
+        flash('No recent orders found', 'error')
+        return redirect(url_for('main.vendor_orders'))
+    
+    try:
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.lib import colors
+        from io import BytesIO
+        import tempfile
+        
+        # Create a temporary file for the PDF
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+        temp_filename = temp_file.name
+        temp_file.close()
+        
+        # Create PDF document
+        doc = SimpleDocTemplate(temp_filename, pagesize=A4, 
+                              rightMargin=72, leftMargin=72, 
+                              topMargin=72, bottomMargin=18)
+        
+        # Get order data
+        conn = sqlite3.connect(DATABASE_NAME)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Get vendor details
+        cursor.execute('SELECT * FROM vendors WHERE id = ?', (session['vendor_id'],))
+        vendor = cursor.fetchone()
+        
+        # Build PDF content
+        styles = getSampleStyleSheet()
+        story = []
+        
+        # Header
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            spaceAfter=30,
+            textColor=colors.HexColor('#16a34a'),
+            alignment=1  # Center alignment
+        )
+        
+        story.append(Paragraph("SAHAAYAK", title_style))
+        story.append(Paragraph("Order Receipt", styles['Heading2']))
+        story.append(Spacer(1, 20))
+        
+        # Order info
+        order_info = [
+            ['Receipt Date:', datetime.now().strftime('%B %d, %Y')],
+            ['Customer:', vendor['name'] if vendor else 'N/A'],
+            ['Phone:', vendor['phone'] if vendor else 'N/A'],
+        ]
+        
+        order_table = Table(order_info, colWidths=[2*inch, 3*inch])
+        order_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+            ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        
+        story.append(order_table)
+        story.append(Spacer(1, 20))
+        
+        # Orders details
+        total_grand_total = 0
+        for i, order_id in enumerate(order_ids):
+            cursor.execute('''
+                SELECT o.id, o.total_amount, o.created_at, w.name as wholesaler_name
+                FROM orders o
+                JOIN wholesalers w ON o.wholesaler_id = w.id
+                WHERE o.id = ?
+            ''', (order_id,))
+            order = cursor.fetchone()
+            
+            if order:
+                story.append(Paragraph(f"Order #{order['id']} - {order['wholesaler_name']}", styles['Heading3']))
+                
+                cursor.execute('''
+                    SELECT oi.quantity, oi.price, oi.total, p.name as product_name
+                    FROM order_items oi
+                    JOIN products p ON oi.product_id = p.id
+                    WHERE oi.order_id = ?
+                ''', (order['id'],))
+                items = cursor.fetchall()
+                
+                # Items table
+                data = [['Item', 'Quantity', 'Price', 'Total']]
+                for item in items:
+                    data.append([
+                        item['product_name'],
+                        str(item['quantity']),
+                        f"₹{item['price']:.2f}",
+                        f"₹{item['total']:.2f}"
+                    ])
+                
+                # Add subtotal row
+                data.append(['', '', 'Subtotal:', f"₹{order['total_amount']:.2f}"])
+                
+                item_table = Table(data, colWidths=[3*inch, 1*inch, 1.5*inch, 1.5*inch])
+                item_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#16a34a')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 12),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -2), colors.white),
+                    ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f9ff')),
+                    ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)
+                ]))
+                
+                story.append(item_table)
+                story.append(Spacer(1, 15))
+                
+                total_grand_total += order['total_amount']
+        
+        # Grand total
+        grand_total_data = [['GRAND TOTAL:', f"₹{total_grand_total:.2f}"]]
+        grand_total_table = Table(grand_total_data, colWidths=[5*inch, 2*inch])
+        grand_total_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#16a34a')),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 14),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('TOPPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        
+        story.append(Spacer(1, 20))
+        story.append(grand_total_table)
+        
+        # Footer
+        story.append(Spacer(1, 30))
+        story.append(Paragraph("Thank you for your business!", styles['Normal']))
+        story.append(Paragraph("Sahaayak - Connecting Communities", styles['Italic']))
+        
+        # Build PDF
+        doc.build(story)
+        conn.close()
+        
+        # Send file
+        return send_file(temp_filename, 
+                        as_attachment=True, 
+                        download_name=f'sahaayak_receipt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf',
+                        mimetype='application/pdf')
+        
+    except ImportError:
+        # If reportlab is not installed, create a simple text receipt
+        flash('PDF generation not available. Please install reportlab library.', 'warning')
+        return redirect(url_for('main.vendor_orders'))
+    except Exception as e:
+        flash(f'Error generating receipt: {str(e)}', 'error')
+        return redirect(url_for('main.vendor_orders'))
 
 @bp.route('/vendor/orders')
 def vendor_orders():

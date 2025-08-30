@@ -58,4 +58,7 @@ gunicorn==21.2.0
 # Development dependencies
 Flask-DebugToolbar==0.13.1   # Debug toolbar for development
 
+# PDF generation
+reportlab==4.0.4            # PDF generation library for receipts
+
 python-dotenv==1.0.0

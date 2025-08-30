@@ -11,7 +11,9 @@ except ImportError:
 class Config:
     """Base configuration."""
     SECRET_KEY = os.getenv('SECRET_KEY', 'a-very-secret-key-that-you-should-change')
-    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyDyYEw7SLwswMtutVhtUy0zI2bvaf_SIdU')
+    # Prefer setting GEMINI_API_KEY via environment variable for security.
+    # Fallback default updated per user request (consider moving this to .env or CI secrets).
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyBsa_rDeTYEsioStJUsvH2hjkFFzwgPU00')
     
     # Database configuration
     DATABASE = 'vendor_clubs.db'

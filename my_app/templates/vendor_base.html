@@ -30,26 +30,28 @@
             --border-primary: #e5e7eb;
             --text-primary: #111827;
             --text-secondary: #4b5563;
-            --accent-primary: #16a34a;     /* Solid green for buttons */
-            --accent-secondary: #22c55e;   /* Lighter green for secondary accents */
-            --glow-primary: rgba(34, 197, 94, 0.15);
-            --glow-secondary: rgba(22, 163, 74, 0.15);
+            /* Accent: restore neutral brand accent with strong contrast */
+            --accent-primary: #2563eb;     /* Blue 600 */
+            --accent-secondary: #1d4ed8;   /* Blue 700 */
+            --glow-primary: rgba(37, 99, 235, 0.15);
+            --glow-secondary: rgba(29, 78, 216, 0.15);
             --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
             --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07);
         }
         
-        /* --- Dark Theme (Emerald Depth) --- */
+        /* --- Dark Theme (Aurora) --- */
         .aurora-theme {
             --background-primary: #0F2027; /* Darkest shade for main background */
             --background-secondary: #142d36; /* Slightly lighter for cards, sidebar */
             --background-tertiary: #1a3a45; /* Lighter shade for hovers */
             --border-primary: #28623A;     /* Green accent for borders */
             --text-primary: #f0f6fc;       /* Off-white for primary text */
-            --text-secondary: #a0b0b5;     /* Muted gray for secondary text */
-            --accent-primary: #16a34a;     /* Solid green for buttons */
-            --accent-secondary: #22c55e;   /* Lighter green for secondary accents */
-            --glow-primary: rgba(34, 197, 94, 0.25); /* Green glow for buttons/cards */
-            --glow-secondary: rgba(22, 163, 74, 0.2);
+            --text-secondary: #c2d1d6;     /* Brighter secondary for contrast */
+            /* Accent: restore original dark theme contrast-friendly blue */
+            --accent-primary: #60a5fa;     /* Blue 400 */
+            --accent-secondary: #3b82f6;   /* Blue 500 */
+            --glow-primary: rgba(59, 130, 246, 0.25);
+            --glow-secondary: rgba(59, 130, 246, 0.2);
             --card-shadow: 0 0 0 1px rgba(40, 98, 58, 0.5);
             --card-shadow-hover: 0 0 0 1px var(--accent-secondary), 0 10px 30px -5px var(--glow-primary);
         }
@@ -105,14 +107,16 @@
 
         /* --- FIX: Missing button and card styles --- */
         .gradient-button {
-            background-color: var(--accent-primary) !important;
-            color: white !important;
-            border: none !important;
-            transition: all 0.3s ease;
+            /* Theme-driven accent; removed forced green overrides */
+            background-color: var(--accent-primary);
+            color: white;
+            border: none;
+            transition: all 0.2s ease;
             box-shadow: var(--card-shadow);
+            border-radius: 0.75rem; /* unified radius */
         }
         .gradient-button:hover {
-            background-color: var(--accent-secondary) !important;
+            background-color: var(--accent-secondary);
             transform: translateY(-1px);
             box-shadow: var(--card-shadow-hover);
         }
@@ -378,13 +382,140 @@
                 display: block;
             }
         }
+
+        /* --- Brand Header --- */
+        .sahaayak-header {
+            position: sticky; top: 0; z-index: 40;
+            background-color: var(--background-primary);
+            border-bottom: 1px solid var(--border-primary);
+        }
+        .brand-title {
+            letter-spacing: 0.02em; /* subtle tracking */
+        }
+
+        /* --- Standardized UI Elements --- */
+        .ui-input {
+            height: 3rem; /* 48px */
+            padding: 0 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-primary);
+            background: var(--background-secondary);
+            color: var(--text-primary);
+        }
+        .ui-input:focus { outline: none; box-shadow: 0 0 0 3px var(--glow-primary); border-color: var(--accent-primary); }
+        .ui-btn {
+            height: 3rem; padding: 0 1.25rem; border-radius: 0.75rem; display: inline-flex; align-items: center; gap: 0.5rem;
+            border: 1px solid var(--border-primary); background: var(--background-secondary); color: var(--text-primary);
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .ui-btn:hover { background: var(--background-tertiary); border-color: var(--accent-primary); }
+        .ui-btn--primary { background: var(--accent-primary); color: #fff; border: none; }
+        .ui-btn--primary:hover { background: var(--accent-secondary); }
     </style>
 </head>
 <body class="daylight-theme">
     <!-- Preloader -->
     <div class="preloader">
+    <style>
+        /* Theme variables for light/dark (used inline for compatibility) */
+        :root{
+            --background-primary: #ffffff; /* input backgrounds */
+            --background-secondary: #f8fafc; /* card/modal backgrounds */
+            --text-primary: #0f172a; /* main text */
+            --text-secondary: #475569; /* secondary text */
+            --border-primary: #e2e8f0; /* subtle borders */
+            --accent: #10b981; /* green */
+        }
+        .dark-mode, .dark {
+            --background-primary: #111827; /* inputs */
+            --background-secondary: #0b1220; /* cards/modals */
+            --text-primary: #e6eef8;
+            --text-secondary: #9aa6b2;
+            --border-primary: #1f2937;
+            --accent: #34d399;
+        }
+
+        /* Category icons visibility: ensure contrast in dark mode */
+        .category-icon {
+            filter: none;
+            opacity: 1;
+            transition: filter .15s ease, opacity .15s ease, background-color .15s ease, box-shadow .15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background-tertiary);
+            border: 1px solid var(--border-primary);
+            padding: 0.35rem; /* small padding to separate icon from tile */
+            box-shadow: 0 2px 6px rgba(2,6,23,0.04) inset;
+        }
+        /* Ensure inline SVGs and images remain high-contrast */
+        .category-icon svg, .category-icon img {
+            width: 2.25rem; height: 2.25rem; display: block;
+            color: var(--text-primary);
+            fill: none; /* prefer stroke icons for crispness */
+            stroke: currentColor !important;
+            stroke-width: 1.8; /* thicker stroke for small icons */
+            opacity: 1 !important;
+            filter: none !important;
+        }
+        /* Force emoji / svg color for dark mode */
+        .dark .category-icon, .dark-mode .category-icon {
+            background-color: #1f2937 !important; /* fallback dark tile */
+            color: var(--text-primary) !important;
+        }
+        .dark .category-icon svg, .dark-mode .category-icon svg, .dark .category-icon img, .dark-mode .category-icon img {
+            color: var(--text-primary) !important;
+            fill: var(--text-primary) !important;
+            stroke: var(--text-primary) !important;
+        }
+    .dark .category-icon { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.08) !important; box-shadow: 0 4px 18px rgba(2,6,23,0.6) inset; }
+    .dark .category-icon svg, .dark-mode .category-icon svg { color: var(--text-primary); fill: none; stroke: currentColor; stroke-width: 1.8; }
+    .category-icon img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.45)); }
+
+        /* Donation / Discount modal consistent styling */
+        .donation-modal .input, .donation-modal input, .donation-modal textarea {
+            background: var(--background-primary);
+            border: 1px solid var(--border-primary);
+            color: var(--text-primary);
+            border-radius: 8px;
+        }
+        .donation-modal .label { color: var(--text-secondary); }
+        .donation-modal .btn {
+            background: var(--accent);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+        }
+
+    /* Make sure overly bright white areas are toned down in dark mode */
+    .dark .card, .dark-mode .card { background: var(--background-secondary); border:1px solid var(--border-primary); }
+
+    /* Accessibility helpers */
+    .high-contrast-text { color: var(--text-primary) !important; }
+    </style>
         <div class="spinner"></div>
     </div>
+
+    <!-- Desktop Branding Header -->
+    {% if not hide_brand_header|default(false) %}
+    <header class="sahaayak-header hidden md:block">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg" style="background: var(--accent-primary);"></div>
+                    <span class="brand-title text-2xl font-extrabold" style="color: var(--text-primary);">Sahaayak</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input id="global-search-input" type="text" placeholder="Search products..." class="ui-input w-80 hidden lg:block">
+                    <button id="global-search-button" class="ui-btn hidden lg:inline-flex"><i data-feather="search" class="w-5 h-5"></i><span>Search</span></button>
+                    <a href="{{ url_for('main.vendor_cart') }}" class="ui-btn"><i data-feather="shopping-cart" class="w-5 h-5"></i><span>Cart</span></a>
+                    <a href="{{ url_for('main.vendor_orders') }}" class="ui-btn"><i data-feather="list" class="w-5 h-5"></i><span>Orders</span></a>
+                    <a href="{{ url_for('main.vendor_profile') }}" class="ui-btn"><i data-feather="user" class="w-5 h-5"></i><span>Account</span></a>
+                </div>
+            </div>
+        </div>
+    </header>
+    {% endif %}
 
     <!-- AI Response Modal -->
     <div id="ai-modal" class="modal-overlay">
@@ -402,6 +533,7 @@
     </div>
 
     <!-- Mobile Header - Only visible on mobile -->
+    {% if not hide_brand_header|default(false) %}
     <div id="mobile-header" class="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-[var(--background-primary)] shadow-md">
         <button id="mobile-menu-button" class="p-2" aria-label="Open menu">
             <i data-feather="menu" class="w-6 h-6"></i>
@@ -409,6 +541,7 @@
         <h1 class="text-2xl font-bold" style="color: var(--text-primary);">Sahaayak</h1>
         <div class="w-10"></div> <!-- Spacer to center the title -->
     </div>
+    {% endif %}
     <div class="mobile-overlay" id="mobile-overlay"></div>
 
     <div class="flex h-screen">
@@ -669,6 +802,16 @@
         // Initialize app when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
             window.SahaayakApp.init();
+            // Wire global search
+            const gsi = document.getElementById('global-search-input');
+            const gsb = document.getElementById('global-search-button');
+            const goSearch = () => {
+                const q = (gsi?.value || '').trim();
+                const url = q ? `{{ url_for('main.vendor_search') }}?q=${encodeURIComponent(q)}` : `{{ url_for('main.vendor_search') }}`;
+                window.location.href = url;
+            };
+            if (gsb) gsb.addEventListener('click', goSearch);
+            if (gsi) gsi.addEventListener('keydown', (e) => { if (e.key === 'Enter') goSearch(); });
         });
 
         // Expose cart functions globally for backward compatibility

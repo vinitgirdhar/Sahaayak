@@ -344,13 +344,19 @@ function placeOrder() {
         // Submit form to backend
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '{{ url_for("main.vendor_checkout") }}';
+    form.action = '{{ url_for("main.vendor_checkout") }}';
         
         const paymentInput = document.createElement('input');
         paymentInput.type = 'hidden';
         paymentInput.name = 'payment_method';
         paymentInput.value = paymentMethod;
         form.appendChild(paymentInput);
+
+    const addressInput = document.createElement('input');
+    addressInput.type = 'hidden';
+    addressInput.name = 'delivery_address';
+    addressInput.value = 'Home, 123, Street Name, City - 400001, Maharashtra, India';
+    form.appendChild(addressInput);
         
         document.body.appendChild(form);
         form.submit();

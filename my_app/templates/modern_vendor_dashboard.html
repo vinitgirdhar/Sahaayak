@@ -1,15 +1,17 @@
 {% extends "vendor_base.html" %}
 
+{# Hide the top brand header on this page since the sidebar already shows branding #}
+{% set hide_brand_header = true %}
+
 {% block title %}Vendor Dashboard - Sahaayak{% endblock %}
 
 {% block vendor_content %}
-<!-- Dashboard Header -->
+
+<!-- Centered Page Title (dashboard-specific) -->
 <div class="mb-8 text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold mb-2" style="color: var(--text-primary);">Sahaayak</h1>
-    <p class="text-lg" style="color: var(--text-secondary);">Your Wholesale Marketplace</p>
+    <h1 class="text-4xl md:text-5xl font-extrabold" style="color: var(--text-primary);">SAHAYAAK</h1>
 </div>
 
-<!-- AI Search Section -->
 <div class="mb-12 reveal">
     <div class="flex flex-col md:flex-row items-center gap-4">
         <div class="relative flex-grow w-full">
@@ -26,14 +28,11 @@
     </div>
 </div>
 
-<!-- Recently Ordered Section -->
 <section class="mb-16">
     <h2 id="recent-orders-title" class="text-3xl font-bold mb-6 reveal" style="color: var(--text-primary);">Recently Ordered</h2>
-    <!-- Recently Ordered Section -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {% for item in recent_orders %}
     <div class="order-card reveal flex flex-col p-4">
-            <!-- Top section with Image and Info -->
             <div class="flex-grow flex items-start gap-4">
                 <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/80x80/e2e8f0/64748b?text=N/A' }}" 
                      alt="{{ item.name }}" class="w-20 h-20 rounded-lg object-cover flex-shrink-0">
@@ -42,7 +41,6 @@
                     <h3 class="font-bold text-md product-name mb-1" style="color: var(--text-primary);">{{ item.name }}</h3>
                     <p class="text-xs mb-3" style="color: var(--text-secondary);">Ordered {{ item.order_count }} times</p>
                     
-                    <!-- Quantity Controls -->
                     <div class="flex items-center gap-2">
                         <button class="quantity-button !w-8 !h-8" onclick="updateQuantity(this, -1)">
                             <i data-feather="minus" class="w-4 h-4"></i>
@@ -55,7 +53,6 @@
                 </div>
             </div>
 
-            <!-- Bottom section with Reorder Button -->
             <div class="mt-4">
                 <button class="gradient-button w-full text-white font-semibold py-3 rounded-xl text-md shadow-lg reorder-btn" 
                         data-product-id="{{ item.id }}">
@@ -69,11 +66,9 @@
     </div>
 </section>
 
-<!-- Categories Section -->
 <section>
     <h2 id="categories-title" class="text-3xl font-bold mb-6 reveal" style="color: var(--text-primary);">Our Categories</h2>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-        <!-- Category Cards -->
         <a href="/vendor/category/vegetables" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 100ms;">
             <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-green-100 flex items-center justify-center text-4xl">
                 🥬
@@ -145,8 +140,12 @@
         </a>
         
         <a href="/vendor/category/packaging" class="interactive-card p-4 flex flex-col items-center justify-center text-center reveal" style="transition-delay: 500ms;">
-            <div class="category-icon w-20 h-20 rounded-2xl mb-4 bg-gray-100 flex items-center justify-center text-4xl">
-                🛍
+            <div class="category-icon w-20 h-20 rounded-2xl mb-4 flex items-center justify-center" style="background: var(--background-tertiary); color: var(--text-primary);">
+                <!-- Inline shopping-bag SVG (uses currentColor) so it remains visible in dark mode -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
             </div>
             <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Packaging & Miscellaneous</h3>
         </a>
@@ -167,9 +166,7 @@
     </div>
 </section>
 
-<!-- Donation Banner Section -->
 <section class="mt-16 mb-16 reveal">
-    <!-- The main div now uses the new 'donation-banner' class -->
     <div class="donation-banner p-6 rounded-2xl flex items-center justify-between">
         <div>
             <h3 class="font-bold text-xl text-green-800">Have leftover food? Donate and get rewarded!</h3>
@@ -181,14 +178,12 @@
     </div>
 </section>
 
-<!-- Budget-Friendly Items Section -->
 <section class="mb-16">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-bold" style="color: var(--text-primary);">Find Budget-Friendly Items</h2>
         <span class="text-lg font-medium text-green-600">Potential Savings: <span id="potential-savings">₹0</span></span>
     </div>
 
-    <!-- Filters Bar -->
     <div class="bg-[var(--background-secondary)] p-4 rounded-2xl border border-[var(--border-primary)] mb-8 flex flex-wrap items-center gap-4">
         <div class="flex-grow">
             <label for="max-budget" class="text-xs font-medium text-[var(--text-secondary)]">Max Budget (₹)</label>
@@ -198,7 +193,6 @@
             <label for="category-filter" class="text-xs font-medium text-[var(--text-secondary)]">Category</label>
             <select id="category-filter" class="w-full mt-1 p-2 bg-transparent border-b-2 border-[var(--border-primary)] focus:outline-none focus:border-[var(--accent-primary)]">
                 <option>All Categories</option>
-                <!-- This loop dynamically creates the category options -->
                 {% for category in all_categories %}
                     <option>{{ category }}</option>
                 {% endfor %}
@@ -215,13 +209,10 @@
         <button id="reset-filters" class="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] self-end pb-2">Reset Filters</button>
     </div>
 
-    <!-- Product Grid -->
     <div id="budget-product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <!-- Products will be dynamically inserted here by JavaScript -->
-    </div>
+        </div>
 </section>
 
-<!-- Top Rated Wholesalers Section -->
 <section class="mt-16">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-bold" style="color: var(--text-primary);">Top Rated Wholesalers</h2>
@@ -276,7 +267,6 @@
     </div>
 </section>
 
-<!-- Cart Summary (Fixed Bottom) -->
 <div id="cartSummary" class="hidden fixed bottom-0 left-0 right-0 bg-[var(--background-primary)] border-t border-[var(--border-primary)] p-4 shadow-lg" style="z-index: 40; margin-left: var(--sidebar-width-collapsed);">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
         <div>
@@ -291,7 +281,6 @@
     </div>
 </div>
 
-<!-- NEW AI SLIDE-IN PANEL -->
 <div id="ai-panel-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
 <div id="ai-panel" class="fixed top-0 right-0 h-full z-50 transform translate-x-full transition-transform duration-300 ease-in-out" style="width: 400px;">
     <div class="flex flex-col h-full">
@@ -310,33 +299,32 @@
     </div>
 </div>
 
-<!-- Donation Modal -->
-<div id="donation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
-    <div class="relative mx-auto p-8 border w-full max-w-lg shadow-lg rounded-2xl bg-white">
-        <h3 class="text-2xl font-bold text-gray-900 mb-2">Have Leftover Food? Give & Get Rewarded!</h3>
-        <p class="text-gray-600 mb-6">Donate your leftover food to help those in need and get a discount on your next purchase!</p>
+<div id="donation-modal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
+    <div class="relative mx-auto p-6 border w-full max-w-lg shadow-lg rounded-2xl" style="background: var(--background-secondary); border-color: var(--border-primary); color: var(--text-primary);">
+        <h3 class="text-2xl font-bold mb-2" style="color: var(--text-primary);">Have Leftover Food? Give & Get Rewarded!</h3>
+        <p class="mb-6" style="color: var(--text-secondary);">Donate your leftover food to help those in need and get a discount on your next purchase.</p>
 
         <form id="donation-form">
-            <div class="space-y-4">
+            <div class="grid grid-cols-1 gap-4">
                 <div>
-                    <label for="food_description" class="block text-sm font-medium text-gray-700">Type of Food/Description</label>
-                    <textarea id="food_description" name="food_description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="E.g. Rice, Samosa, etc."></textarea>
+                    <label for="food_description" class="block text-sm font-medium" style="color: var(--text-secondary);">Type of Food / Description</label>
+                    <textarea id="food_description" name="food_description" rows="3" class="mt-1 block w-full rounded-md" style="background: var(--background-primary); border: 1px solid var(--border-primary); color: var(--text-primary); padding: 0.5rem;" placeholder="E.g. Rice, Samosa, etc."></textarea>
                 </div>
                 <div>
-                    <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity (approx)</label>
-                    <input type="text" id="quantity" name="quantity" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="e.g. 3 kg or 25 servings">
+                    <label for="quantity" class="block text-sm font-medium" style="color: var(--text-secondary);">Quantity (approx)</label>
+                    <input type="text" id="quantity" name="quantity" class="mt-1 block w-full rounded-md" style="background: var(--background-primary); border: 1px solid var(--border-primary); color: var(--text-primary); padding: 0.5rem;" placeholder="e.g. 3 kg or 25 servings">
                 </div>
                 <div>
-                    <label for="pickup_address" class="block text-sm font-medium text-gray-700">Pickup Address</label>
-                    <input type="text" id="pickup_address" name="pickup_address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter your pickup address">
+                    <label for="pickup_address" class="block text-sm font-medium" style="color: var(--text-secondary);">Pickup Address</label>
+                    <input type="text" id="pickup_address" name="pickup_address" class="mt-1 block w-full rounded-md" style="background: var(--background-primary); border: 1px solid var(--border-primary); color: var(--text-primary); padding: 0.5rem;" placeholder="Enter your pickup address">
                 </div>
                 <div>
-                    <label for="pickup_time" class="block text-sm font-medium text-gray-700">Preferred Pickup Time</label>
-                    <input type="datetime-local" id="pickup_time" name="pickup_time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    <label for="pickup_time" class="block text-sm font-medium" style="color: var(--text-secondary);">Preferred Pickup Time</label>
+                    <input type="datetime-local" id="pickup_time" name="pickup_time" class="mt-1 block w-full rounded-md" style="background: var(--background-primary); border: 1px solid var(--border-primary); color: var(--text-primary); padding: 0.5rem;">
                 </div>
             </div>
-            <div class="mt-8 flex justify-end gap-4">
-                 <button type="button" id="close-donation-modal-btn" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
+            <div class="mt-6 flex justify-end gap-4">
+                 <button type="button" id="close-donation-modal-btn" class="text-sm font-semibold py-2 px-4 rounded-lg" style="background: var(--background-primary); border:1px solid var(--border-primary); color: var(--text-primary);">Cancel</button>
                 <button type="submit" class="gradient-button text-white font-semibold py-2 px-4 rounded-lg">Donate & Get Discount</button>
             </div>
         </form>
@@ -355,14 +343,19 @@
         display: block;
     }
     
-    /* Donation banner styles */
+    /* Donation banner styles (theme-aware) */
     .donation-banner {
         position: relative;
-        background-color: #D1FAE5; /* A light green */
-        border: 1px solid #A7F3D0;
-        box-shadow: 0 0 15px 5px rgba(16, 185, 129, 0.3); /* Green glow effect */
+        background-color: var(--background-secondary);
+        border: 1px solid var(--border-primary);
+        box-shadow: 0 6px 18px rgba(2,6,23,0.08);
         overflow: hidden; /* Important for the cutout effect */
+        color: var(--text-primary);
+        padding: 1rem;
     }
+
+    .donation-banner h3 { color: var(--accent); }
+    .donation-banner p { color: var(--text-secondary); }
 
     .donation-banner::before,
     .donation-banner::after {
@@ -372,17 +365,19 @@
         transform: translateY(-50%);
         width: 30px; /* Diameter of the circle */
         height: 30px; /* Diameter of the circle */
-        background-color: var(--background-primary); /* This should match your page's main background color */
+        background-color: var(--background-primary);
         border-radius: 50%;
-        border: 1px solid #A7F3D0;
+        border: 1px solid var(--border-primary);
     }
 
-    .donation-banner::before {
-        left: -15px; /* Half of the width to create the cutout */
-    }
+    .donation-banner::before { left: -15px; }
+    .donation-banner::after { right: -15px; }
 
-    .donation-banner::after {
-        right: -15px; /* Half of the width to create the cutout */
+    /* Dark mode tweaks for donation banner */
+    .dark .donation-banner, .dark-mode .donation-banner {
+        background-color: var(--background-secondary);
+        border-color: var(--border-primary);
+        box-shadow: 0 6px 18px rgba(2,6,23,0.4);
     }
 </style>
 <script>
@@ -782,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     // --- End of Wholesalers Sorting ---
-    
+
     // Initialize page
     initializePage();
 

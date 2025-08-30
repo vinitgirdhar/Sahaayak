@@ -759,6 +759,7 @@ def vendor_checkout():
         cursor = conn.cursor()
         
         orders_by_wholesaler = {}
+        created_order_ids = []
         
         for product_id, quantity in cart.items():
             cursor.execute('''
@@ -790,6 +791,7 @@ def vendor_checkout():
             ''', (wholesaler_id, session['vendor_id'], total_amount, 'pending'))
             
             order_id = cursor.lastrowid
+            created_order_ids.append(order_id)
             
             for item in items:
                 cursor.execute('''
@@ -803,17 +805,18 @@ def vendor_checkout():
         session['vendor_cart'] = {}
         session.modified = True
         
-        # Store order IDs for receipt generation
-        order_ids = list(orders_by_wholesaler.keys())
-        session['last_order_ids'] = order_ids
+        # Store order IDs for receipt generation (actual DB order IDs)
+        session['last_order_ids'] = created_order_ids
+        session['last_payment_method'] = request.form.get('payment_method', 'cod')
+        # In a real app, capture the posted address; for now, store default shown in UI
+        session['last_delivery_address'] = request.form.get('delivery_address', 'Home, 123 Street Name, City - 400001, Maharashtra, India')
         session.modified = True
         
         # Return JSON response for AJAX handling
         if request.headers.get('Content-Type') == 'application/json':
-            return jsonify({'success': True, 'message': 'Orders placed successfully!'})
+            return jsonify({'success': True, 'message': 'Orders placed successfully!', 'order_ids': created_order_ids})
         
-        flash('Orders placed successfully!', 'success')
-        return redirect(url_for('main.vendor_orders'))
+        return redirect(url_for('main.vendor_order_confirmation'))
     
     # GET request - show checkout page with cart data
     cart = session.get('vendor_cart', {})
@@ -919,7 +922,7 @@ def download_receipt():
             parent=styles['Heading1'],
             fontSize=24,
             spaceAfter=30,
-            textColor=colors.HexColor('#16a34a'),
+            textColor=colors.HexColor('#3b82f6'),
             alignment=1  # Center alignment
         )
         
@@ -932,6 +935,9 @@ def download_receipt():
             ['Receipt Date:', datetime.now().strftime('%B %d, %Y')],
             ['Customer:', vendor['name'] if vendor else 'N/A'],
             ['Phone:', vendor['phone'] if vendor else 'N/A'],
+            ['Payment:', (session.get('last_payment_method') or 'COD').upper()],
+            ['Delivery:', session.get('last_delivery_address', 'N/A')],
+            ['ETA:', '2-3 business days']
         ]
         
         order_table = Table(order_info, colWidths=[2*inch, 3*inch])
@@ -959,6 +965,14 @@ def download_receipt():
             
             if order:
                 story.append(Paragraph(f"Order #{order['id']} - {order['wholesaler_name']}", styles['Heading3']))
+                # Meta line
+                try:
+                    created_dt = datetime.strptime(order['created_at'], '%Y-%m-%d %H:%M:%S')
+                    created_str = created_dt.strftime('%b %d, %Y %I:%M %p')
+                except Exception:
+                    created_str = str(order['created_at'])
+                story.append(Paragraph(f"Placed on: {created_str}", styles['Normal']))
+                story.append(Spacer(1, 6))
                 
                 cursor.execute('''
                     SELECT oi.quantity, oi.price, oi.total, p.name as product_name
@@ -983,7 +997,7 @@ def download_receipt():
                 
                 item_table = Table(data, colWidths=[3*inch, 1*inch, 1.5*inch, 1.5*inch])
                 item_table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#16a34a')),
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#3b82f6')),
                     ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                     ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                     ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -1004,7 +1018,7 @@ def download_receipt():
         grand_total_data = [['GRAND TOTAL:', f"₹{total_grand_total:.2f}"]]
         grand_total_table = Table(grand_total_data, colWidths=[5*inch, 2*inch])
         grand_total_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#16a34a')),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#3b82f6')),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
@@ -1015,21 +1029,21 @@ def download_receipt():
         
         story.append(Spacer(1, 20))
         story.append(grand_total_table)
-        
+
         # Footer
         story.append(Spacer(1, 30))
         story.append(Paragraph("Thank you for your business!", styles['Normal']))
         story.append(Paragraph("Sahaayak - Connecting Communities", styles['Italic']))
-        
+
         # Build PDF
         doc.build(story)
         conn.close()
-        
+
         # Send file
-        return send_file(temp_filename, 
-                        as_attachment=True, 
-                        download_name=f'sahaayak_receipt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf',
-                        mimetype='application/pdf')
+        return send_file(temp_filename,
+                 as_attachment=True,
+                 download_name=f'sahaayak_receipt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf',
+                 mimetype='application/pdf')
         
     except ImportError:
         # If reportlab is not installed, create a simple text receipt
@@ -1038,6 +1052,26 @@ def download_receipt():
     except Exception as e:
         flash(f'Error generating receipt: {str(e)}', 'error')
         return redirect(url_for('main.vendor_orders'))
+
+@bp.route('/vendor/order-confirmation')
+def vendor_order_confirmation():
+    if 'vendor_id' not in session:
+        return redirect(url_for('main.vendor_login'))
+
+    order_ids = session.get('last_order_ids', [])
+    if not order_ids:
+        return redirect(url_for('main.vendor_orders'))
+
+    delivery_address = session.get('last_delivery_address', 'Home, 123 Street Name, City - 400001, Maharashtra, India')
+    payment_method = session.get('last_payment_method', 'cod')
+    # Simple ETA: 2-3 days
+    eta_text = '2-3 business days'
+
+    return render_template('vendor_confirmation.html',
+                           order_ids=order_ids,
+                           delivery_address=delivery_address,
+                           payment_method=payment_method,
+                           eta_text=eta_text)
 
 @bp.route('/vendor/orders')
 def vendor_orders():

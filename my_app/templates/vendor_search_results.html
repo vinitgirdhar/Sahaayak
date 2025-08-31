@@ -1,5 +1,6 @@
 {% extends "vendor_base.html" %}
 
+{% set hide_brand_header = true %}
 {% block title %}Search Results - Sahaayak{% endblock %}
 
 {% block vendor_content %}
@@ -79,58 +80,45 @@
             </div>
         </div>
         
-        <!-- Results Grid -->
-        <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <!-- Results Grid (modern cards) -->
+        <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {% for product in products %}
-            <div class="order-card reveal product-card" 
-                 data-price="{{ product[4] }}" 
-                 data-location="{{ product[14] }}" 
-                 data-stock="{{ product[5] }}"
-                 data-trust="{{ product[16] }}"
-                 data-name="{{ product[2]|lower }}"
-                 data-product-id="{{ product[0] }}">
-                
-                <!-- Product Image -->
-                {% if product[7] %}
-                <div class="mb-4 rounded-xl overflow-hidden">
-                    <img src="{{ url_for('static', filename=product[7]) }}" 
-                         alt="{{ product[2] }}" class="w-full h-48 object-cover">
+            <article class="reveal product-card bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl p-4 flex flex-col" tabindex="0" aria-labelledby="search-product-{{ product[0] }}">
+                <div class="w-full h-44 rounded-lg overflow-hidden mb-4 bg-[var(--background-tertiary)] flex items-center justify-center">
+                    {% if product[7] %}
+                    <img src="{{ url_for('static', filename=product[7]) }}" alt="{{ product[2] }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <i data-feather="package" class="w-10 h-10 text-[var(--text-secondary)]"></i>
+                    {% endif %}
                 </div>
-                {% else %}
-                <div class="mb-4 rounded-xl overflow-hidden bg-[var(--background-tertiary)] flex items-center justify-center h-48">
-                    <span class="text-4xl opacity-50">📦</span>
+
+                <h3 id="search-product-{{ product[0] }}" class="text-base font-semibold text-[var(--text-primary)] mb-1">{{ product[2] }}</h3>
+                <p class="text-xs text-[var(--text-secondary)] mb-2">{{ product[13] }} • {{ product[14] }}</p>
+                <p class="text-[var(--accent-primary)] font-bold text-lg mb-3">₹{{ "%.2f"|format(product[4]) }}</p>
+
+                <div class="mb-3 text-xs text-[var(--text-secondary)]">⭐ {{ product[16] }}/5 • Stock: {{ product[5] }}</div>
+
+                <div class="mt-auto">
+                    <div class="mb-3">
+                        <div class="quantity-bar flex items-center justify-between w-full rounded-lg overflow-hidden" style="height:3.5rem;">
+                            <button type="button" class="qty-btn px-4 h-full flex items-center justify-center" data-action="decrease" data-target="#search-qty-{{ product[0] }}" aria-label="Decrease quantity">
+                                <i data-feather="minus" class="w-5 h-5"></i>
+                            </button>
+                            <div class="qty-display text-lg font-semibold text-center flex-1" id="search-qty-display-{{ product[0] }}" aria-live="polite">1</div>
+                            <button type="button" class="qty-btn px-4 h-full flex items-center justify-center" data-action="increase" data-target="#search-qty-{{ product[0] }}" aria-label="Increase quantity">
+                                <i data-feather="plus" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <!-- hidden input for compatibility with existing JS -->
+                        <input id="search-qty-{{ product[0] }}" type="number" class="quantity-input hidden" value="1" min="1" max="{{ product[5] }}">
+                    </div>
+                    {% if product[5] > 0 %}
+                    <button data-product-id="{{ product[0] }}" data-qty-input="#search-qty-{{ product[0] }}" class="add-to-cart-btn gradient-button w-full text-white font-medium py-3 rounded-lg">Add to Cart</button>
+                    {% else %}
+                    <button disabled class="w-full opacity-60 bg-[var(--background-primary)] text-[var(--text-secondary)] font-medium py-2 rounded-lg">Out of Stock</button>
+                    {% endif %}
                 </div>
-                {% endif %}
-                
-                <!-- Product Info -->
-                <h3 class="font-bold text-lg product-name mb-2" style="color: var(--text-primary);">{{ product[2] }}</h3>
-                <div class="text-sm mb-4" style="color: var(--text-secondary);">
-                    <p>{{ product[13] }} • {{ product[14] }}</p>
-                    <p>⭐ {{ product[16] }}/5.0 • Stock: {{ product[5] }}</p>
-                </div>
-                
-                <!-- Price -->
-                <div class="text-2xl font-bold mb-4" style="color: var(--accent-primary);">₹{{ "%.2f"|format(product[4]) }}</div>
-                
-                <!-- Quantity Controls -->
-                <div class="quantity-selector flex items-center justify-center gap-3 mb-6">
-                    <button type="button" class="quantity-minus quantity-button">
-                        <i data-feather="minus" class="w-4 h-4"></i>
-                    </button>
-                    <input type="number" class="quantity-input w-16 text-center" value="1" min="1" max="{{ product[5] }}">
-                    <button type="button" class="quantity-plus quantity-button">
-                        <i data-feather="plus" class="w-4 h-4"></i>
-                    </button>
-                </div>
-                
-                <!-- Action Buttons -->
-                <div class="flex items-center gap-2">
-                    <button type="button" data-product-id="{{ product[0] }}" class="add-to-cart-btn gradient-button w-full text-white font-semibold py-3 rounded-xl text-md shadow-lg" style="box-shadow: 0 10px 20px -5px var(--glow-primary);">Add to Cart</button>
-                    <button type="button" class="quick-order-btn p-3 rounded-xl bg-[var(--background-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] transition-colors" data-product-id="{{ product[0] }}">
-                        <i data-feather="shopping-cart" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
+            </article>
             {% endfor %}
         </div>
         
@@ -260,14 +248,47 @@ function updateQuantity(button, change) {
     }
 }
 
-function addToCart(productId) {
-    // Add to cart logic...
-    alert(`Added item ${productId} to cart!`);
+function addToCart(productId, quantity = null) {
+    const qtyInput = document.querySelector(`#search-qty-${productId}`) || document.querySelector(`#qty-${productId}`) || document.querySelector(`[data-qty-input="#search-qty-${productId}"]`);
+    const qty = quantity || (qtyInput ? qtyInput.value : 1);
+
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', qty);
+
+    fetch("{{ url_for('main.add_to_cart') }}", {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // update frontend cart
+            try {
+                const article = document.querySelector(`#search-qty-${productId}`) ? document.querySelector(`#search-qty-${productId}`).closest('article') : document.querySelector(`[data-product-id='${productId}']`);
+                const name = article?.querySelector('h3')?.textContent?.trim() || '';
+                const image = article?.querySelector('img')?.src || '';
+                const priceText = article?.querySelector('[data-price]')?.dataset?.price || article?.querySelector('p')?.textContent || '';
+                const price = parseFloat((priceText || '').toString().replace(/[^0-9.]/g, '')) || 0;
+                if (window.SahaayakApp && window.SahaayakApp.cart) {
+                    window.SahaayakApp.cart.add({ id: productId, name: name, price: price, image_path: image, quantity: parseInt(qty) });
+                }
+            } catch (err) { console.warn('frontend cart update failed', err); }
+
+            const badge = document.getElementById('cart-count-badge');
+            if (badge && data.cart_count !== undefined) {
+                badge.textContent = data.cart_count; badge.classList.remove('hidden');
+            }
+        } else {
+            if (data.redirect) window.location.href = data.redirect; else alert('Error: ' + data.message);
+        }
+    })
+    .catch(err => { console.error(err); alert('Error adding to cart'); });
 }
 
 function quickOrder(productId) {
-    const card = document.querySelector(`[data-product-id="${productId}"]`);
-    const quantity = card.querySelector('.quantity-input').value;
+    const qtyInput = document.querySelector(`#search-qty-${productId}`) || document.querySelector(`#qty-${productId}`) || document.querySelector(`input[name='quantity'][data-product-id='${productId}']`);
+    const quantity = qtyInput ? qtyInput.value : 1;
     window.location.href = `/vendor/quick-order/${productId}?quantity=${quantity}`;
 }
 

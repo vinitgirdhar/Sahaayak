@@ -1,122 +1,144 @@
 {% extends "vendor_base.html" %}
 
+{% set hide_brand_header = true %}
 {% block title %}My Orders - Sahaayak{% endblock %}
 
 {% block vendor_content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header Section with Back Button and Title -->
-    <div class="flex items-center mb-8">
-        <a href="{{ url_for('main.vendor_dashboard') }}" 
-           class="mr-4 p-2 rounded-full hover:bg-[var(--background-tertiary)] transition-colors duration-200"
-           style="color: var(--text-secondary);">
-            <i data-feather="arrow-left" class="w-6 h-6"></i>
-        </a>
-        <h1 class="text-3xl md:text-4xl font-bold" style="color: var(--text-primary);">My Orders</h1>
-    </div>
+<div class="w-full min-h-screen px-4 md:px-6 lg:px-10 py-6">
+    <div class="grid grid-cols-12 gap-4 md:gap-6">
+        <div class="col-span-12 mb-4 flex items-center">
+            <a href="{{ url_for('main.vendor_dashboard') }}" class="mr-4 p-2 rounded-full hover:bg-[var(--background-tertiary)] transition-colors duration-200" style="color: var(--text-secondary);">
+                <i data-feather="arrow-left" class="w-6 h-6"></i>
+            </a>
+            <h1 class="text-3xl md:text-4xl font-bold" style="color: var(--text-primary);">My Orders</h1>
+        </div>
 
-    <!-- Order Summary Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-10">
-        <div class="interactive-card p-4">
-            <div class="flex items-center gap-3">
-                <div class="p-3 rounded-full bg-yellow-500/20 flex-shrink-0">
-                    <i data-feather="loader" class="w-6 h-6 text-yellow-500"></i>
+        <!-- KPI Chips full-width responsive grid -->
+        <div class="col-span-12 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
+            <div class="interactive-card p-4 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-full bg-yellow-500/20 flex-shrink-0"><i data-feather="loader" class="w-6 h-6 text-yellow-500"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-lg md:text-2xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ stats.pending_count }}</p>
+                        <p class="text-sm font-medium text-[var(--text-secondary)]">Pending</p>
+                    </div>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-lg md:text-2xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ stats.pending_count }}</p>
-                    <p class="text-sm font-medium text-[var(--text-secondary)]">Pending</p>
+            </div>
+            <div class="interactive-card p-4 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-full bg-blue-500/20 flex-shrink-0"><i data-feather="refresh-cw" class="w-6 h-6 text-blue-500"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-lg md:text-2xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ stats.processing_count }}</p>
+                        <p class="text-sm font-medium text-[var(--text-secondary)]">Processing</p>
+                    </div>
+                </div>
+            </div>
+            <div class="interactive-card p-4 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-full bg-green-500/20 flex-shrink-0"><i data-feather="check-circle" class="w-6 h-6 text-green-500"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-lg md:text-2xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ stats.completed_count }}</p>
+                        <p class="text-sm font-medium text-[var(--text-secondary)]">Completed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="interactive-card p-4 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-full bg-indigo-500/20 flex-shrink-0"><i data-feather="dollar-sign" class="w-6 h-6 text-indigo-500"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-base md:text-xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis" title="₹{{ '{:,.0f}'.format(stats.total_spent or 0) }}">₹{{ '{:,.0f}'.format(stats.total_spent or 0) }}</p>
+                        <p class="text-sm font-medium text-[var(--text-secondary)]">Total Spent</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="interactive-card p-4">
-            <div class="flex items-center gap-3">
-                <div class="p-3 rounded-full bg-blue-500/20 flex-shrink-0">
-                    <i data-feather="refresh-cw" class="w-6 h-6 text-blue-500"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-lg md:text-2xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ stats.processing_count }}</p>
-                    <p class="text-sm font-medium text-[var(--text-secondary)]">Processing</p>
-                </div>
-            </div>
-        </div>
-        <div class="interactive-card p-4">
-            <div class="flex items-center gap-3">
-                <div class="p-3 rounded-full bg-green-500/20 flex-shrink-0">
-                    <i data-feather="check-circle" class="w-6 h-6 text-green-500"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-lg md:text-2xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ stats.completed_count }}</p>
-                    <p class="text-sm font-medium text-[var(--text-secondary)]">Completed</p>
-                </div>
-            </div>
-        </div>
-        <div class="interactive-card p-4">
-            <div class="flex items-center gap-3">
-                <div class="p-3 rounded-full bg-indigo-500/20 flex-shrink-0">
-                    <i data-feather="dollar-sign" class="w-6 h-6 text-indigo-500"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-base md:text-xl font-bold text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis" title="₹{{ '{:,.0f}'.format(stats.total_spent or 0) }}">₹{{ '{:,.0f}'.format(stats.total_spent or 0) }}</p>
-                    <p class="text-sm font-medium text-[var(--text-secondary)]">Total Spent</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Orders Table -->
-    <div class="bg-[var(--background-secondary)] rounded-2xl shadow-lg border border-[var(--border-primary)] overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-[var(--border-primary)]">
-                <thead class="bg-[var(--background-tertiary)]">
-                    <tr>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Order ID</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Wholesaler</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Product</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Quantity</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Amount</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Status</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Date</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-[var(--border-primary)]">
-                    {% for order in orders %}
-                    <tr class="hover:bg-[var(--background-tertiary)] transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">#{{ order.id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.wholesaler_name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.product_name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.quantity }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">₹{{ "%.2f"|format(order.total_amount) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                {% if order.status == 'pending' %} bg-yellow-500/20 text-yellow-500
-                                {% elif order.status == 'processing' %} bg-blue-500/20 text-blue-500
-                                {% elif order.status == 'completed' %} bg-green-500/20 text-green-500
-                                {% elif order.status == 'cancelled' %} bg-red-500/20 text-red-500
-                                {% else %} bg-gray-500/20 text-gray-500 {% endif %}">
-                                {{ order.status.title() }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.order_date.strftime('%Y-%m-%d') }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="#" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200">View</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <!-- Orders Table full width -->
+        <div class="col-span-12">
+            <div class="bg-[var(--background-secondary)] rounded-2xl shadow-lg border border-[var(--border-primary)] overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full table-fixed min-w-full divide-y divide-[var(--border-primary)]">
+                        <thead class="bg-[var(--background-tertiary)] sticky top-0">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Order ID</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Wholesaler</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Product</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Quantity</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Amount</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Date</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--border-primary)]">
+                            {% for order in orders %}
+                            <tr class="hover:bg-[var(--background-tertiary)] transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">#{{ order.id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.wholesaler_name }}</td>
+                                {# Product: first item name/title, +N more; truncate with tooltip; fallback to 'No items' #}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: var(--text-primary);">
+                                    {% set items = order.get('items') or [] %}
+                                    {% if items and items|length > 0 %}
+                                        {% set first = items[0] %}
+                                        {% set first_name = (
+                                            first['product_name'] if 'product_name' in first and first['product_name'] else (
+                                            first['name'] if 'name' in first and first['name'] else (
+                                            first['title'] if 'title' in first and first['title'] else 'Unnamed item')))
+                                        %}
+                                        {% set extras = items|length - 1 %}
+                                        <div class="max-w-[28ch] overflow-hidden text-ellipsis truncate" title="{{ first_name }}{% if extras > 0 %}, +{{ extras }} more{% endif %}">{{ first_name }}{% if extras > 0 %}, +{{ extras }} more{% endif %}</div>
+                                    {% else %}
+                                        <div>No items</div>
+                                    {% endif %}
+                                </td>
 
-    {% if not orders %}
-    <div class="text-center py-16">
-        <i data-feather="inbox" class="w-16 h-16 mx-auto text-[var(--text-secondary)]"></i>
-        <h3 id="noOrdersTitle" class="mt-4 text-xl font-semibold text-[var(--text-primary)]">No Orders Found</h3>
-        <p id="noOrdersMessage" class="mt-2 text-sm text-[var(--text-secondary)]">You haven't placed any orders yet. Start shopping to see your orders here.</p>
-        <a href="{{ url_for('main.vendor_dashboard') }}" class="mt-6 inline-block gradient-button text-white font-medium px-6 py-3 rounded-lg transition-colors">
-            <span id="startShoppingText">Start Shopping</span>
-        </a>
+                                {# Quantity: sum of item quantities; fallback to 0 #}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: var(--text-primary);">
+                                    {% if items and items|length > 0 %}
+                                        {% set total_qty = 0 %}
+                                        {% for it in items %}
+                                            {% set add_q = (it['quantity'] if 'quantity' in it and it['quantity'] else 0) %}
+                                            {% set total_qty = total_qty + add_q %}
+                                        {% endfor %}
+                                        {{ total_qty }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">₹{{ "%.2f"|format(order.total_amount) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if order.status == 'pending' %} bg-yellow-500/20 text-yellow-500
+                                        {% elif order.status == 'processing' %} bg-blue-500/20 text-blue-500
+                                        {% elif order.status == 'completed' %} bg-green-500/20 text-green-500
+                                        {% elif order.status == 'cancelled' %} bg-red-500/20 text-red-500
+                                        {% else %} bg-gray-500/20 text-gray-500 {% endif %}">
+                                        {{ order.status.title() }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">{{ order.order_date.strftime('%Y-%m-%d') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="view-order-btn text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200" data-order-id="{{ order.id }}">View</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if not orders %}
+        <div class="col-span-12 text-center py-16">
+            <i data-feather="inbox" class="w-16 h-16 mx-auto text-[var(--text-secondary)]"></i>
+            <h3 id="noOrdersTitle" class="mt-4 text-xl font-semibold text-[var(--text-primary)]">No Orders Found</h3>
+            <p id="noOrdersMessage" class="mt-2 text-sm text-[var(--text-secondary)]">You haven't placed any orders yet. Start shopping to see your orders here.</p>
+            <a href="{{ url_for('main.vendor_dashboard') }}" class="mt-6 inline-block gradient-button text-white font-medium px-6 py-3 rounded-lg transition-colors">
+                <span id="startShoppingText">Start Shopping</span>
+            </a>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
 {% endblock %}
 
@@ -130,6 +152,41 @@
         if (typeof feather !== 'undefined') {
             feather.replace();
         }
+
+        // Order details drawer
+        const drawer = document.createElement('div');
+        drawer.id = 'order-detail-drawer';
+        drawer.className = 'fixed inset-0 z-50 hidden';
+        drawer.innerHTML = `<div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeOrderDrawer()"></div>
+            <div class="absolute right-0 top-0 h-full w-full md:w-1/2 lg:w-2/5 p-6 overflow-auto" style="background: var(--background-secondary); border-left:1px solid var(--border-primary);">
+                <div id="order-detail-content">Loading...</div>
+            </div>`;
+        document.body.appendChild(drawer);
+
+        window.closeOrderDrawer = function() {
+            drawer.classList.add('hidden');
+            drawer.querySelector('#order-detail-content').innerHTML = 'Loading...';
+        }
+
+        async function openOrderDrawer(orderId) {
+            drawer.classList.remove('hidden');
+            try {
+                const res = await fetch(`/vendor/order/${orderId}`);
+                if (!res.ok) throw new Error('Failed to load');
+                const html = await res.text();
+                drawer.querySelector('#order-detail-content').innerHTML = html;
+                if (typeof feather !== 'undefined') feather.replace();
+            } catch (e) {
+                drawer.querySelector('#order-detail-content').innerHTML = '<p class="text-red-500">Could not load order details.</p>';
+            }
+        }
+
+        document.querySelectorAll('.view-order-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.currentTarget.getAttribute('data-order-id');
+                openOrderDrawer(id);
+            });
+        });
     });
 </script>
 {% endblock %}

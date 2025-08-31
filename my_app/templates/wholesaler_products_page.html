@@ -1,11 +1,12 @@
 {% extends "vendor_base.html" %}
 
+{% set hide_brand_header = true %}
 {% block title %}{{ wholesaler.name }} - Products{% endblock %}
 
-{% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+{% block vendor_content %}
+<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
     <!-- Wholesaler Profile Section -->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+    <div class="bg-[var(--background-secondary)] rounded-lg shadow-lg p-6 mb-8 border border-[var(--border-primary)]">
         <div class="flex items-center space-x-6">
             {% if wholesaler.profile_photo %}
             <img src="{{ url_for('static', filename=wholesaler.profile_photo) }}" alt="{{ wholesaler.name }}" class="w-20 h-20 rounded-full object-cover">
@@ -16,10 +17,10 @@
             {% endif %}
             
             <div class="flex-grow">
-                <h1 class="text-3xl font-bold text-gray-900">{{ wholesaler.name }}</h1>
-                <p class="text-gray-600 mb-2">{{ wholesaler.shop_name }}</p>
+                <h1 class="text-3xl font-bold text-[var(--text-primary)]">{{ wholesaler.name }}</h1>
+                <p class="text-[var(--text-secondary)] mb-2">{{ wholesaler.shop_name }}</p>
                 
-                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                <div class="flex items-center space-x-4 text-sm text-[var(--text-secondary)]">
                     <div class="flex items-center">
                         <i data-feather="map-pin" class="w-4 h-4 mr-1"></i>
                         <span>{{ wholesaler.location }}</span>
@@ -37,13 +38,13 @@
                 
                 {% if wholesaler.sourcing_info %}
                 <div class="mt-3">
-                    <p class="text-sm text-gray-700"><strong>Sourcing Info:</strong> {{ wholesaler.sourcing_info }}</p>
+                    <p class="text-sm text-[var(--text-secondary)]"><strong>Sourcing Info:</strong> {{ wholesaler.sourcing_info }}</p>
                 </div>
                 {% endif %}
             </div>
             
             <div class="text-right">
-                <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                <div class="px-3 py-1 rounded-full text-sm font-semibold" style="background: rgba(34,197,94,0.08); color: var(--text-primary); border: 1px solid rgba(34,197,94,0.08);">
                     Trust Score: {{ wholesaler.trust_score }}%
                 </div>
             </div>
@@ -51,13 +52,13 @@
     </div>
 
     <!-- Products Section -->
-    <div class="bg-white rounded-lg shadow-lg p-4 md:p-6">
+    <div class="bg-[var(--background-secondary)] rounded-lg shadow-sm p-4 md:p-6 border border-[var(--border-primary)]">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 class="text-2xl font-bold text-gray-900">Available Products</h2>
+            <h2 id="available-products" class="text-2xl font-bold text-[var(--text-primary)]">Available Products</h2>
             <div class="flex items-center gap-4 w-full sm:w-auto">
-                <span class="text-sm text-gray-500">{{ products|length }} products available</span>
+                <span class="text-sm text-[var(--text-secondary)]" aria-live="polite">{{ products|length }} products available</span>
                 <!-- Filter Options (if needed) -->
-                <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select class="px-3 py-2 border border-[var(--border-primary)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] bg-[var(--background-primary)] text-[var(--text-primary)]">
                     <option>All Categories</option>
                     {% for category in products|map(attribute='category')|unique|sort %}
                         <option>{{ category }}</option>
@@ -67,64 +68,65 @@
         </div>
 
         {% if products %}
-        <!-- 🔥 FIXED: Responsive Product Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
+        <!-- Redesigned responsive product grid -->
+        <div role="region" aria-labelledby="available-products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-2">
             {% for product in products %}
-            <div class="bg-white border border-gray-200 rounded-xl shadow-md p-3 flex flex-col items-center text-center hover:shadow-lg transition-shadow duration-200">
+            <article class="bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-sm p-4 flex flex-col text-left hover:shadow-lg transition-shadow duration-200" tabindex="0" aria-labelledby="product-{{ product.id }}">
                 <!-- Product Image -->
                 {% if product.image_path %}
-                <img src="{{ url_for('static', filename=product.image_path) }}" 
-                     alt="{{ product.name }}" 
-                     class="w-full h-32 sm:h-40 object-cover rounded-lg mb-2" />
+                <div class="w-full h-40 bg-[var(--background-tertiary)] rounded-lg overflow-hidden mb-4 flex items-center justify-center">
+                    <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                </div>
                 {% else %}
-                <div class="w-full h-32 sm:h-40 bg-gray-200 flex items-center justify-center rounded-lg mb-2">
-                    <i data-feather="package" class="w-8 h-8 sm:w-12 sm:h-12 text-gray-400"></i>
+                <div class="w-full h-40 bg-[var(--background-tertiary)] flex items-center justify-center rounded-lg mb-4">
+                    <i data-feather="package" class="w-10 h-10 text-[var(--text-secondary)]"></i>
                 </div>
                 {% endif %}
                 
                 <!-- Product Info -->
                 <div class="flex-grow w-full">
-                    <h3 class="text-sm font-semibold mt-2 text-gray-900 line-clamp-2">{{ product.name }}</h3>
-                    <p class="text-blue-600 font-bold text-sm mt-1">₹{{ "%.2f"|format(product.price) }}</p>
-                    <p class="text-xs text-gray-500 mb-2">{{ product.category }}</p>
+                    <h3 id="product-{{ product.id }}" class="text-base font-semibold mt-1 text-[var(--text-primary)] line-clamp-2">{{ product.name }}</h3>
+                    <p class="text-[var(--accent-primary)] font-bold text-lg mt-2">₹{{ "%.2f"|format(product.price) }}</p>
+                    <p class="text-xs text-[var(--text-secondary)] mb-3">{{ product.category }}</p>
                     
                     <!-- Stock Status -->
                     <div class="text-xs mb-3">
                         {% if product.stock > 10 %}
-                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full">{{ product.stock }} in stock</span>
+                        <span class="px-2 py-1 rounded-full" style="background: rgba(34,197,94,0.06); color: var(--text-primary);">{{ product.stock }} in stock</span>
                         {% elif product.stock > 0 %}
-                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">{{ product.stock }} left</span>
+                        <span class="px-2 py-1 rounded-full" style="background: rgba(245,158,11,0.06); color: var(--text-primary);">{{ product.stock }} left</span>
                         {% else %}
-                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full">Out of stock</span>
+                        <span class="px-2 py-1 rounded-full" style="background: rgba(239,68,68,0.06); color: var(--text-primary);">Out of stock</span>
                         {% endif %}
                     </div>
                 </div>
                 
                 <!-- Add to Cart Section -->
                 {% if product.stock > 0 %}
-                <form class="add-to-cart-form w-full" data-product-id="{{ product.id }}">
-                    <div class="flex items-center justify-center gap-2 mb-3">
-                        <label for="quantity-{{ product.id }}" class="text-xs font-medium text-gray-700">Qty:</label>
+                <form class="add-to-cart-form w-full mt-4" data-product-id="{{ product.id }}" aria-label="Add {{ product.name }} to cart">
+                    <div class="flex items-center gap-3 mb-3">
+                        <label for="quantity-{{ product.id }}" class="text-sm font-medium text-[var(--text-secondary)]">Qty</label>
                         <input type="number" 
                                id="quantity-{{ product.id }}" 
                                name="quantity" 
                                value="1" 
                                min="1" 
                                max="{{ product.stock }}" 
-                               class="w-12 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
+                               class="w-20 px-2 py-1 border border-[var(--border-primary)] rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] bg-[var(--background-primary)] text-[var(--text-primary)]">
+                        <div class="flex-grow"></div>
                     </div>
                     <button type="submit" 
-                            class="w-full bg-blue-600 text-white font-medium py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="gradient-button w-full text-white font-medium py-3 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" aria-pressed="false">
                         Add to Cart
                     </button>
                 </form>
                 {% else %}
                 <button disabled 
-                        class="w-full bg-gray-300 text-gray-500 font-medium py-2 px-3 rounded-lg cursor-not-allowed text-xs">
+                        class="w-full opacity-60 bg-[var(--background-primary)] text-[var(--text-secondary)] font-medium py-2 px-3 rounded-lg cursor-not-allowed text-sm">
                     Out of Stock
                 </button>
                 {% endif %}
-            </div>
+            </article>
             {% endfor %}
         </div>
         {% else %}
@@ -156,6 +158,7 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
         const productId = this.dataset.productId;
         const quantity = this.querySelector('input[name="quantity"]').value;
         const button = this.querySelector('button[type="submit"]');
+        const productArticle = this.closest('article');
         
         button.disabled = true;
         button.textContent = 'Adding...';
@@ -173,20 +176,40 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
             const result = await response.json();
             
             if (result.success) {
+                // Update UI similarly to category listing
                 button.textContent = 'Added!';
                 button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                 button.classList.add('bg-green-600');
-                
-                if (window.updateCartCount) {
-                    window.updateCartCount(result.cart_count);
+
+                // Also add to frontend cart if available
+                try {
+                    const productCard = productArticle || button.closest('article') || button.closest('.product-card');
+                    const name = productCard.querySelector('h3') ? productCard.querySelector('h3').textContent.trim() : '';
+                    const priceEl = productCard.querySelector('[data-price]') || productCard.querySelector('p');
+                    const priceText = priceEl ? (priceEl.dataset ? priceEl.dataset.price : priceEl.textContent) : '';
+                    const price = parseFloat((priceText || '').toString().replace(/[^0-9.]/g, '')) || 0;
+                    const image = productCard.querySelector('img') ? productCard.querySelector('img').src : '';
+
+                    if (window.SahaayakApp && window.SahaayakApp.cart) {
+                        window.SahaayakApp.cart.add({ id: productId, name: name, price: price, image_path: image, quantity: parseInt(quantity) });
+                    }
+                } catch (err) {
+                    console.warn('Could not update frontend cart:', err);
                 }
-                
+
+                // Update cart badge
+                const cartCountElement = document.getElementById('cart-count-badge');
+                if (cartCountElement) {
+                    cartCountElement.textContent = result.cart_count;
+                    cartCountElement.classList.remove('hidden');
+                }
+
                 setTimeout(() => {
                     button.disabled = false;
                     button.textContent = 'Add to Cart';
                     button.classList.remove('bg-green-600');
                     button.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                }, 2000);
+                }, 1400);
             } else {
                 throw new Error(result.message || 'Failed to add to cart');
             }

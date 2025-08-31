@@ -1122,6 +1122,78 @@ def vendor_orders():
     return render_template('vendor_orders.html', orders=orders, stats=stats, lang=session.get('vendor_language', 'en'))
 
 
+@bp.route('/vendor/order/<int:order_id>')
+def vendor_order_detail(order_id):
+    """Return rendered HTML fragment for an order's details (used by drawer)."""
+    if 'vendor_id' not in session:
+        return redirect(url_for('main.vendor_login'))
+
+    vendor_id = session['vendor_id']
+    conn = sqlite3.connect(DATABASE_NAME)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM orders WHERE id = ? AND vendor_id = ?', (order_id, vendor_id))
+    order_row = cursor.fetchone()
+    if not order_row:
+        conn.close()
+        return "<p class='text-red-500'>Order not found or access denied.</p>", 404
+
+    order = dict(order_row)
+    try:
+        order['order_date'] = datetime.strptime(order['created_at'], '%Y-%m-%d %H:%M:%S')
+    except Exception:
+        order['order_date'] = order.get('created_at')
+
+    cursor.execute('''
+        SELECT oi.quantity, oi.price, oi.total, p.name as product_name, p.image_path
+        FROM order_items oi
+        JOIN products p ON oi.product_id = p.id
+        WHERE oi.order_id = ?
+    ''', (order_id,))
+    order['items'] = [dict(i) for i in cursor.fetchall()]
+    # Fetch wholesaler name
+    cursor.execute('SELECT name FROM wholesalers WHERE id = ?', (order['wholesaler_id'],))
+    w = cursor.fetchone()
+    order['wholesaler_name'] = w['name'] if w else 'Unknown'
+
+    conn.close()
+    return render_template('vendor_order_detail.html', order=order)
+
+
+@bp.route('/vendor/upload-photo', methods=['POST'])
+def upload_vendor_photo():
+    if 'vendor_id' not in session:
+        return jsonify({'success': False, 'error': 'Not authenticated'}), 401
+
+    if 'photo' not in request.files:
+        return jsonify({'success': False, 'error': 'No file provided'}), 400
+
+    file = request.files['photo']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': 'Empty filename'}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(f"vendor_{uuid.uuid4()}_{file.filename}")
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
+        os.makedirs(upload_folder, exist_ok=True)
+        full_path = os.path.join(upload_folder, filename)
+        file.save(full_path)
+
+        # Save relative path in DB
+        rel_path = f"uploads/{filename}"
+        conn = sqlite3.connect(DATABASE_NAME)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE vendors SET photo_path = ? WHERE id = ?', (rel_path, session['vendor_id']))
+        conn.commit()
+        conn.close()
+
+        photo_url = url_for('static', filename=rel_path)
+        return jsonify({'success': True, 'photo_url': photo_url})
+    else:
+        return jsonify({'success': False, 'error': 'Invalid file type'}), 400
+
+
 @bp.route('/vendor/category/<category_id>')
 def vendor_category(category_id):
     if 'vendor_id' not in session:

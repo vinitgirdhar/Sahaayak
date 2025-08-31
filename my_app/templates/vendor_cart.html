@@ -1,139 +1,81 @@
 {% extends "vendor_base.html" %}
 
+{% set hide_brand_header = true %}
 {% block title %}My Cart - Sahaayak{% endblock %}
 
 {% block vendor_content %}
-<div class="max-w-6xl mx-auto px-4 py-8">
-    <!-- UPDATED: Wrapped title in a flex container and added the back icon -->
-    <div class="flex items-center mb-8">
-        <a href="{{ url_for('main.vendor_dashboard') }}" 
-           class="mr-4 text-gray-600 hover:text-gray-900 h-10 w-10 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors duration-200">
-            <i data-feather="arrow-left" class="w-6 h-6"></i>
-        </a>
-        <h1 class="text-3xl font-bold" style="color: var(--text-primary);">My Cart</h1>
-    </div>
-    
-    <!-- CRITICAL CHANGE: Check if wholesaler_data is not empty -->
-    {% if wholesaler_data %}
-    <div class="grid lg:grid-cols-3 gap-8">
-        <!-- Cart Items -->
-        <div class="lg:col-span-2 space-y-4">
-            <!-- CRITICAL CHANGE: Loop through the wholesaler_data dictionary -->
+<div class="w-full min-h-screen px-4 md:px-6 lg:px-10 py-6">
+    <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 mb-4 flex items-center">
+            <a href="{{ url_for('main.vendor_dashboard') }}" class="mr-4 p-2 rounded-full hover:bg-[var(--background-tertiary)] transition-colors duration-200" style="color: var(--text-secondary);">
+                <i data-feather="arrow-left" class="w-6 h-6"></i>
+            </a>
+            <h1 class="text-3xl font-bold" style="color: var(--text-primary);">My Cart</h1>
+        </div>
+
+        {% if wholesaler_data %}
+        <div class="col-span-12 lg:col-span-8 space-y-4">
             {% for wholesaler_id, data in wholesaler_data.items() %}
-            <div class="interactive-card p-6 mb-6">
-                <h3 class="font-bold text-lg mb-4" style="color: var(--text-primary);">
-                    {{ data['name'] }}
-                </h3>
-                
-                <!-- THE FIX IS HERE: Changed data.items to data['items'] -->
-                {% for item in data['items'] %}
-                <div class="flex items-center gap-4 py-4 border-b border-[var(--border-primary)] last:border-0">
-                    <div class="flex-grow flex items-center gap-4">
-                        <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/80x80/e2e8f0/64748b?text=N/A' }}" 
-                             alt="{{ item.name }}" class="w-20 h-20 rounded-lg object-cover">
-                        <div>
-                            <h4 class="font-semibold" style="color: var(--text-primary);">{{ item.name }}</h4>
-                            <p class="font-bold mt-1" style="color: var(--accent-primary);" 
-                               data-product-price="{{ item.id }}" data-price="{{ item.price }}">
-                               ₹{{ "%.2f"|format(item.price) }} per unit
-                            </p>
+            <div class="interactive-card p-6 mb-6 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                <h3 class="font-bold text-lg mb-4" style="color: var(--text-primary);">{{ data['name'] }}</h3>
+                <div class="divide-y divide-[var(--border-primary)]">
+                    {% for item in data['items'] %}
+                    <div class="py-4 flex flex-col md:flex-row items-center md:items-start gap-4">
+                        <div class="w-full md:w-2/3 flex items-center gap-4">
+                            <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/80x80/e2e8f0/64748b?text=N/A' }}" alt="{{ item.name }}" class="w-20 h-20 rounded-lg object-cover">
+                            <div>
+                                <h4 class="font-semibold" style="color: var(--text-primary);">{{ item.name }}</h4>
+                                <p class="font-bold mt-1" style="color: var(--accent-primary);">₹{{ "%.2f"|format(item.price) }} per unit</p>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="updateQuantity('{{ item.id }}', -1)" class="quantity-button"><i data-feather="minus" class="w-4 h-4"></i></button>
+                                <input type="number" id="qty-{{ item.id }}" value="{{ item.quantity }}" min="1" class="quantity-input" onchange="updateQuantity('{{ item.id }}', 0)">
+                                <button type="button" onclick="updateQuantity('{{ item.id }}', 1)" class="quantity-button"><i data-feather="plus" class="w-4 h-4"></i></button>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold" style="color: var(--text-primary);" data-item-subtotal="{{ item.id }}">₹{{ "%.2f"|format(item.item_total) }}</p>
+                                <button onclick="removeItem('{{ item.id }}')" class="text-sm text-red-500 hover:text-red-700 mt-1">Remove</button>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="flex items-center gap-2">
-                        <!-- Improved quantity controls with proper styling -->
-                        <button type="button" onclick="updateQuantity('{{ item.id }}', -1)" 
-                                class="quantity-button">
-                            <i data-feather="minus" class="w-4 h-4"></i>
-                        </button>
-                        <input type="number" id="qty-{{ item.id }}" value="{{ item.quantity }}" min="1" 
-                               class="quantity-input"
-                               onchange="updateQuantity('{{ item.id }}', 0)">
-                        <button type="button" onclick="updateQuantity('{{ item.id }}', 1)" 
-                                class="quantity-button">
-                            <i data-feather="plus" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="text-right">
-                        <p class="font-bold" style="color: var(--text-primary);" 
-                           data-item-subtotal="{{ item.id }}">₹{{ "%.2f"|format(item.item_total) }}</p>
-                        <button onclick="removeItem('{{ item.id }}')" 
-                                class="text-sm text-red-500 hover:text-red-700 mt-1">
-                            Remove
-                        </button>
-                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-                
                 <div class="mt-4 pt-4 border-t border-[var(--border-primary)]">
                     <div class="flex justify-between items-center">
                         <span class="font-semibold" style="color: var(--text-secondary);">Subtotal from {{ data['name'] }}</span>
-                        <span class="font-bold text-lg" style="color: var(--text-primary);" 
-                              data-vendor-subtotal="{{ data['vendor_id'] }}">
-                            <!-- CRITICAL CHANGE: Use the subtotal calculated in Python -->
-                            ₹{{ "%.2f"|format(data['subtotal']) }}
-                        </span>
+                        <span class="font-bold text-lg" style="color: var(--text-primary);" data-vendor-subtotal="{{ data['vendor_id'] }}">₹{{ "%.2f"|format(data['subtotal']) }}</span>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
-        
-        <!-- Order Summary -->
-        <div class="lg:col-span-1">
-            <div class="interactive-card p-6 sticky top-24">
+
+        <div class="col-span-12 lg:col-span-4">
+            <div class="interactive-card p-6 sticky top-24 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
                 <h3 class="font-bold text-xl mb-6" style="color: var(--text-primary);">Order Summary</h3>
-                
                 <div class="space-y-3 mb-6">
-                    <div class="flex justify-between">
-                        <span style="color: var(--text-secondary);">Total Items</span>
-                        <!-- CRITICAL CHANGE: Calculate total items correctly -->
-                        <span style="color: var(--text-primary);" data-total-items>
-                            {% set total_items = [] %}
-                            {% for wholesaler_id, data in wholesaler_data.items() %}
-                                {% for item in data['items'] %}
-                                    {% set _ = total_items.append(item['quantity']) %}
-                                {% endfor %}
-                            {% endfor %}
-                            {{ total_items|sum }}
-                        </span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span style="color: var(--text-secondary);">Total Wholesalers</span>
-                        <span style="color: var(--text-primary);">{{ wholesaler_data|length }}</span>
-                    </div>
-                    <div class="pt-3 border-t border-[var(--border-primary)]">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-lg" style="color: var(--text-primary);">Grand Total</span>
-                            <span class="font-bold text-2xl" style="color: var(--accent-primary);" data-grand-total>₹{{ "%.2f"|format(total_amount) }}</span>
-                        </div>
-                    </div>
+                    <div class="flex justify-between"><span style="color: var(--text-secondary);">Total Items</span><span style="color: var(--text-primary);" data-total-items>{{ total_items }}</span></div>
+                    <div class="flex justify-between"><span style="color: var(--text-secondary);">Total Wholesalers</span><span style="color: var(--text-primary);">{{ wholesaler_data|length }}</span></div>
+                    <div class="pt-3 border-t border-[var(--border-primary)]"><div class="flex justify-between items-center"><span class="font-bold text-lg" style="color: var(--text-primary);">Grand Total</span><span class="font-bold text-2xl" style="color: var(--accent-primary);" data-grand-total>₹{{ "%.2f"|format(total_amount) }}</span></div></div>
                 </div>
-                
-                <button onclick="proceedToCheckout()" 
-                        class="gradient-button w-full text-white font-bold py-4 rounded-xl">
-                    Proceed to Checkout
-                </button>
-                
-                <button onclick="clearCart()" 
-                        class="w-full mt-3 py-3 text-red-500 hover:text-red-700 font-medium">
-                    Clear Cart
-                </button>
+                <button onclick="proceedToCheckout()" class="gradient-button w-full text-white font-bold py-4 rounded-xl">Proceed to Checkout</button>
+                <button onclick="clearCart()" class="w-full mt-3 py-3 text-red-500 hover:text-red-700 font-medium">Clear Cart</button>
             </div>
         </div>
+
+        {% else %}
+        <div class="col-span-12 flex items-center justify-center" style="min-height:60vh;">
+            <div class="text-center">
+                <div class="text-6xl mb-6">🛒</div>
+                <h3 class="text-2xl font-bold mb-4" style="color: var(--text-primary);">Your cart is empty</h3>
+                <p class="text-lg mb-8" style="color: var(--text-secondary);">Browse categories and add items from wholesalers</p>
+                <button onclick="window.location.href='{{ url_for('main.vendor_dashboard') }}'" class="gradient-button text-white px-8 py-4 rounded-xl font-semibold">Start Shopping</button>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="text-center py-16">
-        <div class="text-6xl mb-6">🛒</div>
-        <h3 class="text-2xl font-bold mb-4" style="color: var(--text-primary);">Your cart is empty</h3>
-        <p class="text-lg mb-8" style="color: var(--text-secondary);">Browse categories and add items from wholesalers</p>
-        <button onclick="window.location.href='{{ url_for('main.vendor_dashboard') }}'" 
-                class="gradient-button text-white px-8 py-4 rounded-xl font-semibold">
-            Start Shopping
-        </button>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
 

@@ -1,86 +1,105 @@
 {% extends "vendor_base.html" %}
+{% set hide_brand_header = true %}
 {% block title %}My Profile - Sahaayak{% endblock %}
 
 {% block vendor_content %}
-<div class="max-w-7xl mx-auto">
-    <div class="interactive-card rounded-2xl overflow-hidden mb-8">
-        <div class="profile-banner" style="background-image: url('{{ url_for('static', filename='uploads/groceries.jpg') }}');">
-            <div class="banner-overlay"></div>
-        </div>
-        
-        <div class="p-6 relative">
-            <div class="flex flex-col sm:flex-row items-center sm:items-end">
-                <img src="{{ url_for('static', filename=vendor.photo_path) if vendor.photo_path else 'https://placehold.co/120x120/142d36/f0f6fc?text=' + vendor.name[0] }}" 
-                     alt="{{ vendor.name }}" 
-                     class="profile-picture object-cover">
-                
-                <div class="sm:ml-6 mt-4 sm:mt-0 text-center sm:text-left flex-grow">
-                    <h1 class="text-4xl font-extrabold" style="color: var(--text-primary);">{{ vendor.name }}</h1>
-                    <p class="text-lg mt-1" style="color: var(--text-secondary);">{{ vendor.shop_name or 'Street Vendor' }}</p>
-                    <div class="flex items-center justify-center sm:justify-start gap-4 mt-2" style="color: var(--text-secondary);">
-                        <div class="flex items-center gap-1">
-                            <i data-feather="map-pin" class="w-4 h-4"></i> {{ vendor.location or 'Not set' }}
+<div class="w-full min-h-screen px-4 md:px-6 lg:px-10 py-6">
+    <div class="grid grid-cols-12 gap-4 md:gap-6">
+        <!-- Banner - full width -->
+        <div class="col-span-12">
+            <div class="interactive-card rounded-2xl overflow-hidden mb-6 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                <div class="profile-banner" style="background-image: url('{{ url_for('static', filename='uploads/groceries.jpg') }}');">
+                    <div class="banner-overlay"></div>
+                </div>
+                <div class="p-6 relative">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-end">
+                        <div class="relative">
+                            <img id="profile-photo-preview" src="{{ url_for('static', filename=vendor.photo_path) if vendor.photo_path else 'https://placehold.co/120x120/142d36/f0f6fc?text=' + vendor.name[0] }}" 
+                                 alt="{{ vendor.name }}" 
+                                 class="profile-picture object-cover">
+                            <label for="profile-photo-input" class="absolute bottom-0 right-0 bg-[var(--background-primary)] p-2 rounded-full border border-[var(--border-primary)] cursor-pointer" title="Change photo">
+                                <i data-feather="camera" class="w-4 h-4"></i>
+                            </label>
+                            <input id="profile-photo-input" type="file" accept="image/*" class="hidden">
                         </div>
-                        <div class="flex items-center gap-1">
-                            <i data-feather="mail" class="w-4 h-4"></i> {{ vendor.email }}
+                        <div class="sm:ml-6 mt-4 sm:mt-0 text-center sm:text-left flex-grow">
+                            <h1 class="text-4xl font-extrabold" style="color: var(--text-primary);">{{ vendor.name }}</h1>
+                            <p class="text-lg mt-1" style="color: var(--text-secondary);">{{ vendor.shop_name or 'Street Vendor' }}</p>
+                            <div class="flex items-center justify-center sm:justify-start gap-4 mt-2" style="color: var(--text-secondary);">
+                                <div class="flex items-center gap-1"><i data-feather="map-pin" class="w-4 h-4"></i> {{ vendor.location or 'Not set' }}</div>
+                                <div class="flex items-center gap-1"><i data-feather="mail" class="w-4 h-4"></i> {{ vendor.email }}</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 sm:mt-0">
+                            <button onclick="showEditModal()" class="gradient-button text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2">
+                                <i data-feather="edit-2" class="w-5 h-5"></i> Edit Profile
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="mt-4 sm:mt-0">
-                    <button onclick="showEditModal()" class="gradient-button text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2">
-                        <i data-feather="edit-2" class="w-5 h-5"></i> Edit Profile
-                    </button>
+        <!-- Stats (3-up) -->
+        <div class="col-span-12 md:col-span-4">
+            <div class="interactive-card p-6 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-full bg-blue-500/20"><i data-feather="shopping-bag" class="w-7 h-7 text-blue-400"></i></div>
+                    <div>
+                        <p class="text-sm" style="color: var(--text-secondary);">Total Orders</p>
+                        <h4 class="text-2xl font-bold" style="color: var(--text-primary);">{{ stats.total_orders }}</h4>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div class="interactive-card p-6 flex items-center gap-4">
-            <div class="p-3 rounded-full bg-blue-500/20"><i data-feather="shopping-bag" class="w-7 h-7 text-blue-400"></i></div>
-            <div>
-                <p class="text-sm" style="color: var(--text-secondary);">Total Orders</p>
-                <h4 class="text-2xl font-bold" style="color: var(--text-primary);">{{ stats.total_orders }}</h4>
-            </div>
-        </div>
-        <div class="interactive-card p-6 flex items-center gap-4">
-            <div class="p-3 rounded-full bg-green-500/20"><i data-feather="dollar-sign" class="w-7 h-7 text-green-400"></i></div>
-            <div>
-                <p class="text-sm" style="color: var(--text-secondary);">Total Spent</p>
-                <h4 class="text-2xl font-bold" style="color: var(--text-primary);">₹{{ "%.2f"|format(stats.total_spent) }}</h4>
-            </div>
-        </div>
-        <div class="interactive-card p-6 flex items-center gap-4">
-            <div class="p-3 rounded-full bg-pink-500/20"><i data-feather="award" class="w-7 h-7 text-pink-400"></i></div>
-            <div>
-                <p class="text-sm" style="color: var(--text-secondary);">Member Since</p>
-                <h4 class="text-2xl font-bold" style="color: var(--text-primary);">{{ vendor.created_at[:4] }}</h4>
-            </div>
-        </div>
-    </div>
-
-    <section>
-        <h2 class="text-3xl font-bold mb-6" style="color: var(--text-primary);">Recent Activity</h2>
-        <div class="interactive-card p-6">
-            <ul class="divide-y divide-[var(--border-primary)]">
-                {% for item in recent_activity %}
-                <li class="py-4 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/64x64/1a3a45/f0f6fc?text=N/A' }}" class="w-16 h-16 rounded-lg object-cover">
-                        <div>
-                            <p class="font-semibold text-lg" style="color: var(--text-primary);">{{ item.name }}</p>
-                            <p style="color: var(--text-secondary);">Quantity: {{ item.quantity }}</p>
-                        </div>
+        <div class="col-span-12 md:col-span-4">
+            <div class="interactive-card p-6 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-full bg-green-500/20"><i data-feather="dollar-sign" class="w-7 h-7 text-green-400"></i></div>
+                    <div>
+                        <p class="text-sm" style="color: var(--text-secondary);">Total Spent</p>
+                        <h4 class="text-2xl font-bold" style="color: var(--text-primary);">₹{{ "%.2f"|format(stats.total_spent) }}</h4>
                     </div>
-                    <p class="text-sm" style="color: var(--text-secondary);">{{ item.created_at.split(' ')[0] }}</p>
-                </li>
-                {% else %}
-                <p style="color: var(--text-secondary);">No recent activity to show.</p>
-                {% endfor %}
-            </ul>
+                </div>
+            </div>
         </div>
-    </section>
+        <div class="col-span-12 md:col-span-4">
+            <div class="interactive-card p-6 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-full bg-pink-500/20"><i data-feather="award" class="w-7 h-7 text-pink-400"></i></div>
+                    <div>
+                        <p class="text-sm" style="color: var(--text-secondary);">Member Since</p>
+                        <h4 class="text-2xl font-bold" style="color: var(--text-primary);">{{ vendor.created_at[:4] }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity full width -->
+        <div class="col-span-12 mt-2">
+            <section>
+                <h2 class="text-3xl font-bold mb-6" style="color: var(--text-primary);">Recent Activity</h2>
+                <div class="interactive-card p-6 bg-[var(--background-secondary)] border border-[var(--border-primary)]">
+                    <ul class="divide-y divide-[var(--border-primary)]">
+                        {% for item in recent_activity %}
+                        <li class="py-4 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/64x64/1a3a45/f0f6fc?text=N/A' }}" class="w-16 h-16 rounded-lg object-cover">
+                                <div>
+                                    <p class="font-semibold text-lg" style="color: var(--text-primary);">{{ item.name }}</p>
+                                    <p style="color: var(--text-secondary);">Quantity: {{ item.quantity }}</p>
+                                </div>
+                            </div>
+                            <p class="text-sm" style="color: var(--text-secondary);">{{ item.created_at.split(' ')[0] }}</p>
+                        </li>
+                        {% else %}
+                        <p style="color: var(--text-secondary);">No recent activity to show.</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
 </div>
 
 <div id="edit-modal" class="modal-overlay">
@@ -132,5 +151,52 @@
             feather.replace();
         }
     });
+
+    // Profile photo preview and upload
+    (function(){
+        const input = document.getElementById('profile-photo-input');
+        const preview = document.getElementById('profile-photo-preview');
+
+        if (!input) return;
+
+        input.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            // Simple client-side resize using canvas to limit to 512x512
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            await img.decode();
+            const max = 512;
+            const canvas = document.createElement('canvas');
+            const ratio = Math.min(max / img.width, max / img.height, 1);
+            canvas.width = Math.round(img.width * ratio);
+            canvas.height = Math.round(img.height * ratio);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            // Show preview
+            preview.src = canvas.toDataURL('image/jpeg', 0.85);
+
+            // Upload to server
+            canvas.toBlob(async (blob) => {
+                const form = new FormData();
+                form.append('photo', blob, 'profile.jpg');
+                try {
+                    const res = await fetch('{{ url_for("main.upload_vendor_photo") }}', {
+                        method: 'POST',
+                        body: form
+                    });
+                    const data = await res.json();
+                    if (data.success && data.photo_url) {
+                        preview.src = data.photo_url;
+                    } else {
+                        alert('Upload failed: ' + (data.error || 'Unknown'));
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Upload error');
+                }
+            }, 'image/jpeg', 0.85);
+        });
+    })();
 </script>
 {% endblock %}

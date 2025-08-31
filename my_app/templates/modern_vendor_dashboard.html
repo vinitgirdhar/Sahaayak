@@ -9,7 +9,34 @@
 
 <!-- Centered Page Title (dashboard-specific) -->
 <div class="mb-8 text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold" style="color: var(--text-primary);">SAHAYAAK</h1>
+    <h1 class="text-4xl md:text-5xl font-extrabold" style="color: var(--text-primary);">SAHAYAK</h1>
+    <!-- Small helper: glass filter button styles -->
+    <style>
+        .glass-filter-btn {
+            display: inline-block;
+            padding: 0.5rem 0.9rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(8px) saturate(1.05);
+            -webkit-backdrop-filter: blur(8px) saturate(1.05);
+            transition: transform 220ms cubic-bezier(.2,.9,.23,1), box-shadow 220ms ease, background 220ms ease;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .glass-filter-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(2,6,23,0.12), inset 0 -2px 12px rgba(255,255,255,0.02);
+            background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+            color: var(--text-primary);
+        }
+        /* Slight variation for active/primary state */
+        .glass-filter-btn.active {
+            background: linear-gradient(90deg, rgba(59,130,246,0.12), rgba(96,165,250,0.06));
+            color: white;
+            box-shadow: 0 8px 24px rgba(37,99,235,0.12);
+        }
+    </style>
 </div>
 
 <div class="mb-12 reveal">
@@ -217,9 +244,9 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-bold" style="color: var(--text-primary);">Top Rated Wholesalers</h2>
         <div>
-            <button id="sort-rating-btn" onclick="sortWholesalers('rating', this)" class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg shadow-md">Rating</button>
-            <button id="sort-trust-btn" onclick="sortWholesalers('trust_score', this)" class="px-4 py-2 text-sm font-medium" style="color: var(--text-secondary);">Trust Score</button>
-            <button id="sort-price-btn" onclick="sortWholesalers('price', this)" class="px-4 py-2 text-sm font-medium" style="color: var(--text-secondary);">Price</button>
+            <button id="sort-rating-btn" onclick="sortWholesalers('rating', this)" class="glass-filter-btn active">Rating</button>
+            <button id="sort-trust-btn" onclick="sortWholesalers('trust_score', this)" class="glass-filter-btn">Trust Score</button>
+            <button id="sort-price-btn" onclick="sortWholesalers('price', this)" class="glass-filter-btn">Price</button>
         </div>
     </div>
 
@@ -698,13 +725,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Top Rated Wholesalers Sorting Functionality ---
     window.sortWholesalers = function(sortBy, clickedButton) {
-        // Update button styles to show the active filter
-        document.querySelectorAll('#sort-rating-btn, #sort-trust-btn, #sort-price-btn').forEach(btn => {
-            btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
-            btn.classList.add('text-gray-600');
-        });
-        clickedButton.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
-        clickedButton.classList.remove('text-gray-600');
+            // Update button styles to show the active filter (glass style)
+            document.querySelectorAll('#sort-rating-btn, #sort-trust-btn, #sort-price-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            clickedButton.classList.add('active');
 
         // Fetch sorted data from the new API endpoint
         fetch("{{ url_for('main.sort_wholesalers') }}", {
@@ -1010,10 +1035,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span class="text-xs text-gray-500"> per kg</span>
                 </div>
                 <p class="text-sm text-green-600 font-medium mb-4">💰 Save ₹${savings.toFixed(2)}</p>
-                <div class="mt-auto flex gap-2">
-                    <input type="number" value="1" min="1" max="${product.stock}" class="quantity-input w-16 px-2 py-1 border rounded text-sm" ${product.stock === 0 ? 'disabled' : ''}>
-                    <span class="px-3 py-1 text-xs rounded-full ${product.stock > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">${product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
-                    <button class="add-to-cart-btn gradient-button text-white text-sm font-semibold py-2 px-4 rounded-lg flex-grow" data-product-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>Add to Cart</button>
+                <div class="mt-auto">
+                    <div class="quantity-bar flex items-center justify-between w-full rounded-lg overflow-hidden mb-3" style="height:3.5rem;">
+                        <button type="button" class="qty-btn px-4 h-full flex items-center justify-center" data-action="decrease" data-target="#budget-qty-${product.id}" aria-label="Decrease quantity">
+                            <i data-feather="minus" class="w-5 h-5"></i>
+                        </button>
+                        <div class="qty-display text-lg font-semibold text-center flex-1" id="budget-qty-display-${product.id}" aria-live="polite">1</div>
+                        <button type="button" class="qty-btn px-4 h-full flex items-center justify-center" data-action="increase" data-target="#budget-qty-${product.id}" aria-label="Increase quantity">
+                            <i data-feather="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <input id="budget-qty-${product.id}" type="number" value="1" min="1" max="${product.stock}" class="quantity-input hidden" ${product.stock === 0 ? 'disabled' : ''}>
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 text-xs rounded-full ${product.stock > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">${product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
+                        <button class="add-to-cart-btn gradient-button text-white text-sm font-semibold py-2 px-4 rounded-lg flex-grow" data-product-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>Add to Cart</button>
+                    </div>
                 </div>
                 <img class="product-image hidden" src="${product.image_path || ''}" alt="${product.name}">
             </div>
@@ -1029,8 +1065,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('#budget-product-grid .add-to-cart-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const productId = this.dataset.productId;
-                // Assuming quantity of 1 for simplicity
-                addToCart(productId, 1); 
+                // Read quantity from hidden input (budget-qty-<id>) or fallback to .quantity-input
+                const qtyInput = document.getElementById(`budget-qty-${productId}`) || this.closest('.interactive-card')?.querySelector('.quantity-input');
+                const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
+                addToCart(productId, quantity);
             });
         });
     };

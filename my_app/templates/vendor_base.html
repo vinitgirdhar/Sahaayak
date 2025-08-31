@@ -412,6 +412,37 @@
         .ui-btn--primary { background: var(--accent-primary); color: #fff; border: none; }
         .ui-btn--primary:hover { background: var(--accent-secondary); }
     </style>
+    <style>
+        /* Full-width quantity control bar to match Add to Cart styling */
+        .quantity-bar {
+            background: linear-gradient(180deg, var(--background-secondary), var(--background-secondary));
+            border: 1px solid var(--border-primary);
+            box-shadow: var(--card-shadow);
+        }
+        .quantity-bar .qty-btn {
+            background: var(--background-tertiary);
+            border-left: none; border-right: none;
+            color: var(--text-secondary);
+            transition: background-color 0.12s, color 0.12s, transform 0.08s;
+        }
+        .quantity-bar .qty-btn:hover {
+            background: var(--background-secondary);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        .quantity-bar .qty-display {
+            background: transparent;
+            color: var(--text-primary);
+            padding: 0 0.5rem;
+        }
+        /* Make bar match height of gradient-button (3rem) with a slightly larger height to match design */
+        .quantity-bar { height: 3.5rem; border-radius: 0.75rem; }
+        .quantity-bar .qty-btn { width: 3.5rem; }
+        @media (max-width: 640px) {
+            .quantity-bar { height: 3.5rem; }
+            .quantity-bar .qty-display { font-size: 1rem; }
+        }
+    </style>
 </head>
 <body class="daylight-theme">
     <!-- Preloader -->
@@ -493,6 +524,41 @@
     /* Accessibility helpers */
     .high-contrast-text { color: var(--text-primary) !important; }
     </style>
+    <script>
+    // Global handler for quantity-bar buttons: updates hidden input and display
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest && e.target.closest('.qty-btn');
+        if (!btn) return;
+
+        e.preventDefault();
+        const action = btn.getAttribute('data-action');
+        const targetSelector = btn.getAttribute('data-target');
+        const targetInput = targetSelector ? document.querySelector(targetSelector) : btn.closest('.interactive-card')?.querySelector('.quantity-input');
+        const displayId = (targetInput && targetInput.id) ? (targetInput.id.replace('qty-', '') ? (`#${targetInput.id}`) : null) : null;
+
+        // Prefer explicit display element convention: #<id>-display
+        let displayEl = null;
+        if (targetInput && targetInput.id) displayEl = document.getElementById(`${targetInput.id.replace(/^#/, '')}-display`) || document.getElementById(`${targetInput.id}-display`);
+        // fallback: find nearest .qty-display
+        if (!displayEl) displayEl = btn.closest('.interactive-card')?.querySelector('.qty-display') || btn.closest('article')?.querySelector('.qty-display');
+
+        if (!targetInput) return;
+        let current = parseInt(targetInput.value) || 1;
+        const min = parseInt(targetInput.getAttribute('min')) || 1;
+        const max = parseInt(targetInput.getAttribute('max')) || null;
+
+        if (action === 'decrease') {
+            if (current > min) current = current - 1;
+        } else if (action === 'increase') {
+            if (!max || current < max) current = current + 1;
+        }
+
+        targetInput.value = current;
+        if (displayEl) displayEl.textContent = current;
+        // trigger input event for any listeners
+        try { targetInput.dispatchEvent(new Event('input', { bubbles: true })); } catch (err) {}
+    });
+    </script>
         <div class="spinner"></div>
     </div>
 

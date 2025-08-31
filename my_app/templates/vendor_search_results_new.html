@@ -1,4 +1,5 @@
 {% extends "vendor_base.html" %}
+{% set hide_brand_header = true %}
 
 {% block title %}Search Results - Sahaayak{% endblock %}
 
@@ -79,13 +80,13 @@
         <!-- Results Grid -->
         <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {% for product in products %}
-            <div class="order-card reveal product-card" 
+          <article id="product-{{ product[0] }}" class="order-card reveal product-card" 
                  data-price="{{ product[4] }}" 
                  data-location="{{ product[14] }}" 
                  data-stock="{{ product[5] }}"
                  data-trust="{{ product[16] }}"
                  data-name="{{ product[2]|lower }}"
-                 data-product-id="{{ product[0] }}">
+              data-product-id="{{ product[0] }}">
                 
                 <!-- Product Image -->
                 {% if product[7] %}
@@ -110,24 +111,23 @@
                 <div class="text-2xl font-bold mb-4" style="color: var(--accent-primary);">₹{{ "%.2f"|format(product[4]) }}</div>
                 
                 <!-- Quantity Controls -->
-                <div class="flex items-center justify-center gap-3 mb-6">
-                    <button class="quantity-button" onclick="updateQuantity(this, -1)">
-                        <i data-feather="minus" class="w-4 h-4"></i>
-                    </button>
-                    <input type="number" class="quantity-input" value="1" min="1" max="{{ product[5] }}">
-                    <button class="quantity-button" onclick="updateQuantity(this, 1)">
-                        <i data-feather="plus" class="w-4 h-4"></i>
-                    </button>
+                <div class="mb-3">
+                    <div class="quantity-bar flex items-center justify-between w-full rounded-lg overflow-hidden" style="height:3.5rem;">
+                        <button type="button" class="qty-btn px-4 h-full flex items-center justify-center" data-action="decrease" data-target="#search-qty-{{ product[0] }}" aria-label="Decrease quantity"><i data-feather="minus" class="w-5 h-5"></i></button>
+                        <div class="qty-display text-lg font-semibold text-center flex-1" id="search-qty-display-{{ product[0] }}" aria-live="polite">1</div>
+                        <button type="button" class="qty-btn px-4 h-full flex items-center justify-center" data-action="increase" data-target="#search-qty-{{ product[0] }}" aria-label="Increase quantity"><i data-feather="plus" class="w-5 h-5"></i></button>
+                    </div>
+                    <input type="number" id="search-qty-{{ product[0] }}" class="quantity-input hidden" value="1" min="1" max="{{ product[5] }}">
                 </div>
                 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-2">
-                    <button class="add-to-cart-btn gradient-button w-full text-white font-semibold py-3 rounded-xl text-md shadow-lg add-to-cart-text" style="box-shadow: 0 10px 20px -5px var(--glow-primary);" data-product-id="{{ product[0] }}">Add to Cart</button>
+            <button class="add-to-cart-btn gradient-button w-full text-white font-semibold py-3 rounded-xl text-md shadow-lg add-to-cart-text" style="box-shadow: 0 10px 20px -5px var(--glow-primary);" data-product-id="{{ product[0] }}">Add to Cart</button>
                     <button class="quick-order-btn p-3 rounded-xl bg-[var(--background-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] transition-colors" data-product-id="{{ product[0] }}">
                         <i data-feather="shopping-cart" class="w-5 h-5"></i>
                     </button>
                 </div>
-            </div>
+        </article>
             {% endfor %}
         </div>
         
@@ -250,22 +250,46 @@ function updateQuantity(button, change) {
     }
 }
 
-function addToCart(productId) {
-    const card = document.querySelector(`[data-product-id="${productId}"]`);
-    const quantity = card.querySelector('.quantity-input').value;
-    
-    // For now, just show a success message
-    alert(`Added ${quantity} item(s) to cart!`);
-    
-    // Update cart summary (if implemented)
-    updateCartSummary();
+function addToCart(productId, quantity = null) {
+    const qtyInput = document.querySelector(`#search-qty-${productId}`) || document.querySelector(`#qty-${productId}`) || document.querySelector(`[data-product-id='${productId}'] .quantity-input`);
+    const qty = quantity || (qtyInput ? qtyInput.value : 1);
+
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', qty);
+
+    fetch("{{ url_for('main.add_to_cart') }}", {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            try {
+                const article = document.getElementById(`product-${productId}`) || document.querySelector(`[data-product-id='${productId}']`);
+                const name = article?.querySelector('h3')?.textContent?.trim() || '';
+                const image = article?.querySelector('img')?.src || '';
+                const priceText = article?.querySelector('[data-price]')?.dataset?.price || article?.querySelector('div[class*="text-2xl"]')?.textContent || '';
+                const price = parseFloat((priceText || '').toString().replace(/[^0-9.]/g, '')) || 0;
+                if (window.SahaayakApp && window.SahaayakApp.cart) {
+                    window.SahaayakApp.cart.add({ id: productId, name: name, price: price, image_path: image, quantity: parseInt(qty) });
+                }
+            } catch (err) { console.warn('frontend cart update failed', err); }
+
+            const badge = document.getElementById('cart-count-badge');
+            if (badge && data.cart_count !== undefined) {
+                badge.textContent = data.cart_count; badge.classList.remove('hidden');
+            }
+        } else {
+            if (data.redirect) window.location.href = data.redirect; else alert('Error: ' + data.message);
+        }
+    })
+    .catch(err => { console.error(err); alert('Error adding to cart'); });
 }
 
 function quickOrder(productId) {
-    const card = document.querySelector(`[data-product-id="${productId}"]`);
-    const quantity = card.querySelector('.quantity-input').value;
-    
-    // Redirect to quick order
+    const qtyInput = document.querySelector(`#search-qty-${productId}`) || document.querySelector(`#qty-${productId}`) || document.querySelector(`[data-product-id='${productId}'] .quantity-input`);
+    const quantity = qtyInput ? qtyInput.value : 1;
     window.location.href = `/vendor/quick-order/${productId}?quantity=${quantity}`;
 }
 

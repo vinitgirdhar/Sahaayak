@@ -1,9 +1,10 @@
 {% extends "vendor_base.html" %}
 
+{% set hide_brand_header = true %}
 {% block title %}{{ category_name }} - Sahaayak{% endblock %}
 
 {% block vendor_content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="mb-8">
         <nav class="flex items-center gap-2 text-sm mb-4" style="color: var(--text-secondary);">
@@ -21,80 +22,55 @@
         </p>
     </div>
 
-    <!-- Products Grid -->
+    <!-- Products Grid (redesigned to match wholesaler layout) -->
     {% if products %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {% for product in products %}
-        <div class="product-card interactive-card flex flex-col h-full reveal overflow-hidden">
-            <div class="w-full h-56 relative overflow-hidden bg-[var(--background-tertiary)]">
+        <article class="bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-sm p-4 flex flex-col text-left hover:shadow-md transition-shadow duration-200" tabindex="0" aria-labelledby="cat-product-{{ product[0] }}">
+            <div class="w-full h-40 bg-[var(--background-tertiary)] rounded-lg overflow-hidden mb-4 flex items-center justify-center">
                 {% if product[5] and product[5] != 'None' %}
-                <img src="{{ url_for('static', filename=product[5]) }}" 
-                     alt="{{ product[1] }}" 
-                     class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+                <img src="{{ url_for('static', filename=product[5]) }}" alt="{{ product[1] }}" class="w-full h-full object-cover">
                 {% else %}
-                <div class="w-full h-full flex items-center justify-center text-5xl opacity-50">
-                    🥬
-                </div>
+                <i data-feather="package" class="w-10 h-10 text-[var(--text-secondary)]"></i>
                 {% endif %}
-                <div class="absolute top-3 right-3 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-800">
-                    {{ product[2] }}
+                <div class="absolute top-3 right-3">
+                    <div class="px-3 py-1 rounded-full text-xs font-semibold" style="background: rgba(255,255,255,0.04); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.02);">{{ product[2] }}</div>
                 </div>
             </div>
-            
-            <div class="p-5 flex-grow flex flex-col">
-                <div class="flex-grow">
-                    <h3 class="font-bold text-xl mb-2" style="color: var(--text-primary);">{{ product[1] }}</h3>
-                    
-                    <div class="flex items-center gap-3 mb-4 text-sm">
-                        <div class="w-8 h-8 rounded-full bg-[var(--accent-secondary)] text-white flex items-center justify-center text-sm font-bold">
-                            {{ product[6][0] if product[6] else 'W' }}
-                        </div>
-                        <div>
-                            <p class="font-semibold" style="color: var(--text-primary);">{{ product[6] }}</p>
-                            <p class="text-xs" style="color: var(--text-secondary);">{{ product[7] }}</p>
-                        </div>
-                        {% if product[8] and product[8] >= 4.5 %}
-                        <div class="ml-auto flex items-center gap-1 text-yellow-500">
-                            <i data-feather="star" class="w-4 h-4 fill-current"></i>
-                            <span class="text-sm font-bold" style="color: var(--text-primary);">{{ "%.1f"|format(product[8]) }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="flex justify-between items-center mb-4">
-                        <div>
-                            <p class="text-3xl font-extrabold" style="color: var(--accent-primary);">₹{{ "%.2f"|format(product[3]) }}</p>
-                            <p class="text-sm" style="color: var(--text-secondary);">per unit</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-medium" style="color: var(--text-secondary);">In Stock</p>
-                            <p class="font-bold text-lg" style="color: {% if product[4] > 50 %}#22c55e{% elif product[4] > 10 %}#f59e0b{% else %}#ef4444{% endif %};">
-                                {{ product[4] }}
-                            </p>
-                        </div>
-                    </div>
+            <div class="flex-grow">
+                <h3 id="cat-product-{{ product[0] }}" class="text-base font-semibold text-[var(--text-primary)] mb-1">{{ product[1] }}</h3>
+                <p class="text-[var(--accent-primary)] font-bold text-lg">₹{{ "%.2f"|format(product[3]) }}</p>
+                <p class="text-xs text-[var(--text-secondary)] mb-3">{{ product[6] }} • {{ product[7] }}</p>
+                <div class="text-xs mb-3">
+                    {% if product[4] > 10 %}
+                        <span class="px-2 py-1 rounded-full" style="background: rgba(34,197,94,0.06); color: var(--text-primary);">{{ product[4] }} in stock</span>
+                    {% elif product[4] > 0 %}
+                        <span class="px-2 py-1 rounded-full" style="background: rgba(245,158,11,0.06); color: var(--text-primary);">{{ product[4] }} left</span>
+                    {% else %}
+                        <span class="px-2 py-1 rounded-full" style="background: rgba(239,68,68,0.06); color: var(--text-primary);">Out of stock</span>
+                    {% endif %}
                 </div>
-                
-                <div class="mt-auto pt-4 border-t border-[var(--border-primary)]">
-                    <div class="quantity-selector mb-3">
-                        <button type="button" class="quantity-button">
+            </div>
+            <div class="mt-4">
+                {% if product[4] > 0 %}
+                <div class="mb-3">
+                    <div class="quantity-bar flex items-center justify-between w-full rounded-lg overflow-hidden" style="height:3.5rem;">
+                        <button type="button" class="qty-btn px-4 h-full flex items-center justify-center" data-action="decrease" data-target="#qty-{{ product[0] }}" aria-label="Decrease quantity">
                             <i data-feather="minus" class="w-5 h-5"></i>
                         </button>
-                        <input type="number" class="quantity-input" value="1" min="1" max="{{ product[4] }}">
-                        <button type="button" class="quantity-button">
+                        <div class="qty-display text-lg font-semibold text-center flex-1" id="qty-display-{{ product[0] }}" aria-live="polite">1</div>
+                        <button type="button" class="qty-btn px-4 h-full flex items-center justify-center" data-action="increase" data-target="#qty-{{ product[0] }}" aria-label="Increase quantity">
                             <i data-feather="plus" class="w-5 h-5"></i>
                         </button>
                     </div>
-                    
-                    <button type="button" 
-                            data-product-id="{{ product[0] }}" 
-                            class="add-to-cart-btn gradient-button w-full text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2">
-                        <i data-feather="shopping-cart" class="w-5 h-5"></i>
-                        Add to Cart
-                    </button>
+                    <input id="qty-{{ product[0] }}" type="number" value="1" min="1" max="{{ product[4] }}" class="quantity-input hidden">
                 </div>
+                <button data-product-id="{{ product[0] }}" data-qty-input="#qty-{{ product[0] }}" class="add-to-cart-btn gradient-button w-full text-white font-medium py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]">Add to Cart</button>
+                {% else %}
+                <button disabled class="w-full opacity-60 bg-[var(--background-primary)] text-[var(--text-secondary)] font-medium py-2 rounded-lg">Out of Stock</button>
+                {% endif %}
             </div>
-        </div>
+        </article>
         {% endfor %}
     </div>
     {% else %}
@@ -139,10 +115,15 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function(event) {
             event.preventDefault();
 
-            const productCard = this.closest('.product-card'); // Assuming each product is in a container with this class
             const productId = this.dataset.productId;
-            const quantityInput = productCard.querySelector('.quantity-input');
-            const quantity = quantityInput.value;
+            const qtySelector = this.dataset.qtyInput;
+            const quantityInput = document.querySelector(qtySelector);
+            const quantity = quantityInput ? quantityInput.value : 1;
+            const buttonEl = this;
+
+            buttonEl.disabled = true;
+            const originalText = buttonEl.textContent;
+            buttonEl.textContent = 'Adding...';
 
             const formData = new FormData();
             formData.append('product_id', productId);
@@ -155,25 +136,45 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Update frontend cart if available
+                    try {
+                        const article = buttonEl.closest('article');
+                        const name = article.querySelector('h3') ? article.querySelector('h3').textContent.trim() : '';
+                        const image = article.querySelector('img') ? article.querySelector('img').src : '';
+                        const priceText = article.querySelector('[data-price]') ? article.querySelector('[data-price]').dataset.price : article.querySelector('p')?.textContent || '';
+                        const price = parseFloat((priceText || '').toString().replace(/[^0-9.]/g, '')) || 0;
+                        if (window.SahaayakApp && window.SahaayakApp.cart) {
+                            window.SahaayakApp.cart.add({ id: productId, name: name, price: price, image_path: image, quantity: parseInt(quantity) });
+                        }
+                    } catch (err) {
+                        console.warn('Could not update frontend cart:', err);
+                    }
+
                     // Update the cart count in the sidebar
                     const cartCountElement = document.getElementById('cart-count-badge');
-                    if (cartCountElement) {
+                    if (cartCountElement && data.cart_count !== undefined) {
                         cartCountElement.textContent = data.cart_count;
                         cartCountElement.classList.remove('hidden');
                     }
-                    // Optionally, show a success message
-                    alert(data.message); 
+
+                    // Visual feedback
+                    buttonEl.textContent = 'Added!';
+                    setTimeout(() => { buttonEl.disabled = false; buttonEl.textContent = originalText; }, 1200);
                 } else {
                     if (data.redirect) {
                         window.location.href = data.redirect;
                     } else {
                         alert('Error: ' + data.message);
+                        buttonEl.disabled = false;
+                        buttonEl.textContent = originalText;
                     }
                 }
             })
             .catch(error => {
                 console.error('Error adding to cart:', error);
                 alert('An error occurred. Please try again.');
+                buttonEl.disabled = false;
+                buttonEl.textContent = originalText;
             });
         });
     });

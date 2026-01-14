@@ -1,64 +1,32 @@
-# Core Flask framework
-Flask==2.3.3
-
-# Environment variable management
-python-dotenv==1.0.0
-
-# Flask extensions for enhanced functionality
-Flask-SQLAlchemy==3.0.5    # ORM for database operations (alternative to raw SQLite)
-Flask-Migrate==4.0.5       # Database migrations
-Flask-WTF==1.1.1           # Form handling and CSRF protection
-Flask-Login==0.6.2         # User session management (for future auth)
-
-# Database
-SQLAlchemy==2.0.19         # SQL toolkit and ORM
-
-# Forms and validation
-WTForms==3.0.1             # Form validation
-
-# Security
-Werkzeug==2.3.7            # WSGI utilities (included with Flask but good to specify)
-
-# Development and debugging
-python-dotenv==1.0.0       # Environment variable management
-
-# Optional but recommended for production
-gunicorn==21.2.0           # WSGI HTTP Server for production
-python-dateutil==2.8.2    # Date/time utilities
-
-# For future API development (if needed)
-Flask-CORS==4.0.0          # Cross-Origin Resource Sharing
-Flask-RESTful==0.3.10      # REST API development
-
-# Data handling (if you plan to import/export data)
-pandas==2.0.3              # Data manipulation (optional, only if needed)
-openpyxl==3.1.2            # Excel file handling (optional)
-
-# Email functionality (for future notifications)
-Flask-Mail==0.9.1          # Email support
-
-# Caching (for performance optimization)
-Flask-Caching==2.0.2       # Caching support
-
-# Essential dependencies for Phase 2
 Flask==2.3.3
 Werkzeug==2.3.7
-
-# File upload and security
-secure-filename>=1.0.0
-
-# Optional but recommended for production
 python-dotenv==1.0.0
+
+# Flask extensions
+Flask-SQLAlchemy==3.0.5
+Flask-Migrate==4.0.5
+Flask-WTF==1.1.1
+Flask-Login==0.6.2
+Flask-CORS==4.0.0
+Flask-RESTful==0.3.10
+Flask-Mail==0.9.1
+Flask-Caching==2.0.2
+Flask-DebugToolbar==0.13.1
+
+# ORM and forms
+SQLAlchemy==2.0.19
+WTForms==3.0.1
+
+# Utilities
 gunicorn==21.2.0
+python-dateutil==2.8.2
 
-# For future SMS notifications (Phase 2 bonus feature)
-# twilio==8.5.0
-# requests==2.31.0
-
-# Development dependencies
-Flask-DebugToolbar==0.13.1   # Debug toolbar for development
+# Data handling (optional)
+pandas==2.0.3
+openpyxl==3.1.2
 
 # PDF generation
-reportlab==4.0.4            # PDF generation library for receipts
+reportlab==4.0.4
 
-python-dotenv==1.0.0
+# Generative AI dependency used by routes
+google-generativeai==0.8.6

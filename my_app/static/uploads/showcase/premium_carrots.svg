@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Premium Carrots</title>
+  <desc id="desc">Illustrated showcase art for Premium Carrots in the Vegetables category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B3B2E" />
+      <stop offset="100%" stop-color="#0E6B52" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#A7F3D0" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#A7F3D0" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#A7F3D0" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#27B26A" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Vegetables</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="778" rx="235" ry="36" fill="#08131f" opacity="0.16" />
+    <g transform="rotate(-18 540 470)">
+      <path d="M485 305 L608 354 L548 662 Q538 702 503 724 Q484 676 478 630 Z" fill="#F97316"/>
+      <path d="M503 298 L468 244" stroke="#22C55E" stroke-width="22" stroke-linecap="round"/>
+      <path d="M522 292 L514 214" stroke="#16A34A" stroke-width="18" stroke-linecap="round"/>
+      <path d="M540 296 L574 238" stroke="#4ADE80" stroke-width="18" stroke-linecap="round"/>
+      <path d="M506 394 L570 420" stroke="#FB923C" stroke-width="10" stroke-linecap="round"/>
+      <path d="M494 470 L552 492" stroke="#FB923C" stroke-width="10" stroke-linecap="round"/>
+      <path d="M486 548 L534 565" stroke="#FB923C" stroke-width="10" stroke-linecap="round"/>
+    </g>
+    <g transform="rotate(16 690 500)">
+      <path d="M638 336 L752 390 L712 668 Q704 706 672 728 Q646 682 636 632 Z" fill="#EA580C"/>
+      <path d="M652 332 L625 278" stroke="#4ADE80" stroke-width="20" stroke-linecap="round"/>
+      <path d="M672 326 L676 248" stroke="#22C55E" stroke-width="16" stroke-linecap="round"/>
+      <path d="M691 332 L728 278" stroke="#16A34A" stroke-width="16" stroke-linecap="round"/>
+      <path d="M656 426 L716 454" stroke="#FB923C" stroke-width="10" stroke-linecap="round"/>
+      <path d="M648 504 L702 529" stroke="#FB923C" stroke-width="10" stroke-linecap="round"/>
+      <path d="M642 582 L690 602" stroke="#FB923C" stroke-width="10" stroke-linecap="round"/>
+    </g>
+  </g>
+
+</svg>

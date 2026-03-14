@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Basmati Rice</title>
+  <desc id="desc">Illustrated showcase art for Basmati Rice in the Grains & Cereals category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B2A1D" />
+      <stop offset="100%" stop-color="#7C5A3C" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#F8E7B5" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#F8E7B5" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#F8E7B5" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#D0A96B" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Grains & Cereals</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="792" rx="240" ry="30" fill="#08131f" opacity="0.16" />
+    <ellipse cx="600" cy="492" rx="146" ry="126" fill="#FFFBEB"/>
+    <ellipse cx="600" cy="604" rx="198" ry="66" fill="#D1D5DB"/>
+    <path d="M402 604 C430 690 500 742 600 742 C700 742 770 690 798 604 Z" fill="#94A3B8"/>
+    <ellipse cx="600" cy="606" rx="170" ry="36" fill="#E2E8F0"/>
+    <g fill="#F8F1D2">
+      <ellipse cx="542" cy="450" rx="14" ry="6" transform="rotate(-18 542 450)" />
+      <ellipse cx="602" cy="430" rx="14" ry="6" transform="rotate(12 602 430)" />
+      <ellipse cx="654" cy="458" rx="14" ry="6" transform="rotate(-8 654 458)" />
+      <ellipse cx="516" cy="510" rx="14" ry="6" transform="rotate(10 516 510)" />
+      <ellipse cx="586" cy="500" rx="14" ry="6" transform="rotate(-12 586 500)" />
+      <ellipse cx="652" cy="516" rx="14" ry="6" transform="rotate(18 652 516)" />
+    </g>
+  </g>
+
+</svg>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Sunflower Oil</title>
+  <desc id="desc">Illustrated showcase art for Sunflower Oil in the Oils & Condiments category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2C2B12" />
+      <stop offset="100%" stop-color="#6A6521" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#FEF08A" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#FEF08A" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#FEF08A" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#EAB308" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Oils & Condiments</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="794" rx="250" ry="28" fill="#08131f" opacity="0.16" />
+    <rect x="500" y="214" width="164" height="430" rx="56" fill="#F8FAFC"/>
+    <rect x="522" y="286" width="120" height="304" rx="34" fill="#FCD34D" opacity="0.92"/>
+    <rect x="534" y="166" width="96" height="74" rx="22" fill="#E5E7EB"/>
+    <rect x="560" y="122" width="44" height="54" rx="16" fill="#CBD5E1"/>
+    <circle cx="320" cy="496" r="96" fill="#F59E0B"/>
+    <circle cx="320" cy="496" r="42" fill="#78350F"/>
+    <g fill="#FDE047">
+      <ellipse cx="320" cy="376" rx="22" ry="54"/>
+      <ellipse cx="404" cy="412" rx="22" ry="54" transform="rotate(40 404 412)"/>
+      <ellipse cx="430" cy="496" rx="22" ry="54" transform="rotate(90 430 496)"/>
+      <ellipse cx="404" cy="580" rx="22" ry="54" transform="rotate(140 404 580)"/>
+      <ellipse cx="320" cy="616" rx="22" ry="54"/>
+      <ellipse cx="236" cy="580" rx="22" ry="54" transform="rotate(40 236 580)"/>
+      <ellipse cx="210" cy="496" rx="22" ry="54" transform="rotate(90 210 496)"/>
+      <ellipse cx="236" cy="412" rx="22" ry="54" transform="rotate(140 236 412)"/>
+    </g>
+    <path d="M320 592 C316 660 304 710 282 760" stroke="#16A34A" stroke-width="18" stroke-linecap="round"/>
+  </g>
+
+</svg>

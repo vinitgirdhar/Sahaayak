@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Fresh Spinach</title>
+  <desc id="desc">Illustrated showcase art for Fresh Spinach in the Vegetables category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B3B2E" />
+      <stop offset="100%" stop-color="#0E6B52" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#A7F3D0" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#A7F3D0" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#A7F3D0" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#27B26A" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Vegetables</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="770" rx="240" ry="40" fill="#08131f" opacity="0.16" />
+    <path d="M495 655 C470 545 485 425 560 322 C644 378 676 480 642 610 C612 676 540 694 495 655 Z" fill="#22C55E"/>
+    <path d="M702 640 C744 536 736 420 676 310 C582 360 550 458 582 582 C612 656 678 690 702 640 Z" fill="#16A34A"/>
+    <path d="M606 690 C634 575 628 432 594 286 C498 354 454 460 470 594 C500 676 564 720 606 690 Z" fill="#4ADE80"/>
+    <path d="M610 690 C600 544 596 436 598 286" stroke="#14532D" stroke-width="14" stroke-linecap="round"/>
+    <path d="M548 648 C556 542 568 442 584 342" stroke="#166534" stroke-width="10" stroke-linecap="round"/>
+    <path d="M658 638 C648 542 636 448 622 352" stroke="#166534" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+</svg>

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Fresh Milk (1L)</title>
+  <desc id="desc">Illustrated showcase art for Fresh Milk (1L) in the Dairy Products category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#12324A" />
+      <stop offset="100%" stop-color="#1E5D85" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#E0F2FE" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#E0F2FE" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#E0F2FE" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#93C5FD" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Dairy Products</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="794" rx="238" ry="28" fill="#08131f" opacity="0.16" />
+    <path d="M512 250 H678 L660 700 C656 744 626 772 596 772 C566 772 536 744 532 700 Z" fill="#F8FAFC"/>
+    <path d="M546 174 H642 V250 H546 Z" fill="#DBEAFE"/>
+    <rect x="556" y="132" width="76" height="52" rx="18" fill="#93C5FD"/>
+    <path d="M540 360 H650 V690 C648 720 626 742 596 742 C566 742 544 720 542 690 Z" fill="#E0F2FE"/>
+    <path d="M540 438 C584 418 624 418 650 438 V530 C620 548 576 548 540 530 Z" fill="#60A5FA" opacity="0.35"/>
+    <text x="596" y="514" text-anchor="middle" fill="#1D4ED8" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="800">MILK</text>
+  </g>
+
+</svg>

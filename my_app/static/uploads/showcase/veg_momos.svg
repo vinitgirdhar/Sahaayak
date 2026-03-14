@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Frozen Veg Momos (10pc)</title>
+  <desc id="desc">Illustrated showcase art for Frozen Veg Momos (10pc) in the Ready-to-Eat category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B1F2F" />
+      <stop offset="100%" stop-color="#7A3556" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#FFE4E6" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#FFE4E6" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#FFE4E6" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#FB7185" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Ready-to-Eat</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="794" rx="248" ry="28" fill="#08131f" opacity="0.16" />
+    <ellipse cx="600" cy="632" rx="228" ry="72" fill="#E2E8F0"/>
+    <ellipse cx="600" cy="600" rx="206" ry="58" fill="#F8FAFC"/>
+    <g fill="#FEF3C7">
+      <path d="M468 560 C444 506 470 450 526 440 C554 480 560 524 542 564 C516 592 486 594 468 560 Z"/>
+      <path d="M576 532 C552 478 580 422 636 412 C664 452 670 496 652 536 C626 564 594 566 576 532 Z"/>
+      <path d="M664 570 C640 516 668 460 724 450 C752 490 758 534 740 574 C714 602 682 604 664 570 Z"/>
+    </g>
+    <g stroke="#F8FAFC" stroke-width="8" stroke-linecap="round" opacity="0.55">
+      <path d="M492 492 C510 510 522 530 528 554"/>
+      <path d="M600 464 C618 484 630 504 636 528"/>
+      <path d="M688 502 C706 520 718 540 724 564"/>
+    </g>
+  </g>
+
+</svg>

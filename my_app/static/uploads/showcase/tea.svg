@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Tea</title>
+  <desc id="desc">Illustrated showcase art for Tea in the Snacks & Beverages category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F2942" />
+      <stop offset="100%" stop-color="#245A8D" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#DBEAFE" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#DBEAFE" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#DBEAFE" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#60A5FA" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Snacks & Beverages</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="794" rx="248" ry="28" fill="#08131f" opacity="0.16" />
+    <path d="M430 636 H738 C726 708 676 752 584 752 C498 752 448 712 430 636 Z" fill="#E2E8F0"/>
+    <path d="M452 636 H716 C704 690 662 724 586 724 C514 724 474 694 452 636 Z" fill="#F8FAFC"/>
+    <path d="M460 610 H712 C704 662 660 688 588 688 C520 688 478 662 460 610 Z" fill="#A16207"/>
+    <path d="M738 618 C792 618 812 654 812 690 C812 732 778 754 738 754" fill="none" stroke="#E2E8F0" stroke-width="24" stroke-linecap="round"/>
+    <path d="M540 384 C516 334 516 292 546 246" stroke="#DBEAFE" stroke-width="16" stroke-linecap="round" opacity="0.9"/>
+    <path d="M610 372 C590 324 594 280 622 238" stroke="#DBEAFE" stroke-width="16" stroke-linecap="round" opacity="0.9"/>
+    <path d="M660 540 C624 468 612 418 618 358 C696 382 742 452 734 538 C708 564 686 570 660 540 Z" fill="#22C55E"/>
+  </g>
+
+</svg>

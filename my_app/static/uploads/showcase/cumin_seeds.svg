@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Cumin Seeds</title>
+  <desc id="desc">Illustrated showcase art for Cumin Seeds in the Spices & Condiments category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4A1D0A" />
+      <stop offset="100%" stop-color="#A94410" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#FDE68A" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#FDE68A" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#FDE68A" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#F59E0B" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Spices & Condiments</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="790" rx="246" ry="30" fill="#08131f" opacity="0.16" />
+    <ellipse cx="600" cy="612" rx="214" ry="68" fill="#78350F"/>
+    <ellipse cx="600" cy="574" rx="192" ry="52" fill="#92400E"/>
+    <ellipse cx="520" cy="476" rx="16" ry="5" fill="#D4A373" transform="rotate(-20 520 476)" />
+    <ellipse cx="566" cy="454" rx="16" ry="5" fill="#D4A373" transform="rotate(18 566 454)" />
+    <ellipse cx="616" cy="468" rx="16" ry="5" fill="#D4A373" transform="rotate(-12 616 468)" />
+    <ellipse cx="660" cy="450" rx="16" ry="5" fill="#D4A373" transform="rotate(22 660 450)" />
+    <ellipse cx="700" cy="476" rx="16" ry="5" fill="#D4A373" transform="rotate(-18 700 476)" />
+    <ellipse cx="538" cy="522" rx="16" ry="5" fill="#D4A373" transform="rotate(14 538 522)" />
+    <ellipse cx="592" cy="508" rx="16" ry="5" fill="#D4A373" transform="rotate(-16 592 508)" />
+    <ellipse cx="640" cy="528" rx="16" ry="5" fill="#D4A373" transform="rotate(18 640 528)" />
+    <ellipse cx="688" cy="510" rx="16" ry="5" fill="#D4A373" transform="rotate(-10 688 510)" />
+    <ellipse cx="564" cy="560" rx="16" ry="5" fill="#D4A373" transform="rotate(22 564 560)" />
+    <ellipse cx="620" cy="552" rx="16" ry="5" fill="#D4A373" transform="rotate(-18 620 552)" />
+    <ellipse cx="676" cy="564" rx="16" ry="5" fill="#D4A373" transform="rotate(16 676 564)" />
+  </g>
+
+</svg>

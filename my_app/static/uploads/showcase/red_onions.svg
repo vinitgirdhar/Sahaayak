@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Red Onions</title>
+  <desc id="desc">Illustrated showcase art for Red Onions in the Vegetables category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B3B2E" />
+      <stop offset="100%" stop-color="#0E6B52" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#A7F3D0" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#A7F3D0" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#A7F3D0" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#27B26A" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Vegetables</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="780" rx="230" ry="38" fill="#08131f" opacity="0.18" />
+    <path d="M600 274 C550 350 472 392 472 544 C472 664 548 726 600 726 C652 726 728 664 728 544 C728 392 650 350 600 274 Z" fill="#A855F7"/>
+    <path d="M600 274 C576 352 556 418 556 544 C556 664 580 726 600 726" stroke="#E9D5FF" stroke-width="12" stroke-linecap="round"/>
+    <path d="M600 274 C624 352 644 418 644 544 C644 664 620 726 600 726" stroke="#D8B4FE" stroke-width="12" stroke-linecap="round"/>
+    <path d="M600 230 L560 150" stroke="#22C55E" stroke-width="18" stroke-linecap="round"/>
+    <path d="M604 226 L610 126" stroke="#16A34A" stroke-width="15" stroke-linecap="round"/>
+    <path d="M612 228 L666 162" stroke="#4ADE80" stroke-width="14" stroke-linecap="round"/>
+  </g>
+
+</svg>

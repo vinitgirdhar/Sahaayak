@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Paneer (200g)</title>
+  <desc id="desc">Illustrated showcase art for Paneer (200g) in the Dairy Products category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#12324A" />
+      <stop offset="100%" stop-color="#1E5D85" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#E0F2FE" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#E0F2FE" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#E0F2FE" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#93C5FD" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Dairy Products</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="792" rx="250" ry="30" fill="#08131f" opacity="0.16" />
+    <rect x="414" y="304" width="372" height="362" rx="48" fill="#E2E8F0"/>
+    <rect x="442" y="332" width="316" height="306" rx="40" fill="#F8FAFC"/>
+    <g transform="translate(506 398)"><rect x="-34" y="-34" width="68" height="68" rx="14" fill="#FEF3C7"/><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#FDE68A"/></g>
+    <g transform="translate(590 376)"><rect x="-34" y="-34" width="68" height="68" rx="14" fill="#FEF3C7"/><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#FDE68A"/></g>
+    <g transform="translate(674 406)"><rect x="-34" y="-34" width="68" height="68" rx="14" fill="#FEF3C7"/><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#FDE68A"/></g>
+    <g transform="translate(534 482)"><rect x="-34" y="-34" width="68" height="68" rx="14" fill="#FEF3C7"/><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#FDE68A"/></g>
+    <g transform="translate(620 462)"><rect x="-34" y="-34" width="68" height="68" rx="14" fill="#FEF3C7"/><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#FDE68A"/></g>
+    <g transform="translate(704 492)"><rect x="-34" y="-34" width="68" height="68" rx="14" fill="#FEF3C7"/><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#FDE68A"/></g>
+    <g transform="translate(508 570)"><rect x="-34" y="-34" width="68" height="68" rx="14" fill="#FEF3C7"/><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#FDE68A"/></g>
+    <g transform="translate(594 550)"><rect x="-34" y="-34" width="68" height="68" rx="14" fill="#FEF3C7"/><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#FDE68A"/></g>
+    <g transform="translate(680 580)"><rect x="-34" y="-34" width="68" height="68" rx="14" fill="#FEF3C7"/><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#FDE68A"/></g>
+  </g>
+
+</svg>

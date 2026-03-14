@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Toor Dal</title>
+  <desc id="desc">Illustrated showcase art for Toor Dal in the Dry Ingredients category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2F2417" />
+      <stop offset="100%" stop-color="#6A4A2A" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#F7E8BE" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#F7E8BE" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#F7E8BE" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#D6B779" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Dry Ingredients</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="790" rx="246" ry="30" fill="#08131f" opacity="0.16" />
+    <ellipse cx="600" cy="612" rx="214" ry="70" fill="#7C4A16"/>
+    <ellipse cx="600" cy="574" rx="192" ry="54" fill="#A16207"/>
+    <ellipse cx="514" cy="462" rx="20" ry="14" fill="#EAB308" transform="rotate(18 514 462)" />
+    <ellipse cx="560" cy="436" rx="20" ry="14" fill="#EAB308" transform="rotate(18 560 436)" />
+    <ellipse cx="612" cy="444" rx="20" ry="14" fill="#EAB308" transform="rotate(18 612 444)" />
+    <ellipse cx="664" cy="468" rx="20" ry="14" fill="#EAB308" transform="rotate(18 664 468)" />
+    <ellipse cx="704" cy="506" rx="20" ry="14" fill="#EAB308" transform="rotate(18 704 506)" />
+    <ellipse cx="536" cy="516" rx="20" ry="14" fill="#EAB308" transform="rotate(18 536 516)" />
+    <ellipse cx="584" cy="504" rx="20" ry="14" fill="#EAB308" transform="rotate(18 584 504)" />
+    <ellipse cx="634" cy="520" rx="20" ry="14" fill="#EAB308" transform="rotate(18 634 520)" />
+    <ellipse cx="682" cy="546" rx="20" ry="14" fill="#EAB308" transform="rotate(18 682 546)" />
+    <ellipse cx="560" cy="566" rx="20" ry="14" fill="#EAB308" transform="rotate(18 560 566)" />
+    <ellipse cx="612" cy="570" rx="20" ry="14" fill="#EAB308" transform="rotate(18 612 570)" />
+    <ellipse cx="662" cy="584" rx="20" ry="14" fill="#EAB308" transform="rotate(18 662 584)" />
+    <ellipse cx="516" cy="560" rx="20" ry="14" fill="#EAB308" transform="rotate(18 516 560)" />
+    <ellipse cx="708" cy="454" rx="20" ry="14" fill="#EAB308" transform="rotate(18 708 454)" />
+  </g>
+
+</svg>

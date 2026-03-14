@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Green Capsicum</title>
+  <desc id="desc">Illustrated showcase art for Green Capsicum in the Vegetables category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B3B2E" />
+      <stop offset="100%" stop-color="#0E6B52" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#A7F3D0" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#A7F3D0" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#A7F3D0" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#27B26A" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Vegetables</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="780" rx="232" ry="40" fill="#08131f" opacity="0.18" />
+    <path d="M520 348 C468 378 446 448 456 530 C466 632 532 712 600 712 C668 712 734 632 744 530 C754 448 732 378 680 348 C648 330 620 332 600 350 C580 332 552 330 520 348 Z" fill="#16A34A"/>
+    <path d="M560 372 C534 398 526 460 532 538 C540 618 568 678 600 700" stroke="#4ADE80" stroke-width="12" stroke-linecap="round"/>
+    <path d="M640 372 C666 398 674 460 668 538 C660 618 632 678 600 700" stroke="#22C55E" stroke-width="12" stroke-linecap="round"/>
+    <path d="M596 270 C576 276 562 292 562 314 C578 314 594 320 606 330 C618 318 632 310 648 308 C646 286 628 270 596 270 Z" fill="#14532D"/>
+    <rect x="592" y="236" width="20" height="54" rx="10" fill="#14532D" />
+  </g>
+
+</svg>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Mango Juice</title>
+  <desc id="desc">Illustrated showcase art for Mango Juice in the Snacks & Beverages category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F2942" />
+      <stop offset="100%" stop-color="#245A8D" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#DBEAFE" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#DBEAFE" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#DBEAFE" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#60A5FA" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Snacks & Beverages</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="794" rx="246" ry="28" fill="#08131f" opacity="0.16" />
+    <path d="M514 282 H676 L650 694 C646 738 616 764 596 764 C576 764 546 738 542 694 Z" fill="#DBEAFE"/>
+    <path d="M536 332 H654 L634 688 C632 714 614 732 596 732 C578 732 560 714 558 688 Z" fill="#F59E0B" opacity="0.92"/>
+    <path d="M600 286 L600 198" stroke="#F8FAFC" stroke-width="16" stroke-linecap="round"/>
+    <path d="M600 198 L656 152" stroke="#F8FAFC" stroke-width="16" stroke-linecap="round"/>
+    <path d="M376 560 C316 528 282 474 294 410 C314 322 404 278 494 304 C566 326 610 394 598 460 C582 548 494 612 376 560 Z" fill="#F59E0B"/>
+    <path d="M470 286 C484 248 516 224 564 220 C550 262 520 290 470 286 Z" fill="#22C55E"/>
+    <ellipse cx="412" cy="444" rx="70" ry="116" transform="rotate(34 412 444)" fill="#FDBA74" opacity="0.34"/>
+  </g>
+
+</svg>

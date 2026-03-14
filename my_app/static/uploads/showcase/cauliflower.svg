@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Cauliflower</title>
+  <desc id="desc">Illustrated showcase art for Cauliflower in the Vegetables category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B3B2E" />
+      <stop offset="100%" stop-color="#0E6B52" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#A7F3D0" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#A7F3D0" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#A7F3D0" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#27B26A" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Vegetables</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="782" rx="240" ry="34" fill="#08131f" opacity="0.18" />
+    <path d="M520 612 C518 680 548 722 600 722 C652 722 682 680 680 612 Z" fill="#65A30D"/>
+    <path d="M488 598 C446 560 432 516 444 474 C506 470 548 492 578 538 C558 572 530 592 488 598 Z" fill="#16A34A"/>
+    <path d="M712 598 C754 560 768 516 756 474 C694 470 652 492 622 538 C642 572 670 592 712 598 Z" fill="#16A34A"/>
+    <circle cx="524" cy="430" r="66" fill="#F8FAFC"/>
+    <circle cx="600" cy="396" r="96" fill="#FFFBEB"/>
+    <circle cx="680" cy="434" r="66" fill="#F8FAFC"/>
+    <circle cx="564" cy="460" r="62" fill="#FEFCE8"/>
+    <circle cx="636" cy="460" r="62" fill="#FEFCE8"/>
+  </g>
+
+</svg>

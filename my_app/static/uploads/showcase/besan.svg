@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Besan (Gram Flour)</title>
+  <desc id="desc">Illustrated showcase art for Besan (Gram Flour) in the Dry Ingredients category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2F2417" />
+      <stop offset="100%" stop-color="#6A4A2A" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#F7E8BE" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#F7E8BE" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#F7E8BE" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#D6B779" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Dry Ingredients</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="792" rx="250" ry="30" fill="#08131f" opacity="0.16" />
+    <path d="M470 296 H730 L692 694 C686 742 652 772 600 772 C548 772 514 742 508 694 Z" fill="#E5E7EB"/>
+    <path d="M496 336 H704 L674 690 C670 722 646 744 600 744 C554 744 530 722 526 690 Z" fill="#F9FAFB"/>
+    <path d="M508 344 H692 L676 460 C654 488 626 502 600 502 C574 502 546 488 524 460 Z" fill="#D1D5DB" opacity="0.55"/>
+    <text x="600" y="624" text-anchor="middle" fill="#92400E" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="800">BESAN</text>
+    <path d="M544 414 C574 372 626 372 656 414 C638 446 620 460 600 460 C580 460 562 446 544 414 Z" fill="#FDE68A"/>
+  </g>
+
+</svg>

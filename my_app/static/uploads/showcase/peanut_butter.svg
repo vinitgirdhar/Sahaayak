@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Peanut Butter</title>
+  <desc id="desc">Illustrated showcase art for Peanut Butter in the Spreads & Pantry category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2B1D3B" />
+      <stop offset="100%" stop-color="#5A3C7C" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#E9D5FF" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#E9D5FF" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#E9D5FF" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#C084FC" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Spreads & Pantry</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="790" rx="220" ry="30" fill="#08131f" opacity="0.16" />
+    <rect x="436" y="286" width="328" height="380" rx="54" fill="#E2E8F0"/>
+    <rect x="470" y="206" width="260" height="92" rx="28" fill="#CBD5E1"/>
+    <rect x="470" y="354" width="260" height="240" rx="26" fill="#B45309"/>
+    <rect x="470" y="334" width="260" height="52" rx="14" fill="#F8FAFC"/>
+    <ellipse cx="600" cy="472" rx="96" ry="66" fill="#D97706" opacity="0.52"/>
+  </g>
+
+</svg>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Gulab Jamun Mix</title>
+  <desc id="desc">Illustrated showcase art for Gulab Jamun Mix in the Other category.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2A2540" />
+      <stop offset="100%" stop-color="#51437A" />
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#EDE9FE" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#EDE9FE" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#08131f" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)" rx="48" />
+  <circle cx="220" cy="180" r="220" fill="url(#glow)" />
+  <circle cx="1030" cy="780" r="240" fill="#EDE9FE" opacity="0.08" />
+  <circle cx="940" cy="160" r="120" fill="#A78BFA" opacity="0.12" />
+  <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Other</text>
+  
+  <g filter="url(#shadow)">
+    <ellipse cx="600" cy="792" rx="248" ry="30" fill="#08131f" opacity="0.16" />
+    <ellipse cx="600" cy="620" rx="224" ry="78" fill="#D1D5DB"/>
+    <ellipse cx="600" cy="582" rx="206" ry="60" fill="#F8FAFC"/>
+    <g fill="#92400E">
+      <circle cx="520" cy="532" r="54"/>
+      <circle cx="610" cy="504" r="54"/>
+      <circle cx="692" cy="548" r="54"/>
+      <circle cx="556" cy="604" r="54"/>
+      <circle cx="650" cy="614" r="54"/>
+    </g>
+    <g fill="#FBBF24" opacity="0.35">
+      <circle cx="504" cy="514" r="14"/>
+      <circle cx="594" cy="488" r="14"/>
+      <circle cx="676" cy="530" r="14"/>
+      <circle cx="540" cy="590" r="14"/>
+      <circle cx="634" cy="600" r="14"/>
+    </g>
+  </g>
+
+</svg>

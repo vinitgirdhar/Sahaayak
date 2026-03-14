@@ -1,15 +1,21 @@
 import os
-from flask import Flask, g
+from flask import Flask
 from config import Config
 
-def create_app(config_class=Config):
+def create_app(config_class=Config, config_overrides=None, static_folder=None):
     """Creates and configures the Flask application."""
-    # Note the instance_relative_config=True. 
-    # This means the app can load config from an 'instance' folder outside the package
-    app = Flask(__name__, instance_relative_config=True)
+    flask_kwargs = {'instance_relative_config': True}
+    if static_folder is not None:
+        flask_kwargs['static_folder'] = static_folder
+
+    # Note the instance_relative_config=True.
+    # This means the app can load config from an 'instance' folder outside the package.
+    app = Flask(__name__, **flask_kwargs)
     
     # Load configuration from the config object
     app.config.from_object(config_class)
+    if config_overrides:
+        app.config.update(config_overrides)
 
     # Ensure the instance folder exists
     try:

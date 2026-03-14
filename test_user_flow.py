@@ -1,356 +1,651 @@
+#!/usr/bin/env python3
 """
-Comprehensive User Flow Test Script for Sahaayak
-Tests all major user journeys for both Vendor and Wholesaler roles
+Exercise current Flask routes against a disposable verification environment.
 """
-import requests
-import json
 
-BASE_URL = "http://127.0.0.1:5000"
+import sqlite3
+from unittest.mock import Mock, patch
 
-def test_homepage():
-    """Test homepage loads correctly"""
-    print("\n=== TESTING HOMEPAGE ===")
-    response = requests.get(BASE_URL)
-    if response.status_code == 200:
-        print("✅ Homepage loads successfully")
-        # Check for key elements
-        if "Sahaayak" in response.text:
-            print("✅ Brand name present")
-        if "vendor" in response.text.lower():
-            print("✅ Vendor section present")
-        if "wholesaler" in response.text.lower():
-            print("✅ Wholesaler section present")
-    else:
-        print(f"❌ Homepage failed: {response.status_code}")
-    return response.status_code == 200
+from verification_helper import (
+    VERIFICATION_PRODUCTS,
+    VERIFICATION_VENDOR,
+    VERIFICATION_WHOLESALERS,
+    extract_local_static_refs,
+    live_gemini_enabled,
+    resolve_local_reference,
+    verification_environment,
+)
 
-def test_vendor_login_page():
-    """Test vendor login page loads"""
-    print("\n=== TESTING VENDOR LOGIN PAGE ===")
-    response = requests.get(f"{BASE_URL}/vendor/login")
-    if response.status_code == 200:
-        print("✅ Vendor login page loads")
-        if "phone" in response.text.lower() or "login" in response.text.lower():
-            print("✅ Login form present")
-    else:
-        print(f"❌ Vendor login page failed: {response.status_code}")
-    return response.status_code == 200
 
-def test_wholesaler_login_page():
-    """Test wholesaler login page loads"""
-    print("\n=== TESTING WHOLESALER LOGIN PAGE ===")
-    response = requests.get(f"{BASE_URL}/wholesaler/login")
-    if response.status_code == 200:
-        print("✅ Wholesaler login page loads")
-    else:
-        print(f"❌ Wholesaler login page failed: {response.status_code}")
-    return response.status_code == 200
+class Suite:
+    def __init__(self):
+        self.failures = []
+        self.passes = 0
 
-def test_vendor_flow():
-    """Test complete vendor user flow"""
-    print("\n=== TESTING VENDOR USER FLOW ===")
-    
-    # Create a session to maintain cookies
-    s = requests.Session()
-    
-    # 1. Login
-    print("\n1. Testing Vendor Login...")
-    login_data = {
-        'phone': '9876543210',
-        'password': 'vendor123'
-    }
-    response = s.post(f"{BASE_URL}/vendor/login", data=login_data, allow_redirects=False)
-    if response.status_code == 302:
-        print("✅ Login successful (redirected to dashboard)")
-    else:
-        print(f"❌ Login failed: {response.status_code}")
-        return False
-    
-    # 2. Access Dashboard
-    print("\n2. Testing Vendor Dashboard...")
-    response = s.get(f"{BASE_URL}/vendor/dashboard")
-    if response.status_code == 200:
-        print("✅ Dashboard loads successfully")
-        # Check for category cards
-        categories = ["Vegetables", "Dairy", "Bread", "Grains", "Spices"]
-        found = sum(1 for cat in categories if cat.lower() in response.text.lower())
-        print(f"✅ Found {found}/{len(categories)} category sections")
-    else:
-        print(f"❌ Dashboard failed: {response.status_code}")
-        return False
-    
-    # 3. Access Category Listing
-    print("\n3. Testing Category Listing...")
-    response = s.get(f"{BASE_URL}/vendor/category/Vegetables")
-    if response.status_code == 200:
-        print("✅ Category listing loads")
-        if "product" in response.text.lower() or "₹" in response.text:
-            print("✅ Products displayed with prices")
-    else:
-        print(f"❌ Category listing failed: {response.status_code}")
-    
-    # 4. Test Cart Page (even if empty)
-    print("\n4. Testing Cart Page...")
-    response = s.get(f"{BASE_URL}/vendor/cart")
-    if response.status_code == 200:
-        print("✅ Cart page loads successfully")
-    else:
-        print(f"❌ Cart page failed: {response.status_code}")
-    
-    # 5. Test Add to Cart API
-    print("\n5. Testing Add to Cart API...")
-    cart_data = {'product_id': 1, 'quantity': 2}
-    response = s.post(f"{BASE_URL}/api/add-to-cart", json=cart_data)
-    if response.status_code == 200:
-        print("✅ Add to cart API works")
-        result = response.json()
-        print(f"   Cart response: {result.get('message', 'Success')}")
-    else:
-        print(f"⚠️ Add to cart API: {response.status_code}")
-    
-    # 6. Test Checkout Page
-    print("\n6. Testing Checkout Page...")
-    response = s.get(f"{BASE_URL}/vendor/checkout")
-    if response.status_code == 200:
-        print("✅ Checkout page loads")
-    else:
-        print(f"⚠️ Checkout page: {response.status_code} (might need items in cart)")
-    
-    # 7. Test Profile Page
-    print("\n7. Testing Profile Page...")
-    response = s.get(f"{BASE_URL}/vendor/profile")
-    if response.status_code == 200:
-        print("✅ Profile page loads")
-    else:
-        print(f"❌ Profile page failed: {response.status_code}")
-    
-    # 8. Test Orders Page
-    print("\n8. Testing Orders Page...")
-    response = s.get(f"{BASE_URL}/vendor/orders")
-    if response.status_code == 200:
-        print("✅ Orders page loads")
-    else:
-        print(f"❌ Orders page failed: {response.status_code}")
-    
-    # 9. Logout
-    print("\n9. Testing Logout...")
-    response = s.get(f"{BASE_URL}/vendor/logout", allow_redirects=False)
-    if response.status_code == 302:
-        print("✅ Logout successful")
-    else:
-        print(f"⚠️ Logout response: {response.status_code}")
-    
-    return True
+    def check(self, condition, message, detail=None):
+        status = '[PASS]' if condition else '[FAIL]'
+        print(f"{status} {message}")
+        if condition:
+            self.passes += 1
+            return
 
-def test_wholesaler_flow():
-    """Test complete wholesaler user flow"""
-    print("\n=== TESTING WHOLESALER USER FLOW ===")
-    
-    s = requests.Session()
-    
-    # 1. Login
-    print("\n1. Testing Wholesaler Login...")
-    login_data = {
-        'phone': '9999999999',
-        'password': 'password123'
-    }
-    response = s.post(f"{BASE_URL}/wholesaler/login", data=login_data, allow_redirects=False)
-    if response.status_code == 302:
-        print("✅ Login successful (redirected to dashboard)")
-    else:
-        print(f"❌ Login failed: {response.status_code}")
-        return False
-    
-    # 2. Access Dashboard
-    print("\n2. Testing Wholesaler Dashboard...")
-    response = s.get(f"{BASE_URL}/wholesaler/dashboard")
-    if response.status_code == 200:
-        print("✅ Dashboard loads successfully")
-        # Check for key dashboard elements
-        if "product" in response.text.lower():
-            print("✅ Products section present")
-        if "order" in response.text.lower():
-            print("✅ Orders section present")
-    else:
-        print(f"❌ Dashboard failed: {response.status_code}")
-        return False
-    
-    # 3. Test Products Management
-    print("\n3. Testing Products Management...")
-    response = s.get(f"{BASE_URL}/wholesaler/products/manage")
-    if response.status_code == 200:
-        print("✅ Products management page loads")
-    else:
-        print(f"❌ Products management failed: {response.status_code}")
-    
-    # 4. Test Add Product Page
-    print("\n4. Testing Add Product Page...")
-    response = s.get(f"{BASE_URL}/wholesaler/products/add")
-    if response.status_code == 200:
-        print("✅ Add product page loads")
-        # Check for form elements
-        if "category" in response.text.lower():
-            print("✅ Category dropdown present")
-        if "price" in response.text.lower():
-            print("✅ Price field present")
-    else:
-        print(f"❌ Add product page failed: {response.status_code}")
-    
-    # 5. Test Orders Management
-    print("\n5. Testing Orders Management...")
-    response = s.get(f"{BASE_URL}/wholesaler/orders/manage")
-    if response.status_code == 200:
-        print("✅ Orders management page loads")
-    else:
-        print(f"❌ Orders management failed: {response.status_code}")
-    
-    # 6. Test Profile Page
-    print("\n6. Testing Wholesaler Profile...")
-    response = s.get(f"{BASE_URL}/wholesaler/profile")
-    if response.status_code == 200:
-        print("✅ Profile page loads")
-    else:
-        print(f"❌ Profile page failed: {response.status_code}")
-    
-    # 7. Test Analytics Page
-    print("\n7. Testing Analytics Page...")
-    response = s.get(f"{BASE_URL}/wholesaler/analytics")
-    if response.status_code == 200:
-        print("✅ Analytics page loads")
-    else:
-        print(f"⚠️ Analytics page: {response.status_code}")
-    
-    # 8. Logout
-    print("\n8. Testing Logout...")
-    response = s.get(f"{BASE_URL}/wholesaler/logout", allow_redirects=False)
-    if response.status_code == 302:
-        print("✅ Logout successful")
-    else:
-        print(f"⚠️ Logout response: {response.status_code}")
-    
-    return True
+        self.failures.append(message)
+        if detail:
+            print(f"       {detail}")
 
-def test_api_endpoints():
-    """Test API endpoints for data integrity"""
-    print("\n=== TESTING API ENDPOINTS ===")
-    
-    # 1. Filter Products API
-    print("\n1. Testing Filter Products API...")
-    response = requests.get(f"{BASE_URL}/api/filter-products")
-    if response.status_code == 200:
-        print("✅ Filter products API works")
-        data = response.json()
-        if 'products' in data:
-            print(f"   Found {len(data['products'])} products")
-    else:
-        print(f"❌ Filter products failed: {response.status_code}")
-    
-    # 2. Search Products API
-    print("\n2. Testing Search Products API...")
-    response = requests.get(f"{BASE_URL}/api/search-products?query=rice")
-    if response.status_code == 200:
-        print("✅ Search products API works")
-        data = response.json()
-        if 'products' in data:
-            print(f"   Search found {len(data['products'])} products for 'rice'")
-    else:
-        print(f"⚠️ Search products: {response.status_code}")
-    
-    # 3. Test with category filter
-    print("\n3. Testing Category Filter...")
-    response = requests.get(f"{BASE_URL}/api/filter-products?category=Vegetables")
-    if response.status_code == 200:
-        print("✅ Category filter works")
-        data = response.json()
-        if 'products' in data:
-            print(f"   Found {len(data['products'])} vegetable products")
-    else:
-        print(f"⚠️ Category filter: {response.status_code}")
 
-def test_registration_pages():
-    """Test registration pages load correctly"""
-    print("\n=== TESTING REGISTRATION PAGES ===")
-    
-    # Vendor Registration
-    response = requests.get(f"{BASE_URL}/vendor/register")
-    if response.status_code == 200:
-        print("✅ Vendor registration page loads")
-    else:
-        print(f"❌ Vendor registration failed: {response.status_code}")
-    
-    # Wholesaler Registration
-    response = requests.get(f"{BASE_URL}/register-wholesaler")
-    if response.status_code == 200:
-        print("✅ Wholesaler registration page loads")
-    else:
-        print(f"❌ Wholesaler registration failed: {response.status_code}")
+def fetch_ids(database_path):
+    conn = sqlite3.connect(database_path)
+    cursor = conn.cursor()
 
-def test_admin_flow():
-    """Test admin functionality"""
-    print("\n=== TESTING ADMIN FLOW ===")
-    
-    s = requests.Session()
-    
-    # Login
-    print("\n1. Testing Admin Login...")
-    login_data = {
-        'username': 'admin',
-        'password': 'admin123'
-    }
-    response = s.post(f"{BASE_URL}/admin/login", data=login_data, allow_redirects=False)
-    if response.status_code == 302:
-        print("✅ Admin login successful")
-    else:
-        print(f"❌ Admin login failed: {response.status_code}")
-        return False
-    
-    # Access admin panel
-    print("\n2. Testing Admin Panel...")
-    response = s.get(f"{BASE_URL}/admin/wholesalers")
-    if response.status_code == 200:
-        print("✅ Admin panel loads")
-    else:
-        print(f"❌ Admin panel failed: {response.status_code}")
-    
-    return True
+    ids = {}
+    cursor.execute('SELECT id FROM vendors WHERE phone = ?', (VERIFICATION_VENDOR['phone'],))
+    ids['vendor_id'] = cursor.fetchone()[0]
 
-def run_all_tests():
-    """Run all tests and generate summary"""
-    print("=" * 60)
-    print("SAHAAYAK - COMPREHENSIVE USER FLOW TEST")
-    print("=" * 60)
-    
-    results = {}
-    
-    results['homepage'] = test_homepage()
-    results['vendor_login_page'] = test_vendor_login_page()
-    results['wholesaler_login_page'] = test_wholesaler_login_page()
-    test_registration_pages()
-    results['vendor_flow'] = test_vendor_flow()
-    results['wholesaler_flow'] = test_wholesaler_flow()
-    test_api_endpoints()
-    results['admin_flow'] = test_admin_flow()
-    
-    # Summary
-    print("\n" + "=" * 60)
-    print("TEST SUMMARY")
-    print("=" * 60)
-    
-    passed = sum(1 for v in results.values() if v)
-    total = len(results)
-    
-    for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
-        print(f"  {test_name}: {status}")
-    
-    print(f"\nTotal: {passed}/{total} core tests passed")
-    
-    if passed == total:
-        print("\n🎉 ALL CORE TESTS PASSED! App is ready for production review.")
-    else:
-        print(f"\n⚠️ {total - passed} test(s) failed. Please review the issues above.")
-    
-    return passed == total
+    wholesaler_ids = {}
+    for wholesaler in VERIFICATION_WHOLESALERS:
+        cursor.execute('SELECT id FROM wholesalers WHERE phone = ?', (wholesaler['phone'],))
+        row = cursor.fetchone()
+        wholesaler_ids[wholesaler['phone']] = row[0] if row else None
+    ids['wholesaler_ids'] = wholesaler_ids
 
-if __name__ == "__main__":
-    run_all_tests()
+    product_ids = {}
+    for product in VERIFICATION_PRODUCTS:
+        cursor.execute(
+            '''
+            SELECT p.id
+            FROM products p
+            JOIN wholesalers w ON w.id = p.wholesaler_id
+            WHERE w.phone = ? AND p.name = ?
+            ''',
+            (product['wholesaler_phone'], product['name']),
+        )
+        row = cursor.fetchone()
+        product_ids[product['name']] = row[0] if row else None
+    ids['product_ids'] = product_ids
+
+    conn.close()
+    return ids
+
+
+def scan_local_static_refs(suite, response, static_dir, label):
+    if response.status_code != 200 or 'text/html' not in response.content_type:
+        return
+
+    refs = extract_local_static_refs(response.get_data(as_text=True))
+    missing = []
+    for ref in refs:
+        resolved = resolve_local_reference(ref, static_dir)
+        if resolved is not None and not resolved.exists():
+            missing.append((ref, resolved))
+
+    suite.check(
+        not missing,
+        f"{label} local static references resolve ({len(refs)} refs scanned)",
+        detail=', '.join(f"{ref} -> {resolved}" for ref, resolved in missing[:5]),
+    )
+
+
+def require_redirect(suite, response, expected_suffix, message):
+    location = response.headers.get('Location', '')
+    suite.check(
+        response.status_code == 302 and location.endswith(expected_suffix),
+        message,
+        detail=f"status={response.status_code} location={location}",
+    )
+
+
+def main():
+    suite = Suite()
+
+    print("SAHAAYAK USER FLOW CHECK")
+    print("========================")
+
+    with verification_environment(seed_fixture=True) as env:
+        ids = fetch_ids(env.database_path)
+        anonymous_client = env.app.test_client()
+        vendor_client = env.app.test_client()
+        wholesaler_client = env.app.test_client()
+
+        smoke_pages = [
+            ('/', anonymous_client),
+            ('/vendor/login', anonymous_client),
+            ('/vendor/register', anonymous_client),
+            ('/wholesaler/login', anonymous_client),
+            ('/register-wholesaler', anonymous_client),
+        ]
+        for path, client in smoke_pages:
+            response = client.get(path)
+            suite.check(response.status_code == 200, f"GET {path} returns 200", detail=f"status={response.status_code}")
+            scan_local_static_refs(suite, response, env.static_dir, f"GET {path}")
+
+        ai_unauthorized = anonymous_client.post('/api/ask-ai', json={'product_name': 'Potato'})
+        suite.check(
+            ai_unauthorized.status_code == 401,
+            '/api/ask-ai rejects anonymous requests',
+            detail=f"status={ai_unauthorized.status_code}",
+        )
+
+        vendor_registration = vendor_client.post(
+            '/vendor/register',
+            data={
+                'name': 'Verification Vendor Two',
+                'phone': '9000000002',
+                'password': 'verifyvendor2',
+                'alternate_contact': '9000000012',
+                'email': 'verification.vendor.two@example.com',
+                'shop_name': 'Verification Cart Two',
+                'goods_type': 'Beverages',
+                'working_hours': '07:00-15:00',
+                'street_area': 'Verification Lane',
+                'pincode': '400002',
+                'city': 'Mumbai',
+                'location': 'Andheri',
+            },
+            follow_redirects=False,
+        )
+        require_redirect(
+            suite,
+            vendor_registration,
+            '/vendor/login',
+            'vendor registration redirects to vendor login',
+        )
+
+        duplicate_vendor = vendor_client.post(
+            '/vendor/register',
+            data={
+                'name': 'Duplicate Verification Vendor',
+                'phone': VERIFICATION_VENDOR['phone'],
+                'password': 'duplicate',
+                'alternate_contact': '9000000098',
+                'email': 'duplicate@example.com',
+                'shop_name': 'Duplicate Cart',
+                'goods_type': 'Snacks',
+                'working_hours': '05:00-12:00',
+                'street_area': 'Duplicate Market',
+                'pincode': '400003',
+                'city': 'Mumbai',
+                'location': 'Kurla',
+            },
+            follow_redirects=False,
+        )
+        require_redirect(
+            suite,
+            duplicate_vendor,
+            '/vendor/register',
+            'duplicate vendor registration redirects back to registration',
+        )
+
+        bad_vendor_login = vendor_client.post(
+            '/vendor/login',
+            data={'phone': VERIFICATION_VENDOR['phone'], 'password': 'wrong-password'},
+            follow_redirects=True,
+        )
+        suite.check(
+            bad_vendor_login.status_code == 200 and 'Invalid credentials' in bad_vendor_login.get_data(as_text=True),
+            'vendor login rejects invalid credentials',
+        )
+
+        vendor_login = vendor_client.post(
+            '/vendor/login',
+            data={'phone': VERIFICATION_VENDOR['phone'], 'password': VERIFICATION_VENDOR['password']},
+            follow_redirects=False,
+        )
+        require_redirect(
+            suite,
+            vendor_login,
+            '/vendor/dashboard',
+            'vendor login redirects to dashboard',
+        )
+
+        vendor_pages = [
+            ('/vendor/dashboard', 'Our Categories'),
+            ('/vendor/category/dry-ingredients', VERIFICATION_PRODUCTS[0]['name']),
+            ('/vendor/cart', 'My Cart'),
+        ]
+        for path, marker in vendor_pages:
+            response = vendor_client.get(path)
+            body = response.get_data(as_text=True)
+            suite.check(
+                response.status_code == 200 and marker in body,
+                f"GET {path} renders expected vendor content",
+                detail=f"status={response.status_code}",
+            )
+            scan_local_static_refs(suite, response, env.static_dir, f"GET {path}")
+
+        product_alpha = ids['product_ids'][VERIFICATION_PRODUCTS[0]['name']]
+        product_beta = ids['product_ids'][VERIFICATION_PRODUCTS[1]['name']]
+
+        add_alpha = vendor_client.post(
+            '/vendor/add-to-cart',
+            data={'product_id': product_alpha, 'quantity': 2},
+        )
+        suite.check(
+            add_alpha.status_code == 200 and add_alpha.get_json().get('success'),
+            'vendor can add first product to cart',
+            detail=str(add_alpha.get_json()),
+        )
+
+        add_beta = vendor_client.post(
+            '/vendor/add-to-cart',
+            data={'product_id': product_beta, 'quantity': 1},
+        )
+        suite.check(
+            add_beta.status_code == 200 and add_beta.get_json().get('cart_count') == 3,
+            'vendor can add second wholesaler product to cart',
+            detail=str(add_beta.get_json()),
+        )
+
+        cart_count = vendor_client.get('/vendor/get-cart-count')
+        cart_count_json = cart_count.get_json()
+        suite.check(
+            cart_count.status_code == 200 and cart_count_json.get('count') == 3,
+            'cart count endpoint reports accumulated quantity',
+            detail=str(cart_count_json),
+        )
+
+        cart_view = vendor_client.get('/vendor/cart/get')
+        cart_view_json = cart_view.get_json()
+        suite.check(
+            cart_view.status_code == 200 and cart_view_json.get('count') == 3 and len(cart_view_json.get('cart', [])) == 2,
+            'cart get endpoint returns both cart items',
+            detail=str(cart_view_json),
+        )
+
+        update_cart = vendor_client.post(
+            '/vendor/update-cart',
+            data={'product_id': product_alpha, 'quantity': 1},
+        )
+        update_cart_json = update_cart.get_json()
+        suite.check(
+            update_cart.status_code == 200 and update_cart_json.get('totals', {}).get('total_items') == 2,
+            'cart update endpoint recalculates totals',
+            detail=str(update_cart_json),
+        )
+
+        remove_beta = vendor_client.post(
+            '/vendor/remove-from-cart',
+            data={'product_id': str(product_beta)},
+        )
+        suite.check(
+            remove_beta.status_code == 200 and remove_beta.get_json().get('cart_count') == 1,
+            'vendor can remove an item from the cart',
+            detail=str(remove_beta.get_json()),
+        )
+
+        sync_cart = vendor_client.post(
+            '/vendor/cart/sync',
+            json={
+                'cart': [
+                    {'id': product_alpha, 'quantity': 1},
+                    {'id': product_beta, 'quantity': 1},
+                ]
+            },
+        )
+        sync_cart_json = sync_cart.get_json()
+        suite.check(
+            sync_cart.status_code == 200 and sync_cart_json.get('synced_items') == 2,
+            'cart sync endpoint accepts frontend-style payloads',
+            detail=str(sync_cart_json),
+        )
+
+        checkout_page = vendor_client.get('/vendor/checkout')
+        checkout_body = checkout_page.get_data(as_text=True)
+        suite.check(
+            checkout_page.status_code == 200
+            and VERIFICATION_PRODUCTS[0]['name'] in checkout_body
+            and VERIFICATION_PRODUCTS[1]['name'] in checkout_body,
+            'checkout page renders split-cart contents',
+            detail=f"status={checkout_page.status_code}",
+        )
+        scan_local_static_refs(suite, checkout_page, env.static_dir, 'GET /vendor/checkout')
+
+        checkout_submit = vendor_client.post(
+            '/vendor/checkout',
+            data={
+                'payment_method': 'cod',
+                'delivery_address': 'Verification Address, Mumbai - 400001',
+            },
+            follow_redirects=False,
+        )
+        require_redirect(
+            suite,
+            checkout_submit,
+            '/vendor/order-confirmation',
+            'checkout redirects to order confirmation',
+        )
+
+        with vendor_client.session_transaction() as session_state:
+            last_order_ids = list(session_state.get('last_order_ids', []))
+        suite.check(
+            len(last_order_ids) == 2,
+            'checkout stores one order id per wholesaler in session',
+            detail=str(last_order_ids),
+        )
+
+        conn = sqlite3.connect(env.database_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            '''
+            SELECT o.id, o.total_amount, o.status, w.phone AS wholesaler_phone
+            FROM orders o
+            JOIN wholesalers w ON w.id = o.wholesaler_id
+            WHERE o.id IN (?, ?)
+            ORDER BY w.phone
+            ''',
+            tuple(last_order_ids),
+        )
+        orders = cursor.fetchall()
+        suite.check(
+            len(orders) == 2,
+            'checkout created two persisted orders',
+            detail=f"orders_found={len(orders)}",
+        )
+
+        order_totals = {}
+        for order in orders:
+            cursor.execute(
+                'SELECT product_id, quantity, total FROM order_items WHERE order_id = ?',
+                (order['id'],),
+            )
+            items = cursor.fetchall()
+            order_totals[order['wholesaler_phone']] = (order['total_amount'], items)
+
+        alpha_total, alpha_items = order_totals[VERIFICATION_PRODUCTS[0]['wholesaler_phone']]
+        beta_total, beta_items = order_totals[VERIFICATION_PRODUCTS[1]['wholesaler_phone']]
+        suite.check(
+            len(alpha_items) == 1 and round(float(alpha_total), 2) == round(VERIFICATION_PRODUCTS[0]['price'], 2),
+            'first wholesaler order stores correct totals',
+            detail=f"total={alpha_total} items={alpha_items}",
+        )
+        suite.check(
+            len(beta_items) == 1 and round(float(beta_total), 2) == round(VERIFICATION_PRODUCTS[1]['price'], 2),
+            'second wholesaler order stores correct totals',
+            detail=f"total={beta_total} items={beta_items}",
+        )
+        conn.close()
+
+        order_confirmation = vendor_client.get('/vendor/order-confirmation')
+        suite.check(
+            order_confirmation.status_code == 200 and 'Verification Address' in order_confirmation.get_data(as_text=True),
+            'order confirmation page renders last checkout metadata',
+            detail=f"status={order_confirmation.status_code}",
+        )
+        scan_local_static_refs(suite, order_confirmation, env.static_dir, 'GET /vendor/order-confirmation')
+
+        vendor_orders_page = vendor_client.get('/vendor/orders')
+        vendor_orders_body = vendor_orders_page.get_data(as_text=True)
+        suite.check(
+            vendor_orders_page.status_code == 200 and VERIFICATION_WHOLESALERS[0]['name'] in vendor_orders_body,
+            'vendor orders page lists created orders',
+            detail=f"status={vendor_orders_page.status_code}",
+        )
+        scan_local_static_refs(suite, vendor_orders_page, env.static_dir, 'GET /vendor/orders')
+
+        order_detail = vendor_client.get(f"/vendor/order/{last_order_ids[0]}")
+        suite.check(
+            order_detail.status_code == 200 and 'Order' in order_detail.get_data(as_text=True),
+            'vendor order detail renders successfully',
+            detail=f"status={order_detail.status_code}",
+        )
+        scan_local_static_refs(suite, order_detail, env.static_dir, f"GET /vendor/order/{last_order_ids[0]}")
+
+        filter_products = vendor_client.post(
+            '/api/filter-products',
+            json={'maxBudget': 200, 'category': 'All Categories', 'sortBy': 'Price Low to High', 'limit': 5},
+        )
+        filtered_json = filter_products.get_json()
+        suite.check(
+            filter_products.status_code == 200
+            and isinstance(filtered_json, list)
+            and filtered_json
+            and {'name', 'price', 'wholesaler_name'} <= set(filtered_json[0].keys()),
+            '/api/filter-products returns the expected product shape',
+            detail=str(filtered_json[:1]),
+        )
+
+        sort_wholesalers = vendor_client.post('/api/sort-wholesalers', json={'sort_by': 'price'})
+        sort_json = sort_wholesalers.get_json()
+        suite.check(
+            sort_wholesalers.status_code == 200
+            and isinstance(sort_json, list)
+            and sort_json
+            and {'id', 'name', 'avg_price'} <= set(sort_json[0].keys()),
+            '/api/sort-wholesalers returns wholesaler cards',
+            detail=str(sort_json[:1]),
+        )
+
+        beta_wholesaler_id = ids['wholesaler_ids'][VERIFICATION_PRODUCTS[1]['wholesaler_phone']]
+        wholesaler_filter = vendor_client.post(
+            f'/api/wholesaler/{beta_wholesaler_id}/filter-products',
+            json={'category': 'All Categories', 'sortBy': 'Price: Low to High'},
+        )
+        wholesaler_filter_json = wholesaler_filter.get_json()
+        suite.check(
+            wholesaler_filter.status_code == 200
+            and isinstance(wholesaler_filter_json, list)
+            and wholesaler_filter_json
+            and {'id', 'name', 'price', 'status'} <= set(wholesaler_filter_json[0].keys()),
+            'wholesaler-specific filter endpoint returns product rows',
+            detail=str(wholesaler_filter_json[:1]),
+        )
+
+        ai_missing_product = vendor_client.post('/api/ask-ai', json={})
+        suite.check(
+            ai_missing_product.status_code == 400,
+            '/api/ask-ai requires a product name',
+            detail=str(ai_missing_product.get_json()),
+        )
+
+        if live_gemini_enabled():
+            ai_success = vendor_client.post('/api/ask-ai', json={'product_name': 'Potato'})
+            ai_json = ai_success.get_json()
+            suite.check(
+                ai_success.status_code == 200 and bool(ai_json.get('response')),
+                '/api/ask-ai live smoke returns content',
+                detail=str(ai_json),
+            )
+        else:
+            mocked_response = Mock()
+            mocked_response.text = (
+                "Price: INR 20-30/kg\n"
+                "Trend: Stable\n"
+                "Demand: High\n"
+                "Profit: 20-30% margin\n"
+                "Tip: Buy early in the mandi"
+            )
+            with patch('my_app.routes.genai.configure') as configure_mock, patch(
+                'my_app.routes.genai.GenerativeModel'
+            ) as model_mock:
+                model_mock.return_value.generate_content.return_value = mocked_response
+                ai_success = vendor_client.post('/api/ask-ai', json={'product_name': 'Potato'})
+                ai_json = ai_success.get_json()
+                suite.check(
+                    ai_success.status_code == 200 and 'Price:' in ai_json.get('response', ''),
+                    '/api/ask-ai mocked smoke returns structured content',
+                    detail=str(ai_json),
+                )
+                suite.check(
+                    configure_mock.called and model_mock.called,
+                    '/api/ask-ai configures and instantiates the Gemini client in mocked mode',
+                )
+
+        pending_login = wholesaler_client.post(
+            '/wholesaler/login',
+            data={
+                'phone': VERIFICATION_WHOLESALERS[2]['phone'],
+                'password': VERIFICATION_WHOLESALERS[2]['password'],
+            },
+            follow_redirects=True,
+        )
+        suite.check(
+            pending_login.status_code == 200
+            and 'pending approval' in pending_login.get_data(as_text=True).lower(),
+            'pending wholesaler login is rejected with the expected message',
+        )
+
+        wholesaler_login = wholesaler_client.post(
+            '/wholesaler/login',
+            data={
+                'phone': VERIFICATION_WHOLESALERS[0]['phone'],
+                'password': VERIFICATION_WHOLESALERS[0]['password'],
+            },
+            follow_redirects=False,
+        )
+        require_redirect(
+            suite,
+            wholesaler_login,
+            '/wholesaler/dashboard',
+            'approved wholesaler login redirects to dashboard',
+        )
+
+        wholesaler_pages = [
+            ('/wholesaler/dashboard', 'Dashboard'),
+            ('/wholesaler/products', 'Manage Products'),
+            ('/wholesaler/orders', 'Manage Orders'),
+            ('/wholesaler/profile', 'Profile'),
+            ('/wholesaler/add-product', 'Add New Product'),
+        ]
+        for path, marker in wholesaler_pages:
+            response = wholesaler_client.get(path)
+            body = response.get_data(as_text=True)
+            suite.check(
+                response.status_code == 200 and marker in body,
+                f"GET {path} renders expected wholesaler content",
+                detail=f"status={response.status_code}",
+            )
+            scan_local_static_refs(suite, response, env.static_dir, f"GET {path}")
+
+        add_product = wholesaler_client.post(
+            '/wholesaler/add-product',
+            data={
+                'main_category': 'Grains & Cereals',
+                'name': 'Verification New Product',
+                'price': '55.00',
+                'stock': '60',
+            },
+            follow_redirects=False,
+        )
+        require_redirect(
+            suite,
+            add_product,
+            '/wholesaler/dashboard',
+            'wholesaler add-product redirects back to dashboard',
+        )
+
+        conn = sqlite3.connect(env.database_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, stock, status FROM products WHERE name = ?', ('Verification New Product',))
+        added_product = cursor.fetchone()
+        suite.check(
+            added_product is not None and added_product[1] == 60 and added_product[2] == 'In Stock',
+            'added product was persisted with expected stock and status',
+            detail=str(added_product),
+        )
+
+        edit_product_page = wholesaler_client.get(f'/wholesaler/edit-product/{added_product[0]}')
+        suite.check(
+            edit_product_page.status_code == 200 and 'Edit Product' in edit_product_page.get_data(as_text=True),
+            'edit-product page loads for the newly added product',
+            detail=f"status={edit_product_page.status_code}",
+        )
+        scan_local_static_refs(
+            suite,
+            edit_product_page,
+            env.static_dir,
+            f"GET /wholesaler/edit-product/{added_product[0]}",
+        )
+
+        edit_product = wholesaler_client.post(
+            f'/wholesaler/edit-product/{added_product[0]}',
+            data={
+                'main_category': 'Grains & Cereals',
+                'name': 'Verification New Product Updated',
+                'price': '65.00',
+                'stock': '25',
+            },
+            follow_redirects=False,
+        )
+        require_redirect(
+            suite,
+            edit_product,
+            '/wholesaler/products',
+            'edit-product redirects back to products listing',
+        )
+        cursor.execute('SELECT name, price, stock, status FROM products WHERE id = ?', (added_product[0],))
+        edited_product = cursor.fetchone()
+        suite.check(
+            edited_product == ('Verification New Product Updated', 65.0, 25, 'Low Stock'),
+            'edited product updates name, price, stock, and status',
+            detail=str(edited_product),
+        )
+
+        update_stock = wholesaler_client.post(
+            '/api/update-stock',
+            json={'product_id': added_product[0], 'stock': 0},
+        )
+        suite.check(
+            update_stock.status_code == 200 and update_stock.get_json().get('status') == 'Out of Stock',
+            'update-stock API recalculates product status',
+            detail=str(update_stock.get_json()),
+        )
+
+        delete_product = wholesaler_client.post(
+            '/api/delete-product',
+            json={'product_id': added_product[0]},
+        )
+        suite.check(
+            delete_product.status_code == 200 and delete_product.get_json().get('success'),
+            'delete-product API removes the product',
+            detail=str(delete_product.get_json()),
+        )
+        cursor.execute('SELECT COUNT(*) FROM products WHERE id = ?', (added_product[0],))
+        suite.check(
+            cursor.fetchone()[0] == 0,
+            'deleted product no longer exists in the database',
+        )
+
+        alpha_order_id = None
+        for order in orders:
+            if order['wholesaler_phone'] == VERIFICATION_PRODUCTS[0]['wholesaler_phone']:
+                alpha_order_id = order['id']
+                break
+        conn.close()
+
+        update_order_status = wholesaler_client.post(
+            '/api/update-order-status',
+            json={'order_id': alpha_order_id, 'status': 'completed'},
+        )
+        suite.check(
+            update_order_status.status_code == 200 and update_order_status.get_json().get('success'),
+            'update-order-status API accepts wholesaler status changes',
+            detail=str(update_order_status.get_json()),
+        )
+
+        vendor_orders_after_update = vendor_client.get('/vendor/orders')
+        suite.check(
+            vendor_orders_after_update.status_code == 200
+            and 'Completed' in vendor_orders_after_update.get_data(as_text=True),
+            'vendor orders page reflects updated wholesaler order status',
+            detail=f"status={vendor_orders_after_update.status_code}",
+        )
+        scan_local_static_refs(
+            suite,
+            vendor_orders_after_update,
+            env.static_dir,
+            'GET /vendor/orders after status update',
+        )
+
+    print("")
+    print(f"Checks passed: {suite.passes}")
+    if suite.failures:
+        print(f"Checks failed: {len(suite.failures)}")
+        return 1
+
+    print("All user flow checks passed.")
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

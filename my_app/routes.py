@@ -10,15 +10,13 @@ from datetime import datetime
 import uuid
 import google.generativeai as genai
 
-from .db import get_dashboard_stats  # Import db helper functions
+from .db import DATABASE_NAME, get_dashboard_stats  # Import db helper functions
 
 # A Blueprint is a way to organize a group of related views and other code.
 # Instead of registering views and other code directly with an application,
 # they are registered with a blueprint. Then the blueprint is registered with
 # the application when it is available in the factory function.
 bp = Blueprint('main', __name__)
-
-DATABASE_NAME = 'vendor_clubs.db'
 
 def allowed_file(filename):
     """Checks if a file has an allowed extension."""
@@ -247,13 +245,28 @@ def wholesaler_orders():
     wholesaler_id = session['wholesaler_id']
     conn = sqlite3.connect(DATABASE_NAME)
     cursor = conn.cursor()
-    # This query had an error (joining on product_id in orders table which doesn't exist)
-    # Correcting it to join through order_items
     cursor.execute('''
-        SELECT o.id, o.status, o.total_amount, o.created_at, v.name as vendor_name
+        SELECT
+            o.id,
+            o.wholesaler_id,
+            o.vendor_id,
+            COUNT(oi.id) as item_count,
+            COALESCE(SUM(oi.quantity), 0) as total_quantity,
+            o.total_amount,
+            o.status,
+            o.created_at,
+            v.name as vendor_name,
+            CASE
+                WHEN COUNT(oi.id) = 0 THEN 'No items'
+                WHEN COUNT(oi.id) = 1 THEN MAX(p.name)
+                ELSE MAX(p.name) || ' +' || (COUNT(oi.id) - 1) || ' more'
+            END as product_summary
         FROM orders o
         JOIN vendors v ON o.vendor_id = v.id
+        LEFT JOIN order_items oi ON oi.order_id = o.id
+        LEFT JOIN products p ON p.id = oi.product_id
         WHERE o.wholesaler_id = ?
+        GROUP BY o.id, o.wholesaler_id, o.vendor_id, o.total_amount, o.status, o.created_at, v.name
         ORDER BY o.created_at DESC
     ''', (wholesaler_id,))
     orders = cursor.fetchall()
@@ -437,8 +450,8 @@ def register_vendor():
             photo_file = request.files['photo']
             if photo_file and allowed_file(photo_file.filename):
                 filename = secure_filename(f"vendor_{uuid.uuid4()}_{photo_file.filename}")
-                photo_path = os.path.join('static/uploads', filename).replace('\\', '/')
-                full_path = os.path.join(current_app.root_path, 'static/uploads', filename)
+                photo_path = os.path.join('uploads', filename).replace('\\', '/')
+                full_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
                 photo_file.save(full_path)
 
         conn = sqlite3.connect(DATABASE_NAME)
@@ -1175,7 +1188,7 @@ def upload_vendor_photo():
 
     if file and allowed_file(file.filename):
         filename = secure_filename(f"vendor_{uuid.uuid4()}_{file.filename}")
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
+        upload_folder = current_app.config['UPLOAD_FOLDER']
         os.makedirs(upload_folder, exist_ok=True)
         full_path = os.path.join(upload_folder, filename)
         file.save(full_path)
@@ -1455,7 +1468,7 @@ def delete_product():
     
     if result and result[0]:
         # Path is relative like 'uploads/filename.jpg', so we join it with 'my_app/static'
-        image_path = os.path.join(current_app.root_path, 'static', result[0])
+        image_path = os.path.join(current_app.static_folder, result[0].replace('/', os.sep))
         if os.path.exists(image_path):
             os.remove(image_path)
     
@@ -1513,7 +1526,7 @@ def upload_profile_photo():
     conn.close()
     
     if old_photo and old_photo[0]:
-        old_path = os.path.join(current_app.root_path, 'static', old_photo[0])
+        old_path = os.path.join(current_app.static_folder, old_photo[0].replace('/', os.sep))
         if os.path.exists(old_path):
             try:
                 os.remove(old_path)

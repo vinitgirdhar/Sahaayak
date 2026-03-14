@@ -1,123 +1,115 @@
 #!/usr/bin/env python3
 """
-Final verification of category reorganization
+Run deployment preflight checks for the current Vercel target.
 """
 
-import sqlite3
+import json
+import os
+from pathlib import Path
 
-def final_verification():
-    """Final verification that all categories are properly organized"""
-    
-    conn = sqlite3.connect('vendor_clubs.db')
-    cursor = conn.cursor()
-    
-    print("🎯 FINAL CATEGORY ORGANIZATION VERIFICATION")
-    print("=" * 60)
-    
-    # Get all categories with product counts
-    cursor.execute('''
-        SELECT category, COUNT(*) as count 
-        FROM products 
-        GROUP BY category 
-        ORDER BY category
-    ''')
-    
-    categories = cursor.fetchall()
-    total_products = 0
-    
-    print("\n📊 CATEGORY DISTRIBUTION:")
-    print("-" * 40)
-    for cat in categories:
-        print(f"✅ {cat[0]:<20} : {cat[1]:>3} products")
-        total_products += cat[1]
-    
-    print("-" * 40)
-    print(f"📦 TOTAL PRODUCTS: {total_products}")
-    
-    # Show sample products for each new category
-    new_categories = [
-        'Bread & Bakery',
-        'Dry Ingredients', 
-        'Oils & Condiments',
-        'Ready-to-Eat',
-        'Spreads & Pantry',
-        'Spices & Condiments'
-    ]
-    
-    print(f"\n🔍 SAMPLE PRODUCTS FROM REORGANIZED CATEGORIES:")
-    print("=" * 60)
-    
-    for category in new_categories:
-        cursor.execute('''
-            SELECT p.name, w.name as wholesaler 
-            FROM products p 
-            JOIN wholesalers w ON p.wholesaler_id = w.id 
-            WHERE p.category = ? 
-            ORDER BY p.name 
-            LIMIT 3
-        ''', (category,))
-        
-        products = cursor.fetchall()
-        print(f"\n🏷️  {category}:")
-        for product in products:
-            print(f"   • {product[0]} ({product[1]})")
-        
-        if len(products) == 3:
-            cursor.execute('SELECT COUNT(*) FROM products WHERE category = ?', (category,))
-            total = cursor.fetchone()[0]
-            if total > 3:
-                print(f"   ... and {total - 3} more products")
-    
-    # Verify route mapping compatibility
-    print(f"\n🔗 ROUTE MAPPING VERIFICATION:")
-    print("=" * 60)
-    
-    route_categories = [
-        ('vegetables', 'Vegetables'),
-        ('dry-ingredients', 'Dry Ingredients'), 
-        ('dairy', 'Dairy Products'),
-        ('breads', 'Bread & Bakery'),
-        ('prepared', 'Ready-to-Eat'),
-        ('oils-sauces', 'Oils & Condiments'),
-        ('snacks', 'Snacks & Beverages'),
-        ('spices', 'Spices & Condiments'),
-        ('spreads', 'Spreads & Pantry'),
-        ('packaging', 'Other')
-    ]
-    
-    all_routes_valid = True
-    for route_id, expected_category in route_categories:
-        cursor.execute('SELECT COUNT(*) FROM products WHERE category = ?', (expected_category,))
-        count = cursor.fetchone()[0]
-        
-        if count > 0:
-            print(f"✅ /vendor/category/{route_id:<15} → {expected_category} ({count} products)")
-        else:
-            print(f"⚠️  /vendor/category/{route_id:<15} → {expected_category} ({count} products)")
-            all_routes_valid = False
-    
-    conn.close()
-    
-    print(f"\n" + "=" * 60)
-    print("🎉 REORGANIZATION SUMMARY:")
-    print("=" * 60)
-    
-    if all_routes_valid:
-        print("✅ All categories successfully reorganized")
-        print("✅ All route mappings are functional") 
-        print("✅ Products properly distributed across logical categories")
-        print("✅ Bread & Bakery items now have dedicated category")
-        print("✅ Dry Ingredients separated from packaged foods")
-        print("✅ Spices & Condiments clearly accessible")
-        print("✅ Ready-to-Eat meals properly grouped")
-        print("✅ Database ready for enhanced user experience")
-    else:
-        print("⚠️  Some route mappings may need adjustment")
-    
-    print(f"\n🚀 The Sahaayak platform now has {len(categories)} well-organized categories!")
-    print("🎯 Users can now easily find bread, dry ingredients, and spices!")
-    
-    return all_routes_valid
+from config import Config
+from verification_helper import LIVE_GEMINI_ENV_VAR
 
-if __name__ == "__main__":
-    final_verification()
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+VERCEL_CONFIG_PATH = PROJECT_ROOT / 'vercel.json'
+DEFAULT_SECRET_KEY = 'a-very-secret-key-that-you-should-change'
+
+
+def report(ok, message, failures, warnings):
+    if ok:
+        print(f"[PASS] {message}")
+        return
+
+    print(f"[FAIL] {message}")
+    failures.append(message)
+
+
+def warn(message, warnings):
+    print(f"[WARN] {message}")
+    warnings.append(message)
+
+
+def main():
+    failures = []
+    warnings = []
+
+    print("SAHAAYAK DEPLOYMENT PREFLIGHT")
+    print("=============================")
+
+    report(VERCEL_CONFIG_PATH.exists(), 'vercel.json is present', failures, warnings)
+    if VERCEL_CONFIG_PATH.exists():
+        with VERCEL_CONFIG_PATH.open('r', encoding='utf-8') as handle:
+            vercel_config = json.load(handle)
+
+        builds = vercel_config.get('builds', [])
+        routes = vercel_config.get('routes', [])
+        build_ok = any(
+            build.get('src') == 'app.py' and build.get('use') == '@vercel/python'
+            for build in builds
+        )
+        route_ok = any(route.get('dest') == 'app.py' for route in routes)
+
+        report(build_ok, 'Vercel build points to app.py via @vercel/python', failures, warnings)
+        report(route_ok, 'Vercel routes dispatch traffic to app.py', failures, warnings)
+
+    secret_key = os.getenv('SECRET_KEY')
+    report(
+        bool(secret_key) and secret_key != DEFAULT_SECRET_KEY,
+        'SECRET_KEY is supplied via the environment and is not the default value',
+        failures,
+        warnings,
+    )
+
+    live_gemini_requested = os.getenv(LIVE_GEMINI_ENV_VAR) == '1'
+    gemini_key = os.getenv('GEMINI_API_KEY')
+    if live_gemini_requested:
+        report(
+            bool(gemini_key),
+            f'GEMINI_API_KEY is set when {LIVE_GEMINI_ENV_VAR}=1',
+            failures,
+            warnings,
+        )
+    elif not gemini_key:
+        warn('GEMINI_API_KEY is not set; live Gemini smoke checks will be skipped.', warnings)
+
+    database_path = str(Config.DATABASE)
+    upload_folder = str(Config.UPLOAD_FOLDER)
+    uses_local_sqlite = database_path.endswith('.db') and not Path(database_path).is_absolute()
+    uses_local_uploads = upload_folder.replace('\\', '/').startswith('my_app/static/uploads')
+
+    report(
+        not uses_local_sqlite,
+        'runtime database is not a repo-local SQLite file',
+        failures,
+        warnings,
+    )
+    if uses_local_sqlite:
+        print(f"       Config.DATABASE={database_path}")
+
+    report(
+        not uses_local_uploads,
+        'runtime uploads are not stored in repo-local my_app/static/uploads',
+        failures,
+        warnings,
+    )
+    if uses_local_uploads:
+        print(f"       Config.UPLOAD_FOLDER={upload_folder}")
+
+    if failures:
+        print("")
+        print("Deployment preflight failed.")
+        return 1
+
+    if warnings:
+        print("")
+        print(f"Deployment preflight passed with {len(warnings)} warning(s).")
+        return 0
+
+    print("")
+    print("Deployment preflight passed.")
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

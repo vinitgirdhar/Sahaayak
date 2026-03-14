@@ -24,7 +24,7 @@
     <section class="mb-4">
         <h3 class="font-semibold mb-2" style="color: var(--text-primary);">Items</h3>
         <ul class="divide-y divide-[var(--border-primary)]">
-            {% for item in order.items %}
+            {% for item in order['items'] %}
             <li class="py-3 flex items-center gap-4">
                 <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/64x64/1a3a45/f0f6fc?text=N/A' }}" class="w-16 h-16 rounded-lg object-cover">
                 <div class="flex-1">

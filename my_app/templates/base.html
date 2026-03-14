@@ -67,7 +67,10 @@
         {% block content %}{% endblock %}
     </main>
     
+    {% set is_admin_page = request.endpoint in ['main.admin_login', 'main.admin_wholesalers'] %}
+
     <!-- Mobile Bottom Navigation -->
+    {% if not is_admin_page %}
     <div class="mobile-nav">
         <a href="{{ url_for('main.wholesaler_dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'main.wholesaler_dashboard' %}active{% endif %}">
             <i data-feather="home"></i>
@@ -86,9 +89,10 @@
             <span>Account</span>
         </a>
     </div>
+    {% endif %}
 
     <!-- Floating Action Button (Only on Dashboard and Products pages) -->
-    {% if request.endpoint in ['main.wholesaler_dashboard', 'main.wholesaler_products'] %}
+    {% if not is_admin_page and request.endpoint in ['main.wholesaler_dashboard', 'main.wholesaler_products'] %}
     <button onclick="showAddProductModal()" class="floating-action-btn">
         <i data-feather="plus" class="w-6 h-6"></i>
     </button>

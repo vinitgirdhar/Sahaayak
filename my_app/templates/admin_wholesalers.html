@@ -3,78 +3,175 @@
 {% block title %}Admin - Pending Wholesalers - Sahaayak{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-8">
-    <h2 class="text-3xl font-bold text-gray-800">Pending Wholesaler Applications</h2>
-    <a href="{{ url_for('main.admin_logout') }}" 
-       class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors">
-        Logout
-    </a>
-</div>
+<section class="min-h-screen bg-[linear-gradient(180deg,#eef4ff_0%,#f8fafc_38%,#ffffff_100%)] px-4 py-6 md:px-8 md:py-10">
+    <div class="mx-auto max-w-7xl space-y-8">
+        <div class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-[0_25px_80px_rgba(148,163,184,0.18)]">
+            <div class="relative overflow-hidden border-b border-slate-200 bg-[radial-gradient(circle_at_top_right,_rgba(37,99,235,0.18),_transparent_28%),linear-gradient(135deg,_#0f172a_0%,_#1e3a8a_100%)] px-6 py-8 text-white md:px-8 md:py-10">
+                <div class="absolute inset-y-0 right-0 hidden w-1/3 bg-[linear-gradient(135deg,rgba(255,255,255,0.12),transparent)] md:block"></div>
+                <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="max-w-3xl">
+                        <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-blue-100">
+                            <i data-feather="shield" class="h-4 w-4"></i>
+                            <span>Admin Review Workspace</span>
+                        </div>
+                        <h1 class="text-3xl font-black tracking-tight md:text-5xl">Pending wholesaler approvals</h1>
+                        <p class="mt-4 max-w-2xl text-sm leading-7 text-blue-100 md:text-base">
+                            Review applications, verify uploaded documents, and approve or reject onboarding requests with a cleaner admin workflow.
+                        </p>
+                    </div>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="mb-4 p-4 rounded-lg bg-green-100 text-green-700">
-                {{ message }}
+                    <div class="grid gap-3 sm:grid-cols-2 lg:min-w-[340px]">
+                        <div class="rounded-2xl border border-white/12 bg-white/10 px-5 py-4 backdrop-blur-sm">
+                            <p class="text-xs font-semibold uppercase tracking-[0.25em] text-blue-100">Pending Now</p>
+                            <p class="mt-2 text-3xl font-black">{{ wholesalers|length }}</p>
+                            <p class="mt-1 text-sm text-blue-100">Applications waiting for action</p>
+                        </div>
+                        <a href="{{ url_for('main.admin_logout') }}" class="inline-flex items-center justify-center gap-3 rounded-2xl border border-white/12 bg-white/10 px-5 py-4 text-base font-bold text-white backdrop-blur-sm transition hover:bg-white/15">
+                            <i data-feather="log-out" class="h-5 w-5"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
 
-{% if wholesalers %}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {% for wholesaler in wholesalers %}
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex justify-between items-start mb-4">
-                <h3 class="text-xl font-bold text-gray-800">{{ wholesaler[1] }}</h3>
-                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm">Pending</span>
-            </div>
-            
-            <div class="space-y-2 mb-4">
-                <p><strong>Shop:</strong> {{ wholesaler[4] }}</p>
-                <p><strong>Phone:</strong> {{ wholesaler[2] }}</p>
-                <p><strong>Location:</strong> {{ wholesaler[8] }}</p>
-                <p><strong>Applied:</strong> {{ wholesaler[10][:10] }}</p>
-            </div>
-            
-            {% if wholesaler[7] %}
-            <div class="mb-4">
-                <p class="text-sm text-gray-600"><strong>Sourcing Info:</strong></p>
-                <p class="text-sm bg-gray-50 p-2 rounded">{{ wholesaler[7] }}</p>
-            </div>
-            {% endif %}
-            
-            <div class="flex space-x-2 mb-4">
-                {% if wholesaler[5] %}
-                <a href="{{ url_for('main.download_file', filename=wholesaler[5]) }}" 
-                   class="text-blue-600 hover:underline text-sm">📄 ID Proof</a>
-                {% endif %}
-                {% if wholesaler[6] %}
-                <a href="{{ url_for('main.download_file', filename=wholesaler[6]) }}" 
-                   class="text-blue-600 hover:underline text-sm">📋 License</a>
-                {% endif %}
-            </div>
-            
-            <div class="flex space-x-2">
-                <a href="{{ url_for('main.approve_wholesaler', wholesaler_id=wholesaler[0]) }}" 
-                   class="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-2 px-4 rounded-md transition-colors"
-                   onclick="return confirm('Approve this wholesaler?')">
-                    ✅ Approve
-                </a>
-                <a href="{{ url_for('main.reject_wholesaler', wholesaler_id=wholesaler[0]) }}" 
-                   class="flex-1 bg-red-500 hover:bg-red-600 text-white text-center py-2 px-4 rounded-md transition-colors"
-                   onclick="return confirm('Reject and delete this application?')">
-                    ❌ Reject
-                </a>
+            <div class="px-6 py-5 md:px-8">
+                <div class="grid gap-4 md:grid-cols-3">
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+                        <p class="text-sm font-semibold text-slate-900">Document review</p>
+                        <p class="mt-1 text-sm text-slate-600">Open uploaded ID proofs and licenses before taking approval action.</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+                        <p class="text-sm font-semibold text-slate-900">Application context</p>
+                        <p class="mt-1 text-sm text-slate-600">Shop details, phone number, location, and sourcing notes are surfaced in each card.</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+                        <p class="text-sm font-semibold text-slate-900">One-click decisions</p>
+                        <p class="mt-1 text-sm text-slate-600">Approve genuine sellers fast or reject incomplete submissions securely.</p>
+                    </div>
+                </div>
             </div>
         </div>
-        {% endfor %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="space-y-3">
+                    {% for category, message in messages %}
+                        <div class="rounded-2xl border px-5 py-4 text-sm font-semibold shadow-sm {% if category == 'error' %}border-red-200 bg-red-50 text-red-700{% else %}border-emerald-200 bg-emerald-50 text-emerald-700{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if wholesalers %}
+            <div class="grid gap-6 xl:grid-cols-2">
+                {% for wholesaler in wholesalers %}
+                    <article class="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(15,23,42,0.12)]">
+                        <div class="border-b border-slate-200 bg-slate-50 px-6 py-5">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                <div class="space-y-2">
+                                    <div class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-amber-800">
+                                        <i data-feather="clock" class="h-3.5 w-3.5"></i>
+                                        <span>Pending Review</span>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-2xl font-black tracking-tight text-slate-900">{{ wholesaler[1] }}</h2>
+                                        <p class="mt-1 text-base font-semibold text-blue-700">{{ wholesaler[4] or 'Shop name not provided' }}</p>
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right shadow-sm">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Applied On</p>
+                                    <p class="mt-2 text-sm font-bold text-slate-900">{{ wholesaler[10][:10] }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6 px-6 py-6">
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Phone</p>
+                                    <p class="mt-2 text-base font-semibold text-slate-900">{{ wholesaler[2] }}</p>
+                                </div>
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Location</p>
+                                    <p class="mt-2 text-base font-semibold text-slate-900">{{ wholesaler[8] or 'Not provided' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white px-5 py-5">
+                                <div class="mb-3 flex items-center gap-2 text-slate-900">
+                                    <i data-feather="file-text" class="h-4 w-4 text-blue-600"></i>
+                                    <h3 class="text-sm font-bold uppercase tracking-[0.22em] text-slate-700">Sourcing Information</h3>
+                                </div>
+                                <p class="text-sm leading-7 text-slate-600">
+                                    {{ wholesaler[7] if wholesaler[7] else 'No sourcing details were provided with this application.' }}
+                                </p>
+                            </div>
+
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                {% if wholesaler[5] %}
+                                    <a href="{{ url_for('main.download_file', filename=wholesaler[5]) }}" class="inline-flex items-center justify-center gap-3 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-4 text-sm font-bold text-blue-700 transition hover:bg-blue-100">
+                                        <i data-feather="file" class="h-4 w-4"></i>
+                                        <span>Open ID Proof</span>
+                                    </a>
+                                {% else %}
+                                    <div class="inline-flex items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-semibold text-slate-400">
+                                        <i data-feather="file-minus" class="h-4 w-4"></i>
+                                        <span>ID Proof Missing</span>
+                                    </div>
+                                {% endif %}
+
+                                {% if wholesaler[6] %}
+                                    <a href="{{ url_for('main.download_file', filename=wholesaler[6]) }}" class="inline-flex items-center justify-center gap-3 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-4 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100">
+                                        <i data-feather="briefcase" class="h-4 w-4"></i>
+                                        <span>Open License</span>
+                                    </a>
+                                {% else %}
+                                    <div class="inline-flex items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-semibold text-slate-400">
+                                        <i data-feather="file-minus" class="h-4 w-4"></i>
+                                        <span>License Missing</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <a
+                                    href="{{ url_for('main.approve_wholesaler', wholesaler_id=wholesaler[0]) }}"
+                                    class="inline-flex items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-5 py-4 text-base font-bold text-white shadow-[0_16px_32px_rgba(5,150,105,0.22)] transition hover:-translate-y-0.5 hover:bg-emerald-700"
+                                    onclick="return confirm('Approve this wholesaler?')"
+                                >
+                                    <i data-feather="check-circle" class="h-5 w-5"></i>
+                                    <span>Approve Application</span>
+                                </a>
+                                <a
+                                    href="{{ url_for('main.reject_wholesaler', wholesaler_id=wholesaler[0]) }}"
+                                    class="inline-flex items-center justify-center gap-3 rounded-2xl bg-rose-600 px-5 py-4 text-base font-bold text-white shadow-[0_16px_32px_rgba(225,29,72,0.18)] transition hover:-translate-y-0.5 hover:bg-rose-700"
+                                    onclick="return confirm('Reject and delete this application?')"
+                                >
+                                    <i data-feather="x-circle" class="h-5 w-5"></i>
+                                    <span>Reject Application</span>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 py-14 text-center shadow-[0_18px_60px_rgba(15,23,42,0.08)] md:px-10">
+                <div class="mx-auto inline-flex h-20 w-20 items-center justify-center rounded-[1.5rem] bg-blue-50 text-blue-700">
+                    <i data-feather="inbox" class="h-9 w-9"></i>
+                </div>
+                <h2 class="mt-6 text-3xl font-black tracking-tight text-slate-900">No pending applications</h2>
+                <p class="mx-auto mt-3 max-w-xl text-base leading-7 text-slate-600">
+                    The admin queue is clear right now. New wholesaler requests will appear here automatically when they register.
+                </p>
+                <a href="{{ url_for('main.index') }}" class="mt-8 inline-flex items-center gap-3 rounded-2xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                    <i data-feather="arrow-left" class="h-4 w-4"></i>
+                    <span>Return to Launch Page</span>
+                </a>
+            </div>
+        {% endif %}
     </div>
-{% else %}
-    <div class="text-center py-12">
-        <div class="text-6xl mb-4">📋</div>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">No Pending Applications</h3>
-        <p class="text-gray-600">All wholesaler applications have been processed.</p>
-    </div>
-{% endif %}
+</section>
 {% endblock %}

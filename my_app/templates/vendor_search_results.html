@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                aiPanelContent.innerHTML = `<p class="text-red-500">Error: ${data.error}</p>`;
+                aiPanelContent.innerHTML = `<p class="text-red-500 whitespace-pre-wrap">${data.error}</p>`;
                 return;
             }
 

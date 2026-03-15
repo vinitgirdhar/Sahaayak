@@ -83,8 +83,7 @@
             background-color: var(--background-secondary);
             border-right: 1px solid var(--border-primary);
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
-            overflow-x: hidden;
-            overflow-y: auto;
+            overflow: hidden;
             position: fixed;
             top: 0;
             left: 0;
@@ -143,6 +142,16 @@
             margin-top: 0.75rem;
             padding-top: 0.75rem;
             border-top: 1px solid var(--border-primary);
+            background-color: var(--background-secondary);
+            flex-shrink: 0;
+            padding-bottom: max(0rem, env(safe-area-inset-bottom));
+        }
+        .sidebar-scroll-area {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 0.25rem;
         }
 
         /* --- FIX: Missing button and card styles --- */
@@ -775,7 +784,7 @@
     <div class="flex h-screen">
         <!-- Sidebar Navigation -->
         <nav class="sidebar flex flex-col p-4">
-            <div class="flex-grow space-y-2">
+            <div class="sidebar-scroll-area space-y-2">
                 <a href="{{ url_for('main.vendor_dashboard') }}" class="sidebar-item flex items-center p-3 h-14 rounded-lg">
                     <i data-feather="box" class="w-8 h-8 flex-shrink-0"></i>
                     <span class="item-text ml-4 font-semibold">Sahaayak</span>
@@ -804,10 +813,6 @@
                     <span class="item-text ml-4 font-semibold">My Cart</span>
                     <span id="cart-count-badge" class="cart-badge absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                 </a>
-                <a href="{{ url_for('main.vendor_logout') }}" class="sidebar-item sidebar-item--danger flex items-center p-3 h-14 rounded-lg w-full text-left" aria-label="Logout" title="Logout">
-                    <i data-feather="log-out" class="w-8 h-8 flex-shrink-0"></i>
-                    <span class="item-text ml-4 font-semibold">Logout</span>
-                </a>
             </div>
             
             <!-- Bottom Icons Section - Properly Aligned -->
@@ -817,6 +822,10 @@
                     <i data-feather="moon" class="w-8 h-8 flex-shrink-0"></i>
                     <span class="item-text ml-4 font-semibold">Switch Theme</span>
                 </button>
+                <a href="{{ url_for('main.vendor_logout') }}" class="sidebar-item sidebar-item--danger flex items-center p-3 h-14 rounded-lg w-full text-left" aria-label="Logout" title="Logout">
+                    <i data-feather="log-out" class="w-8 h-8 flex-shrink-0"></i>
+                    <span class="item-text ml-4 font-semibold">Logout</span>
+                </a>
             </div>
         </nav>
 

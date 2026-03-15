@@ -6,18 +6,26 @@
 {% block vendor_content %}
 <!-- AI Search Section -->
 <div class="mb-12 reveal">
-    <div class="relative flex items-center gap-4">
-        <div class="relative flex-grow">
-            <i data-feather="search" class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-[var(--text-secondary)] pointer-events-none"></i>
-            <input id="product-search-input" type="text" placeholder="Search products..." value="{{ query }}" class="w-full pl-16 pr-16 py-5 bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl text-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all" style="color: var(--text-primary);">
-            <button id="mic-button" class="absolute right-6 top-1/2 -translate-y-1/2 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors" onclick="startVoiceSearch()">
-                <i data-feather="mic" class="w-6 h-6"></i>
+    <div class="vendor-search-shell">
+        <div class="vendor-search-main">
+            <span class="vendor-search-leading" aria-hidden="true">
+                <i data-feather="search" class="w-5 h-5"></i>
+            </span>
+            <input id="product-search-input" type="text" placeholder="Search products..." value="{{ query }}" class="vendor-search-input text-lg">
+            <button id="mic-button" type="button" class="vendor-search-trailing" onclick="startVoiceSearch()" aria-label="Start voice search">
+                <i data-feather="mic" class="w-5 h-5"></i>
             </button>
         </div>
-        <!-- NEW SEARCH BUTTON ADDED -->
-        <button type="button" onclick="performSearch()" class="gradient-button font-semibold text-white px-6 py-4 rounded-2xl flex-shrink-0">Search</button>
-        <!-- ASK AI BUTTON UPDATED -->
-        <button type="button" id="ask-ai-btn" class="gradient-button font-semibold text-white px-6 py-4 rounded-2xl flex-shrink-0">Ask AI</button>
+        <div class="vendor-search-actions">
+            <button type="button" onclick="performSearch()" class="vendor-search-action gradient-button">
+                <i data-feather="search" class="w-5 h-5"></i>
+                <span>Search</span>
+            </button>
+            <button type="button" id="ask-ai-btn" class="vendor-search-action gradient-button">
+                <i data-feather="cpu" class="w-5 h-5"></i>
+                <span>Ask AI</span>
+            </button>
+        </div>
     </div>
 </div>
 

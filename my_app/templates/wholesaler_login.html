@@ -1,27 +1,49 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}
 
 {% block title %}Wholesaler Login - Sahaayak{% endblock %}
 
-{% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50">
-  <div class="max-w-md w-full bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl p-8">
-    {% if get_flashed_messages() %}
-      {% for message in get_flashed_messages(with_categories=true) %}
-        <div class="mb-4 p-3 rounded bg-red-100 text-red-700">{{ message[1] }}</div>
-      {% endfor %}
-    {% endif %}
-    <h2 class="text-2xl font-bold mb-6 text-center">Wholesaler Login</h2>
-        <form method="POST" action="{{ url_for('main.wholesaler_login') }}" class="space-y-6">
-      <div class="mb-4">
-        <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
-        <input type="text" id="phone" name="phone" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required>
-      </div>
-      <div class="mb-6">
-        <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>
-        <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required>
-      </div>
-      <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300">Login</button>
-    </form>
-  </div>
-</div>
+{% block auth_panel_title %}A steady stream of repeat bulk buyers.{% endblock %}
+{% block auth_panel_text %}Manage your catalogue, process vendor orders, and grow your reputation with a public trust score.{% endblock %}
+{% block auth_panel_extra %}
+<figure class="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+    <blockquote class="leading-relaxed text-slate-200">
+        “We picked up forty new vendor customers in our first quarter. The order queue replaced my notebook completely.”
+    </blockquote>
+    <figcaption class="mt-4 flex items-center gap-3">
+        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 font-display text-xs font-bold text-white">FM</span>
+        <div>
+            <p class="text-sm font-bold text-white">Fresh Mart Wholesale</p>
+            <p class="text-xs text-slate-400">Wholesaler · Ghatkopar, Mumbai</p>
+        </div>
+    </figcaption>
+</figure>
+{% endblock %}
+
+{% block auth_heading %}Wholesaler login{% endblock %}
+{% block auth_subheading %}Access your dashboard, products, and orders.{% endblock %}
+
+{% block auth_form %}
+<form method="POST" action="{{ url_for('main.wholesaler_login') }}" class="space-y-5">
+    <div>
+        <label for="phone" class="sk-label">Phone number</label>
+        <input type="tel" id="phone" name="phone" class="sk-input" placeholder="e.g. 9999999999"
+               inputmode="numeric" autocomplete="tel" required autofocus>
+    </div>
+    <div>
+        <label for="password" class="sk-label">Password</label>
+        <input type="password" id="password" name="password" class="sk-input" placeholder="Your password"
+               autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="sk-btn-primary sk-btn-lg w-full">
+        Log in
+        <i data-feather="arrow-right" class="h-5 w-5"></i>
+    </button>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+Want to sell on Sahaayak?
+<a href="{{ url_for('main.register_wholesaler') }}" class="font-semibold text-brand-600 hover:text-brand-700 hover:underline">Register your business</a>
+<span class="mx-2 text-slate-300">|</span>
+<a href="{{ url_for('main.vendor_login') }}" class="font-semibold text-slate-500 hover:text-slate-700 hover:underline">Vendor login</a>
 {% endblock %}

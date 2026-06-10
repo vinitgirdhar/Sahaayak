@@ -3,103 +3,75 @@
 {% block title %}Manage Products - Sahaayak{% endblock %}
 
 {% block content %}
-<!-- Top Navigation (Desktop) -->
-<div class="hidden md:block bg-white border-b border-gray-200 px-6 py-4 mb-6">
-    <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-4">
-            <a href="{{ url_for('main.wholesaler_dashboard') }}" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
-            <h1 class="text-2xl font-bold text-gray-800">Manage Products</h1>
-        </div>
-        <button onclick="showAddProductModal()" 
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-            + Add New Product
-        </button>
-    </div>
-</div>
-
-<!-- Mobile Header -->
-<div class="md:hidden px-4 pt-4 pb-2">
-    <div class="flex items-center justify-between mb-3">
-        <h1 class="text-2xl font-bold text-blue-600">Sahaayak</h1>
-        <div class="bg-blue-100 p-2 rounded-full">
-            <i data-feather="package" class="w-5 h-5 text-blue-600"></i>
-        </div>
-    </div>
-    <h2 class="text-2xl font-bold text-gray-800">Manage Products</h2>
-    <p class="text-gray-600">View and manage your inventory</p>
-</div>
+{% set wh_title = 'Manage Products' %}
+{% set wh_subtitle = 'View and manage your inventory' %}
+{% set wh_icon = 'package' %}
+{% set wh_show_add = true %}
+{% include 'partials/wholesaler_header.html' %}
 
 <!-- Products Grid -->
 <div class="p-4 md:px-6">
     {% if products %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
             {% for product in products %}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" id="product-{{ product[0] }}">
+            <div class="sk-card-hover overflow-hidden" id="product-{{ product[0] }}">
                 <!-- Product Image -->
                 {% if product[7] %}
-                <img src="{{ url_for('static', filename=product[7]) }}" 
-                     alt="{{ product[2] }}" class="w-full h-48 object-cover">
+                <img src="{{ url_for('static', filename=product[7]) }}"
+                     alt="{{ product[2] }}" class="w-full h-44 object-cover">
                 {% else %}
-                <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
-                    <span class="text-4xl text-gray-400">📦</span>
+                <div class="w-full h-44 bg-slate-100 flex items-center justify-center">
+                    <i data-feather="package" class="w-10 h-10 text-slate-300"></i>
                 </div>
                 {% endif %}
-                
+
                 <!-- Product Info -->
                 <div class="p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-semibold text-gray-800 truncate">{{ product[2] }}</h3>
-                        <span class="status-badge px-2 py-1 rounded-full text-xs font-medium
-                            {% if product[10] == 'In Stock' %}bg-green-100 text-green-800
-                            {% elif product[10] == 'Low Stock' %}bg-yellow-100 text-yellow-800
-                            {% else %}bg-red-100 text-red-800{% endif %}">
+                    <div class="flex justify-between items-start gap-2 mb-1.5">
+                        <h3 class="font-display font-bold text-slate-900 truncate">{{ product[2] }}</h3>
+                        <span class="status-badge sk-badge flex-none
+                            {% if product[10] == 'In Stock' %}bg-emerald-100 text-emerald-800
+                            {% elif product[10] == 'Low Stock' %}bg-amber-100 text-amber-800
+                            {% else %}bg-rose-100 text-rose-700{% endif %}">
                             {{ product[10] or 'In Stock' }}
                         </span>
                     </div>
-                    
-                    <p class="text-sm text-gray-600 mb-3">{{ product[3] }}</p>
-                    
+
+                    <p class="text-sm text-slate-500 mb-3">{{ product[3] }}</p>
+
                     <div class="flex justify-between items-center mb-3">
-                        <span class="text-lg font-bold text-green-600">₹{{ "%.2f"|format(product[4]) }}</span>
-                        <span class="text-sm text-gray-500">Stock: <span class="stock-display">{{ product[5] }}</span></span>
+                        <span class="font-display text-lg font-extrabold text-slate-900">₹{{ "%.2f"|format(product[4]) }}</span>
+                        <span class="text-sm text-slate-500">Stock: <span class="stock-display font-semibold text-slate-700">{{ product[5] }}</span></span>
                     </div>
-                    
+
                     <!-- Stats -->
-                    <div class="flex justify-between text-sm text-gray-600 mb-4">
-                        <div class="flex items-center space-x-1">
-                            <span>👁</span>
-                            <span>{{ product[8] or 0 }}</span>
-                        </div>
-                        <div class="flex items-center space-x-1">
-                            <span>❤</span>
-                            <span>{{ product[9] or 0 }}</span>
-                        </div>
+                    <div class="flex items-center gap-4 text-sm text-slate-500 mb-4">
+                        <span class="inline-flex items-center gap-1.5"><i data-feather="eye" class="w-4 h-4"></i>{{ product[8] or 0 }}</span>
+                        <span class="inline-flex items-center gap-1.5"><i data-feather="heart" class="w-4 h-4"></i>{{ product[9] or 0 }}</span>
                     </div>
-                    
+
                     <!-- Stock Controls -->
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center space-x-2">
-                            <button onclick="updateStock({{ product[0] }}, -10)" 
-                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded">−</button>
-                            <input type="number" value="{{ product[5] }}" min="0" 
-                                   onchange="updateStockManual({{ product[0] }}, this.value)"
-                                   class="w-20 text-center text-sm border rounded px-2 py-1">
-                            <button onclick="updateStock({{ product[0] }}, 10)" 
-                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded">+</button>
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="updateStock({{ product[0] }}, -10)" aria-label="Decrease stock by 10"
+                                    class="h-9 w-9 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 font-semibold transition-colors hover:border-brand-300 hover:text-brand-700">−</button>
+                            <input type="number" value="{{ product[5] }}" min="0"
+                                   onchange="updateStockManual({{ product[0] }}, this.value)" aria-label="Stock quantity"
+                                   class="w-16 h-9 text-center text-sm border border-slate-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+                            <button onclick="updateStock({{ product[0] }}, 10)" aria-label="Increase stock by 10"
+                                    class="h-9 w-9 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 font-semibold transition-colors hover:border-brand-300 hover:text-brand-700">+</button>
                         </div>
-                        <button onclick="editProduct({{ product[0] }})" 
-                                class="text-blue-600 hover:text-blue-800 text-sm">✏ Edit</button>
                     </div>
-                    
+
                     <!-- Actions -->
-                    <div class="flex space-x-2">
-                        <button onclick="editProduct({{ product[0] }})" 
-                                class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-800 py-2 px-3 rounded text-sm">
-                            Edit Product
+                    <div class="flex gap-2">
+                        <button onclick="editProduct({{ product[0] }})"
+                                class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-50 py-2 px-3 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-100">
+                            <i data-feather="edit-2" class="w-3.5 h-3.5"></i> Edit
                         </button>
-                        <button onclick="deleteProduct({{ product[0] }})" 
-                                class="bg-red-100 hover:bg-red-200 text-red-800 py-2 px-3 rounded text-sm">
-                            🗑
+                        <button onclick="deleteProduct({{ product[0] }})" aria-label="Delete product"
+                                class="inline-flex items-center justify-center rounded-xl bg-rose-50 py-2 px-3 text-sm font-semibold text-rose-600 transition-colors hover:bg-rose-100">
+                            <i data-feather="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
@@ -107,13 +79,15 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="text-center py-16">
-            <div class="text-6xl mb-4">📦</div>
-            <h3 class="text-xl font-semibold text-gray-700 mb-2">No Products Yet</h3>
-            <p class="text-gray-600 mb-6">Start building your inventory by adding your first product</p>
-            <button onclick="window.location.href='{{ url_for('main.add_product') }}'" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
-                Add Your First Product
+        <div class="sk-card mx-auto max-w-md text-center py-16 px-6">
+            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50">
+                <i data-feather="package" class="w-8 h-8 text-brand-600"></i>
+            </span>
+            <h3 class="font-display text-xl font-bold text-slate-900 mt-5 mb-2">No products yet</h3>
+            <p class="text-slate-600 mb-6">Start building your inventory by adding your first product.</p>
+            <button onclick="showAddProductModal()" class="sk-btn-primary">
+                <i data-feather="plus" class="w-4 h-4"></i>
+                Add your first product
             </button>
         </div>
     {% endif %}
@@ -152,13 +126,13 @@ function updateStockOnServer(productId, newStock) {
             statusBadge.textContent = data.status;
             
             // Update badge color
-            statusBadge.className = 'status-badge px-2 py-1 rounded-full text-xs font-medium ';
+            statusBadge.className = 'status-badge sk-badge flex-none ';
             if (data.status === 'In Stock') {
-                statusBadge.className += 'bg-green-100 text-green-800';
+                statusBadge.className += 'bg-emerald-100 text-emerald-800';
             } else if (data.status === 'Low Stock') {
-                statusBadge.className += 'bg-yellow-100 text-yellow-800';
+                statusBadge.className += 'bg-amber-100 text-amber-800';
             } else {
-                statusBadge.className += 'bg-red-100 text-red-800';
+                statusBadge.className += 'bg-rose-100 text-rose-700';
             }
         }
     })
@@ -337,118 +311,104 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- Add Product Modal -->
-<div id="addProductModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-900">Add New Product</h3>
-                <button onclick="hideAddProductModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+<div id="addProductModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 p-4">
+    <div class="relative top-8 md:top-16 mx-auto w-full max-w-2xl sk-card p-6 sm:p-8 mb-8">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-display text-xl font-extrabold text-slate-900">Add new product</h3>
+            <button onclick="hideAddProductModal()" aria-label="Close"
+                    class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <form id="addProductForm" method="POST" action="{{ url_for('main.add_product') }}" enctype="multipart/form-data">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Product Name -->
+                <div class="md:col-span-2">
+                    <label class="sk-label">Product name <span class="text-rose-500">*</span></label>
+                    <input type="text" name="name" required class="sk-input"
+                           placeholder="e.g., Fresh Tomatoes, Basmati Rice">
+                </div>
+
+                <!-- Main Category -->
+                <div>
+                    <label class="sk-label">Main category <span class="text-rose-500">*</span></label>
+                    <select id="mainCategory" name="main_category" required class="sk-select"
+                            onchange="updateSubcategory()">
+                        <option value="">Select Main Category</option>
+                        <option value="Dairy & Alternatives">Dairy & Alternatives</option>
+                        <option value="Produce">Produce</option>
+                        <option value="Pantry Staples">Pantry Staples</option>
+                        <option value="Sauces & Pastes">Sauces & Pastes</option>
+                        <option value="Bakery & Base Items">Bakery & Base Items</option>
+                        <option value="Snacks & Dessert Ingredients">Snacks & Dessert Ingredients</option>
+                        <option value="Prepared & Semi-Cooked">Prepared & Semi-Cooked</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Packaging & Disposables">Packaging & Disposables</option>
+                    </select>
+                </div>
+
+                <!-- Subcategory -->
+                <div>
+                    <label class="sk-label">Subcategory <span class="text-rose-500">*</span></label>
+                    <select id="subcategory" name="subcategory" required class="sk-select disabled:bg-slate-100 disabled:text-slate-400"
+                            onchange="updateProductOptions()" disabled>
+                        <option value="">Select Subcategory</option>
+                    </select>
+                </div>
+
+                <!-- Product Type -->
+                <div class="md:col-span-2">
+                    <label class="sk-label">Product type <span class="text-rose-500">*</span></label>
+                    <select id="productType" name="category" required class="sk-select disabled:bg-slate-100 disabled:text-slate-400" disabled>
+                        <option value="">Select Product Type</option>
+                    </select>
+                </div>
+
+                <!-- Price -->
+                <div>
+                    <label class="sk-label">Price per unit (₹) <span class="text-rose-500">*</span></label>
+                    <input type="number" name="price" step="0.01" min="0" required class="sk-input" placeholder="0.00">
+                </div>
+
+                <!-- Stock -->
+                <div>
+                    <label class="sk-label">Stock quantity <span class="text-rose-500">*</span></label>
+                    <input type="number" name="stock" min="0" required class="sk-input" placeholder="Available quantity">
+                </div>
+
+                <!-- Product Image -->
+                <div class="md:col-span-2">
+                    <label class="sk-label">Product image</label>
+                    <input type="file" name="product_image" accept="image/*"
+                           class="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 transition-colors file:mr-4 file:rounded-lg file:border-0 file:bg-brand-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-brand-400">
+                    <p class="sk-field-help">Upload product image (optional)</p>
+                </div>
+            </div>
+
+            <!-- Group Buy Eligible -->
+            <div class="mt-6">
+                <label class="flex items-center">
+                    <input type="checkbox" name="group_buy_eligible" checked
+                           class="mr-2.5 h-4 w-4 text-brand-600 focus:ring-brand-500 border-slate-300 rounded">
+                    <span class="text-sm font-medium text-slate-700">Eligible for group buying</span>
+                </label>
+                <p class="sk-field-help ml-7">Allow vendors to form buying clubs for bulk orders</p>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="mt-8 flex flex-col-reverse sm:flex-row gap-3">
+                <button type="button" onclick="hideAddProductModal()" class="sk-btn-secondary flex-1">Cancel</button>
+                <button type="submit" class="sk-btn-primary flex-1">
+                    <i data-feather="plus" class="w-4 h-4"></i>
+                    Add product
                 </button>
             </div>
-            
-            <!-- Modal Body -->
-            <form id="addProductForm" method="POST" action="{{ url_for('main.add_product') }}" enctype="multipart/form-data">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Product Name -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
-                        <input type="text" name="name" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="e.g., Fresh Tomatoes, Basmati Rice">
-                    </div>
-                    
-                    <!-- Main Category -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Main Category *</label>
-                        <select id="mainCategory" name="main_category" required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                onchange="updateSubcategory()">
-                            <option value="">Select Main Category</option>
-                            <option value="Dairy & Alternatives">Dairy & Alternatives</option>
-                            <option value="Produce">Produce</option>
-                            <option value="Pantry Staples">Pantry Staples</option>
-                            <option value="Sauces & Pastes">Sauces & Pastes</option>
-                            <option value="Bakery & Base Items">Bakery & Base Items</option>
-                            <option value="Snacks & Dessert Ingredients">Snacks & Dessert Ingredients</option>
-                            <option value="Prepared & Semi-Cooked">Prepared & Semi-Cooked</option>
-                            <option value="Beverages">Beverages</option>
-                            <option value="Packaging & Disposables">Packaging & Disposables</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Subcategory -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Subcategory *</label>
-                        <select id="subcategory" name="subcategory" required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                onchange="updateProductOptions()"
-                                disabled>
-                            <option value="">Select Subcategory</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Product Type -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Type *</label>
-                        <select id="productType" name="category" required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                disabled>
-                            <option value="">Select Product Type</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Price -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Price per Unit (₹) *</label>
-                        <input type="number" name="price" step="0.01" min="0" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="0.00">
-                    </div>
-                    
-                    <!-- Stock -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity *</label>
-                        <input type="number" name="stock" min="0" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="Available quantity">
-                    </div>
-                    
-                    <!-- Product Image -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
-                        <input type="file" name="product_image" accept="image/*"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">Upload product image (optional)</p>
-                    </div>
-                </div>
-                
-                <!-- Group Buy Eligible -->
-                <div class="mt-6">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="group_buy_eligible" checked 
-                               class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <span class="text-sm text-gray-700">Eligible for Group Buying</span>
-                    </label>
-                    <p class="text-xs text-gray-500 mt-1">Allow vendors to form buying clubs for bulk orders</p>
-                </div>
-                
-                <!-- Modal Footer -->
-                <div class="mt-6 flex space-x-4">
-                    <button type="submit" 
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
-                        Add Product
-                    </button>
-                    <button type="button" onclick="hideAddProductModal()"
-                            class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md transition-colors">
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
+        </form>
     </div>
 </div>
 

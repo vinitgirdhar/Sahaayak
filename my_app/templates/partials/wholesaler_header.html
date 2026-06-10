@@ -1,0 +1,84 @@
+{# Unified wholesaler workspace header.
+   Set before including:
+     wh_title      — page heading (required)
+     wh_subtitle   — short description shown under the heading on mobile
+     wh_icon       — feather icon for the mobile chip (default: 'home')
+     wh_show_add   — show the "Add product" action (default: false)
+   Bottom mobile navigation comes from base.html. #}
+
+<!-- Desktop header -->
+<header class="hidden md:block sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md mb-6">
+    <div class="flex h-16 items-center justify-between gap-6 px-6">
+        <div class="flex min-w-0 items-center gap-3">
+            <a href="{{ url_for('main.wholesaler_dashboard') }}" class="flex items-center gap-2.5" aria-label="Wholesaler dashboard">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 shadow-md shadow-brand-600/25">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 9l1.5-5h15L21 9"></path>
+                        <path d="M3 9h18v3a3 3 0 0 1-3 3v6H6v-6a3 3 0 0 1-3-3V9z"></path>
+                        <path d="M9 21v-5h6v5"></path>
+                    </svg>
+                </span>
+                <span class="font-display text-lg font-extrabold tracking-tight text-slate-900">Sahaayak</span>
+            </a>
+            <span class="hidden h-6 w-px bg-slate-200 lg:block" aria-hidden="true"></span>
+            <h1 class="hidden truncate font-display text-base font-bold text-slate-700 lg:block">{{ wh_title }}</h1>
+        </div>
+
+        <nav class="flex items-center gap-1" aria-label="Wholesaler sections">
+            {% set nav_items = [
+                ('main.wholesaler_dashboard', 'home', 'Dashboard'),
+                ('main.wholesaler_products', 'package', 'Products'),
+                ('main.wholesaler_orders', 'inbox', 'Orders'),
+                ('main.wholesaler_analytics', 'bar-chart-2', 'Analytics')
+            ] %}
+            {% for endpoint, icon, label in nav_items %}
+            <a href="{{ url_for(endpoint) }}"
+               class="flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors
+                      {% if request.endpoint == endpoint %}bg-brand-50 text-brand-700{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                <i data-feather="{{ icon }}" class="h-4 w-4"></i>
+                <span class="hidden xl:inline">{{ label }}</span>
+            </a>
+            {% endfor %}
+        </nav>
+
+        <div class="flex items-center gap-2">
+            {% if wh_show_add|default(false) %}
+            <button onclick="showAddProductModal()" class="sk-btn-primary">
+                <i data-feather="plus" class="h-4 w-4"></i>
+                <span>Add product</span>
+            </button>
+            {% endif %}
+            <a href="{{ url_for('main.wholesaler_profile') }}"
+               class="flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors
+                      {% if request.endpoint in ['main.wholesaler_profile', 'main.edit_profile'] %}bg-brand-50 text-brand-700{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                <i data-feather="user" class="h-4 w-4"></i>
+                <span class="hidden lg:inline">Account</span>
+            </a>
+            <a href="{{ url_for('main.index') }}" class="flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold text-rose-600 transition-colors hover:bg-rose-50" title="Logout">
+                <i data-feather="log-out" class="h-4 w-4"></i>
+                <span class="hidden lg:inline">Logout</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Mobile header -->
+<div class="md:hidden px-4 pb-2 pt-5">
+    <div class="mb-4 flex items-center justify-between">
+        <a href="{{ url_for('main.wholesaler_dashboard') }}" class="flex items-center gap-2" aria-label="Wholesaler dashboard">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 shadow-md shadow-brand-600/25">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 9l1.5-5h15L21 9"></path>
+                    <path d="M3 9h18v3a3 3 0 0 1-3 3v6H6v-6a3 3 0 0 1-3-3V9z"></path>
+                    <path d="M9 21v-5h6v5"></path>
+                </svg>
+            </span>
+            <span class="font-display text-lg font-extrabold tracking-tight text-slate-900">Sahaayak</span>
+        </a>
+        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50">
+            <i data-feather="{{ wh_icon|default('home') }}" class="h-4 w-4 text-brand-600"></i>
+        </span>
+    </div>
+    <h1 class="font-display text-2xl font-extrabold tracking-tight text-slate-900">{{ wh_title }}</h1>
+    {% if wh_subtitle %}<p class="mt-1 text-sm text-slate-600">{{ wh_subtitle }}</p>{% endif %}
+</div>

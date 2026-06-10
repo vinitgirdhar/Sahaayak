@@ -1,163 +1,125 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}
 
 {% block title %}Vendor Registration - Sahaayak{% endblock %}
 
-{% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8">
-    {% if get_flashed_messages() %}
-      {% for message in get_flashed_messages(with_categories=true) %}
-        <div class="mb-4 p-3 rounded {% if message[0] == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
-          {{ message[1] }}
-        </div>
-      {% endfor %}
-    {% endif %}
-    
-    <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-gray-800">Vendor Registration</h2>
-      <p class="text-gray-600 mt-2">Join our community of street vendors</p>
-    </div>
+{% block auth_width %}max-w-2xl{% endblock %}
 
-    <form method="post" enctype="multipart/form-data" class="space-y-6">
-      <!-- Personal Information Section -->
-      <div class="bg-blue-50 p-4 rounded-lg">
-        <h3 class="text-lg font-semibold text-blue-800 mb-3">📋 Personal Information</h3>
-        
-        <div class="space-y-4">
-          <div>
-            <label for="name" class="block text-gray-700 font-medium mb-1">Full Name *</label>
-            <input type="text" id="name" name="name" 
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" 
-                   required>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+{% block auth_panel_title %}Set up once. Save on every order.{% endblock %}
+{% block auth_panel_text %}Tell us about your stall so nearby wholesalers can serve you better. It takes about two minutes.{% endblock %}
+{% block auth_panel_extra %}
+<ul class="mt-10 space-y-4 text-sm text-slate-300">
+    <li class="flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10"><i data-feather="percent" class="h-4 w-4"></i></span>
+        Wholesale prices across 11+ categories
+    </li>
+    <li class="flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10"><i data-feather="shopping-cart" class="h-4 w-4"></i></span>
+        One cart for multiple suppliers
+    </li>
+    <li class="flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10"><i data-feather="truck" class="h-4 w-4"></i></span>
+        Delivery tracked to your stall
+    </li>
+</ul>
+{% endblock %}
+
+{% block auth_heading %}Create your vendor account{% endblock %}
+{% block auth_subheading %}Free forever. You only pay for the goods you order.{% endblock %}
+
+{% block auth_form %}
+<form method="post" enctype="multipart/form-data" class="space-y-10">
+    <!-- Personal information -->
+    <fieldset>
+        <legend class="flex items-center gap-2.5 font-display text-lg font-bold text-slate-900">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><i data-feather="user" class="h-4 w-4"></i></span>
+            Personal information
+        </legend>
+        <div class="mt-5 grid gap-5 sm:grid-cols-2">
             <div>
-              <label for="phone" class="block text-gray-700 font-medium mb-1">Phone Number *</label>
-              <input type="tel" id="phone" name="phone" 
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" 
-                     required>
+                <label for="name" class="sk-label">Full name <span class="text-rose-500">*</span></label>
+                <input type="text" id="name" name="name" class="sk-input" placeholder="e.g. Raj Patel" autocomplete="name" required>
             </div>
             <div>
-              <label for="alternate_contact" class="block text-gray-700 font-medium mb-1">Alternate Contact</label>
-              <input type="tel" id="alternate_contact" name="alternate_contact" 
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
-            </div>
-          </div>
-          
-          <div>
-            <label for="email" class="block text-gray-700 font-medium mb-1">Email Address *</label>
-            <input type="email" id="email" name="email" 
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" 
-                   required>
-          </div>
-          
-          <div>
-            <label for="password" class="block text-gray-700 font-medium mb-1">Password *</label>
-            <input type="password" id="password" name="password" 
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" 
-                   required>
-          </div>
-        </div>
-      </div>
-
-      <!-- Business Details Section -->
-      <div class="bg-green-50 p-4 rounded-lg">
-        <h3 class="text-lg font-semibold text-green-800 mb-3">🏪 Business Details</h3>
-        
-        <div class="space-y-4">
-          <div>
-            <label for="shop_name" class="block text-gray-700 font-medium mb-1">Shop/Business Name</label>
-            <input type="text" id="shop_name" name="shop_name" 
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent">
-          </div>
-          
-          <div>
-            <label for="goods_type" class="block text-gray-700 font-medium mb-1">Type of Goods Sold</label>
-            <select id="goods_type" name="goods_type" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent">
-              <option value="">Select goods type</option>
-              <option value="vegetables">Vegetables</option>
-              <option value="fruits">Fruits</option>
-              <option value="groceries">Groceries</option>
-              <option value="snacks">Snacks & Beverages</option>
-              <option value="clothing">Clothing</option>
-              <option value="accessories">Accessories</option>
-              <option value="electronics">Electronics</option>
-              <option value="household">Household Items</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          
-          <div>
-            <label for="working_hours" class="block text-gray-700 font-medium mb-1">Working Hours</label>
-            <input type="text" id="working_hours" name="working_hours" 
-                   placeholder="e.g., 8 AM - 8 PM"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent">
-          </div>
-          
-          <div>
-            <label for="photo" class="block text-gray-700 font-medium mb-1">Profile Photo</label>
-            <input type="file" id="photo" name="photo" accept="image/*"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent">
-            <p class="text-xs text-gray-500 mt-1">Optional: Upload a photo of yourself or your shop</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Location Details Section -->
-      <div class="bg-yellow-50 p-4 rounded-lg">
-        <h3 class="text-lg font-semibold text-yellow-800 mb-3">📍 Location Details</h3>
-        
-        <div class="space-y-4">
-          <div>
-            <label for="street_area" class="block text-gray-700 font-medium mb-1">Street/Area *</label>
-            <input type="text" id="street_area" name="street_area" 
-                   placeholder="e.g., Station Road, Market Area"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent" 
-                   required>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="city" class="block text-gray-700 font-medium mb-1">City *</label>
-              <input type="text" id="city" name="city" 
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent" 
-                     required>
+                <label for="phone" class="sk-label">Phone number <span class="text-rose-500">*</span></label>
+                <input type="tel" id="phone" name="phone" class="sk-input" placeholder="10-digit mobile number" inputmode="numeric" autocomplete="tel" required>
             </div>
             <div>
-              <label for="pincode" class="block text-gray-700 font-medium mb-1">Pincode *</label>
-              <input type="text" id="pincode" name="pincode" 
-                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent" 
-                     required>
+                <label for="password" class="sk-label">Password <span class="text-rose-500">*</span></label>
+                <input type="password" id="password" name="password" class="sk-input" placeholder="Choose a password" autocomplete="new-password" required>
             </div>
-          </div>
-          
-          <div>
-            <label for="location" class="block text-gray-700 font-medium mb-1">General Location/Landmark</label>
-            <input type="text" id="location" name="location" 
-                   placeholder="e.g., Near Railway Station, Market Square"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent">
-          </div>
+            <div>
+                <label for="alternate_contact" class="sk-label">Alternate contact</label>
+                <input type="tel" id="alternate_contact" name="alternate_contact" class="sk-input" placeholder="Optional backup number" inputmode="numeric">
+            </div>
+            <div class="sm:col-span-2">
+                <label for="email" class="sk-label">Email</label>
+                <input type="email" id="email" name="email" class="sk-input" placeholder="Optional — for receipts and updates" autocomplete="email">
+            </div>
         </div>
-      </div>
+    </fieldset>
 
-      <!-- Submit Button -->
-      <div class="pt-4">
-        <button type="submit" 
-                class="w-full bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:from-blue-700 hover:to-green-700 transition-all duration-300 transform hover:scale-105">
-          🚀 Register as Vendor
-        </button>
-      </div>
-    </form>
+    <!-- Business details -->
+    <fieldset>
+        <legend class="flex items-center gap-2.5 font-display text-lg font-bold text-slate-900">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><i data-feather="shopping-bag" class="h-4 w-4"></i></span>
+            Your stall
+        </legend>
+        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+            <div>
+                <label for="shop_name" class="sk-label">Stall / shop name <span class="text-rose-500">*</span></label>
+                <input type="text" id="shop_name" name="shop_name" class="sk-input" placeholder="e.g. Raj Snacks Corner" required>
+            </div>
+            <div>
+                <label for="goods_type" class="sk-label">What do you sell? <span class="text-rose-500">*</span></label>
+                <input type="text" id="goods_type" name="goods_type" class="sk-input" placeholder="e.g. Tea, snacks and breakfast" required>
+            </div>
+            <div>
+                <label for="working_hours" class="sk-label">Working hours</label>
+                <input type="text" id="working_hours" name="working_hours" class="sk-input" placeholder="e.g. 06:30 AM - 03:30 PM">
+            </div>
+            <div>
+                <label for="street_area" class="sk-label">Street / market area <span class="text-rose-500">*</span></label>
+                <input type="text" id="street_area" name="street_area" class="sk-input" placeholder="e.g. MG Road Market" required>
+            </div>
+            <div class="sm:col-span-2">
+                <label for="photo" class="sk-label">Stall photo</label>
+                <input type="file" id="photo" name="photo" accept="image/*"
+                       class="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 transition-colors file:mr-4 file:rounded-lg file:border-0 file:bg-brand-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-brand-400">
+                <p class="sk-field-help">Optional — a photo helps wholesalers recognise your stall for delivery.</p>
+            </div>
+        </div>
+    </fieldset>
 
-    <!-- Login Link -->
-    <div class="mt-8 text-center">
-      <p class="text-gray-600">
-        Already have an account? 
-        <a href="{{ url_for('main.vendor_login') }}" class="text-blue-600 hover:underline font-semibold">Login here</a>
-      </p>
-    </div>
-  </div>
-</div>
+    <!-- Location -->
+    <fieldset>
+        <legend class="flex items-center gap-2.5 font-display text-lg font-bold text-slate-900">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><i data-feather="map-pin" class="h-4 w-4"></i></span>
+            Location
+        </legend>
+        <div class="mt-5 grid gap-5 sm:grid-cols-3">
+            <div>
+                <label for="pincode" class="sk-label">Pincode <span class="text-rose-500">*</span></label>
+                <input type="text" id="pincode" name="pincode" class="sk-input" placeholder="e.g. 400086" inputmode="numeric" required>
+            </div>
+            <div>
+                <label for="city" class="sk-label">City <span class="text-rose-500">*</span></label>
+                <input type="text" id="city" name="city" class="sk-input" placeholder="e.g. Mumbai" required>
+            </div>
+            <div>
+                <label for="location" class="sk-label">Locality <span class="text-rose-500">*</span></label>
+                <input type="text" id="location" name="location" class="sk-input" placeholder="e.g. Ghatkopar" required>
+            </div>
+        </div>
+    </fieldset>
+
+    <button type="submit" class="sk-btn-primary sk-btn-lg w-full">
+        Create my account
+        <i data-feather="arrow-right" class="h-5 w-5"></i>
+    </button>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+Already have an account?
+<a href="{{ url_for('main.vendor_login') }}" class="font-semibold text-brand-600 hover:text-brand-700 hover:underline">Log in instead</a>
 {% endblock %}

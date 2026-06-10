@@ -1,0 +1,128 @@
+/* Sahaayak design system source. Compiled to app.css via ./build_css.sh */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sk-brand: #2563eb;
+    --sk-brand-strong: #1d4ed8;
+    --sk-ring: rgba(37, 99, 235, 0.25);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-slate-900 antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  /* ---- Layout ---- */
+  .sk-container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ---- Buttons ---- */
+  .sk-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold
+           transition-all duration-200 select-none whitespace-nowrap
+           focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/30
+           disabled:opacity-60 disabled:pointer-events-none;
+  }
+  .sk-btn-lg {
+    @apply px-7 py-3.5 text-base rounded-2xl;
+  }
+  .sk-btn-primary {
+    @apply sk-btn bg-brand-600 text-white shadow-md shadow-brand-600/20
+           hover:bg-brand-700 hover:shadow-lg hover:shadow-brand-600/25 hover:-translate-y-px
+           active:translate-y-0;
+  }
+  .sk-btn-secondary {
+    @apply sk-btn bg-white text-slate-800 border border-slate-200 shadow-sm
+           hover:border-brand-300 hover:text-brand-700 hover:-translate-y-px active:translate-y-0;
+  }
+  .sk-btn-ghost {
+    @apply sk-btn bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900;
+  }
+  .sk-btn-danger {
+    @apply sk-btn bg-rose-600 text-white shadow-md shadow-rose-600/20 hover:bg-rose-700;
+  }
+  .sk-btn-success {
+    @apply sk-btn bg-emerald-600 text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700;
+  }
+
+  /* ---- Forms ---- */
+  .sk-label {
+    @apply block text-sm font-semibold text-slate-700 mb-1.5;
+  }
+  .sk-input {
+    @apply block w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900
+           placeholder:text-slate-400 shadow-sm transition-colors duration-200
+           focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15;
+  }
+  .sk-select {
+    @apply sk-input pr-10 appearance-none bg-no-repeat;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-size: 1.25rem 1.25rem;
+  }
+  .sk-field-help {
+    @apply mt-1.5 text-xs text-slate-500;
+  }
+
+  /* ---- Cards ---- */
+  .sk-card {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+  }
+  .sk-card-hover {
+    @apply sk-card transition-all duration-200 hover:shadow-lg hover:shadow-slate-900/5 hover:-translate-y-0.5;
+  }
+
+  /* ---- Badges ---- */
+  .sk-badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+  .sk-badge-success { @apply sk-badge bg-emerald-100 text-emerald-800; }
+  .sk-badge-warning { @apply sk-badge bg-amber-100 text-amber-800; }
+  .sk-badge-danger  { @apply sk-badge bg-rose-100 text-rose-700; }
+  .sk-badge-info    { @apply sk-badge bg-brand-100 text-brand-800; }
+  .sk-badge-neutral { @apply sk-badge bg-slate-100 text-slate-700; }
+
+  /* ---- Flash messages ---- */
+  .sk-flash {
+    @apply mb-4 flex items-start gap-2.5 rounded-xl border px-4 py-3 text-sm font-medium;
+  }
+  .sk-flash-error   { @apply sk-flash border-rose-200 bg-rose-50 text-rose-700; }
+  .sk-flash-success { @apply sk-flash border-emerald-200 bg-emerald-50 text-emerald-700; }
+  .sk-flash-info    { @apply sk-flash border-brand-200 bg-brand-50 text-brand-800; }
+
+  /* ---- Tables ---- */
+  .sk-table-wrap {
+    @apply w-full overflow-x-auto rounded-2xl border border-slate-200 bg-white;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Auth split layout ---- */
+  .sk-auth-shell {
+    @apply min-h-screen grid lg:grid-cols-2 bg-slate-50;
+  }
+  .sk-auth-panel {
+    @apply relative hidden lg:flex flex-col justify-between overflow-hidden p-12 text-white;
+    background:
+      radial-gradient(80rem 40rem at 120% -10%, rgba(37, 99, 235, 0.55), transparent 55%),
+      radial-gradient(50rem 30rem at -20% 110%, rgba(245, 158, 11, 0.28), transparent 50%),
+      linear-gradient(160deg, #0b1220 0%, #101b34 55%, #14224a 100%);
+  }
+  .sk-auth-form-side {
+    @apply flex flex-col justify-center px-4 py-10 sm:px-10 lg:px-16 xl:px-24;
+  }
+}

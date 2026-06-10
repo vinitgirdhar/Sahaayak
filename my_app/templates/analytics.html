@@ -3,24 +3,12 @@
 {% block title %}Analytics - Sahaayak{% endblock %}
 
 {% block content %}
-<div class="bg-white border-b border-gray-200 px-6 py-4 mb-6">
-    <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-4">
-            <a href="{{ url_for('main.wholesaler_dashboard') }}" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
-            <h1 class="text-2xl font-bold text-gray-800">Analytics & Performance</h1>
-        </div>
-        <div class="flex space-x-4">
-            <select class="border border-gray-300 rounded-lg px-3 py-2">
-                <option>Last 30 Days</option>
-                <option>Last 7 Days</option>
-                <option>This Month</option>
-                <option>Last Month</option>
-            </select>
-        </div>
-    </div>
-</div>
+{% set wh_title = 'Analytics & Performance' %}
+{% set wh_subtitle = 'Track revenue, orders, and customers' %}
+{% set wh_icon = 'bar-chart-2' %}
+{% include 'partials/wholesaler_header.html' %}
 
-<div class="px-6">
+<div class="px-4 md:px-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div class="flex items-center">
@@ -206,7 +194,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='vendor/chart.umd.js') }}"></script>
 <script>
 // Revenue Chart
 const revenueCtx = document.getElementById('revenueChart').getContext('2d');

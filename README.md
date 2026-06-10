@@ -16,8 +16,26 @@ Sahaayak is a Flask-based marketplace for street vendors and wholesalers. It inc
 - Python 3.11+
 - Flask 2.3
 - SQLite
-- Tailwind via CDN in templates
+- Tailwind CSS compiled to `my_app/static/css/app.css` (no CDN at runtime)
+- Self-hosted Feather icons and Chart.js in `my_app/static/vendor/`
 - `google-generativeai` for the AI endpoint
+
+## Design System & Frontend Build
+
+All templates share one design system defined in `my_app/static/css/input.css`:
+
+- Brand tokens: `brand-*` (blue) and `accent-*` (amber) color scales, Inter for body text, Plus Jakarta Sans for headings
+- Reusable component classes: `sk-btn-primary`, `sk-btn-secondary`, `sk-input`, `sk-select`, `sk-label`, `sk-card`, `sk-badge-*`, `sk-flash-*`, `sk-table-wrap`, and the `sk-auth-*` split-screen auth layout
+- Shared layouts: `auth_base.html` (login/registration pages) and `partials/wholesaler_header.html` (wholesaler workspace navigation)
+
+The compiled stylesheet `my_app/static/css/app.css` is checked in, so the app
+runs without any frontend tooling. After changing templates or `input.css`,
+rebuild it with the Tailwind standalone CLI (v3.x):
+
+```bash
+./build_css.sh           # minified production build
+./build_css.sh --watch   # rebuild on change during development
+```
 
 ## Project Layout
 

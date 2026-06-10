@@ -385,11 +385,12 @@ def resolve_local_reference(reference, static_dir):
     if not value or value.startswith(('http://', 'https://', 'data:')):
         return None
 
-    candidate = Path(value)
-    if candidate.is_absolute():
-        return candidate
-
     normalized = value.lstrip('/\\').replace('\\', '/')
+    # URL paths such as /static/... are app routes, not filesystem paths;
+    # only treat the value as an absolute path when it is not a static URL.
+    candidate = Path(value)
+    if candidate.is_absolute() and not normalized.startswith('static/'):
+        return candidate
     static_dir = Path(static_dir)
     candidates = []
 

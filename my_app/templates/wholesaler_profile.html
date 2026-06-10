@@ -4,39 +4,19 @@
 {% block title %}My Account - Sahaayak{% endblock %}
 
 {% block content %}
-<!-- Top Navigation (Desktop) -->
-<div class="hidden md:block bg-white border-b border-gray-200 px-6 py-4 mb-6">
-    <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-4">
-            <a href="{{ url_for('main.wholesaler_dashboard') }}" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
-            <h1 class="text-2xl font-bold text-gray-800">My Account</h1>
-        </div>
-    </div>
-</div>
-
-<!-- Mobile Header -->
-<div class="md:hidden px-4 pt-4 pb-2">
-    <div class="flex items-center justify-between mb-3">
-        <h1 class="text-2xl font-bold text-blue-600">Sahaayak</h1>
-        <div class="bg-blue-100 p-2 rounded-full">
-            <i data-feather="user" class="w-5 h-5 text-blue-600"></i>
-        </div>
-    </div>
-    <div class="flex items-center space-x-3 mb-2">
-        <a href="{{ url_for('main.wholesaler_dashboard') }}" class="text-blue-600 hover:text-blue-800">
-            <i data-feather="arrow-left" class="w-5 h-5 inline"></i>
-        </a>
-        <h2 class="text-2xl font-bold text-gray-800">My Account</h2>
-    </div>
-</div>
+{% set wh_title = 'My Account' %}
+{% set wh_subtitle = 'Manage your business profile' %}
+{% set wh_icon = 'user' %}
+{% include 'partials/wholesaler_header.html' %}
 
 <!-- Success/Error Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-        <div class="px-6 mb-6">
+        <div class="px-4 md:px-6 mb-6 max-w-4xl mx-auto">
             {% for category, message in messages %}
-                <div class="p-4 rounded-lg {% if category == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
-                    {{ message }}
+                <div class="{% if category == 'success' %}sk-flash-success{% else %}sk-flash-error{% endif %}" role="alert">
+                    <i data-feather="{% if category == 'success' %}check-circle{% else %}alert-circle{% endif %}" class="mt-0.5 h-4 w-4 flex-none"></i>
+                    <span>{{ message }}</span>
                 </div>
             {% endfor %}
         </div>

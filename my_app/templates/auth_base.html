@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{# Shared split-screen layout for every login / registration page.
+   Child templates fill: auth_panel_* (left brand panel), auth_heading,
+   auth_subheading, auth_form, and auth_footer (link under the form). #}
+
+{% block content %}
+<div class="sk-auth-shell">
+    <!-- Brand panel (desktop only) -->
+    <aside class="sk-auth-panel">
+        <div class="hero-grid-overlay absolute inset-0" aria-hidden="true"></div>
+        <a href="{{ url_for('main.index') }}" class="relative flex items-center gap-2.5 text-white" aria-label="Back to Sahaayak home">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 shadow-lg shadow-brand-600/40">
+                <svg viewBox="0 0 24 24" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 9l1.5-5h15L21 9"></path>
+                    <path d="M3 9h18v3a3 3 0 0 1-3 3v6H6v-6a3 3 0 0 1-3-3V9z"></path>
+                    <path d="M9 21v-5h6v5"></path>
+                </svg>
+            </span>
+            <span class="font-display text-2xl font-extrabold tracking-tight">Sahaayak</span>
+        </a>
+
+        <div class="relative max-w-md">
+            <h2 class="font-display text-3xl font-extrabold leading-tight xl:text-4xl">
+                {% block auth_panel_title %}One marketplace for the whole market.{% endblock %}
+            </h2>
+            <p class="mt-4 text-lg leading-relaxed text-slate-300">
+                {% block auth_panel_text %}Compare verified wholesalers, order in one cart, and track every delivery to your stall.{% endblock %}
+            </p>
+            {% block auth_panel_extra %}
+            <figure class="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                <blockquote class="leading-relaxed text-slate-200">
+                    “Now my order reaches before I even set up the stall. The savings paid for my new tawa.”
+                </blockquote>
+                <figcaption class="mt-4 flex items-center gap-3">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 font-display text-xs font-bold text-white">RP</span>
+                    <div>
+                        <p class="text-sm font-bold text-white">Raj Patel</p>
+                        <p class="text-xs text-slate-400">Snacks stall · Ghatkopar, Mumbai</p>
+                    </div>
+                </figcaption>
+            </figure>
+            {% endblock %}
+        </div>
+
+        <p class="relative text-sm text-slate-400">© 2026 Sahaayak · Built for India's street food economy</p>
+    </aside>
+
+    <!-- Form side -->
+    <div class="sk-auth-form-side relative">
+        <a href="{{ url_for('main.index') }}"
+           class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-200/70 hover:text-slate-900 sm:left-6 sm:top-6"
+           style="top: max(1rem, env(safe-area-inset-top));">
+            <i data-feather="arrow-left" class="h-4 w-4"></i>
+            <span>Back to home</span>
+        </a>
+
+        <div class="mx-auto w-full pt-12 lg:pt-0 {% block auth_width %}max-w-md{% endblock %}">
+            <!-- Mobile brand mark -->
+            <a href="{{ url_for('main.index') }}" class="mb-8 flex items-center gap-2.5 lg:hidden" aria-label="Sahaayak home">
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 shadow-md shadow-brand-600/30">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 9l1.5-5h15L21 9"></path>
+                        <path d="M3 9h18v3a3 3 0 0 1-3 3v6H6v-6a3 3 0 0 1-3-3V9z"></path>
+                        <path d="M9 21v-5h6v5"></path>
+                    </svg>
+                </span>
+                <span class="font-display text-xl font-extrabold tracking-tight text-slate-900">Sahaayak</span>
+            </a>
+
+            {% block auth_badge %}{% endblock %}
+            <h1 class="font-display text-3xl font-extrabold tracking-tight text-slate-900">{% block auth_heading %}Welcome back{% endblock %}</h1>
+            <p class="mt-2 text-slate-600">{% block auth_subheading %}{% endblock %}</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mt-6">
+                        {% for category, message in messages %}
+                            <div class="{% if category == 'error' %}sk-flash-error{% elif category == 'success' %}sk-flash-success{% else %}sk-flash-info{% endif %}" role="alert">
+                                <i data-feather="{% if category == 'error' %}alert-circle{% elif category == 'success' %}check-circle{% else %}info{% endif %}" class="mt-0.5 h-4 w-4 flex-none"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="mt-8">
+                {% block auth_form %}{% endblock %}
+            </div>
+
+            <div class="mt-8 text-center text-sm text-slate-600">
+                {% block auth_footer %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-grid-overlay {
+        background-image:
+            linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(48rem 32rem at 30% 20%, black 30%, transparent 75%);
+        -webkit-mask-image: radial-gradient(48rem 32rem at 30% 20%, black 30%, transparent 75%);
+    }
+</style>
+{% endblock %}

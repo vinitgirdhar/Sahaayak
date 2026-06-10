@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
   <title id="title">Cumin Seeds</title>
-  <desc id="desc">Illustrated showcase art for Cumin Seeds in the Spices & Condiments category.</desc>
+  <desc id="desc">Illustrated showcase art for Cumin Seeds in the Spices &amp; Condiments category.</desc>
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#4A1D0A" />
@@ -19,7 +19,7 @@
   <circle cx="1030" cy="780" r="240" fill="#FDE68A" opacity="0.08" />
   <circle cx="940" cy="160" r="120" fill="#F59E0B" opacity="0.12" />
   <rect x="56" y="58" width="270" height="54" rx="27" fill="#ffffff" opacity="0.11" />
-  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Spices & Condiments</text>
+  <text x="88" y="94" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="1.5">Spices &amp; Condiments</text>
   
   <g filter="url(#shadow)">
     <ellipse cx="600" cy="790" rx="246" ry="30" fill="#08131f" opacity="0.16" />

@@ -3,835 +3,840 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0b1220">
-    <meta name="description" content="Sahaayak connects India's street food vendors with verified local wholesalers — compare prices, order everything in one cart, and track every delivery.">
-    <meta property="og:title" content="Sahaayak — Wholesale buying power for street vendors">
-    <meta property="og:description" content="Compare verified wholesalers, order in one cart, and restock your stall for less.">
+    <meta name="theme-color" content="#020617">
+    <meta name="description" content="Sahaayak connects India's street food vendors directly with verified local wholesalers — compare live prices, order in one cart, and get stock delivered before dawn.">
+    <meta property="og:title" content="Sahaayak — Where the street stocks up">
+    <meta property="og:description" content="Compare verified wholesalers, fill one cart, and restock your stall for less.">
     <meta property="og:type" content="website">
-    <title>Sahaayak — Wholesale buying power for street vendors</title>
+    <title>Sahaayak — Where the Street Stocks Up</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-    <script src="{{ url_for('static', filename='vendor/feather.min.js') }}"></script>
 
     <style>
-        .hero-canvas {
-            background:
-                radial-gradient(70rem 38rem at 85% -12%, rgba(37, 99, 235, 0.5), transparent 55%),
-                radial-gradient(48rem 30rem at -12% 38%, rgba(29, 78, 216, 0.35), transparent 55%),
-                radial-gradient(40rem 26rem at 55% 115%, rgba(245, 158, 11, 0.16), transparent 60%),
-                linear-gradient(168deg, #070d1c 0%, #0b1220 45%, #101b34 100%);
+        html { scrollbar-width: none; }
+        ::-webkit-scrollbar { display: none; }
+
+        body { font-family: 'Geist', 'Inter', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Geist', 'Inter', sans-serif; }
+
+        .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; }
+        .marquee-content { display: inline-block; animation: marquee 20s linear infinite; }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
-        .hero-grid {
-            background-image:
-                linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
-            background-size: 44px 44px;
-            mask-image: radial-gradient(60rem 36rem at 50% 0%, black 35%, transparent 78%);
-            -webkit-mask-image: radial-gradient(60rem 36rem at 50% 0%, black 35%, transparent 78%);
+
+        .clip-text-image {
+            background: url('{{ url_for('static', filename='uploads/showcase/turmeric_powder.svg') }}') center/cover;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.22);
+            color: rgba(255, 255, 255, 0.22);
         }
-        .glass-nav {
-            transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            border-bottom: 1px solid transparent;
+
+        .text-stroke { color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.35); }
+
+        /* Crop the showcase art's baked-in category chips out of view */
+        .art-crop { object-position: 62% 74%; }
+
+        .border-gradient { position: relative; }
+        .border-gradient::before {
+            content: '';
+            position: absolute; inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(to bottom right, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
         }
-        .glass-nav.scrolled {
-            background-color: rgba(7, 13, 28, 0.82);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-bottom-color: rgba(148, 163, 184, 0.14);
-            box-shadow: 0 8px 30px rgba(2, 6, 23, 0.35);
+
+        #trail-canvas {
+            mask-image: linear-gradient(transparent, black 0%, black 78%, transparent);
+            -webkit-mask-image: linear-gradient(transparent, black 0%, black 78%, transparent);
         }
-        .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
-        .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
         @media (prefers-reduced-motion: reduce) {
-            .reveal { opacity: 1; transform: none; transition: none; }
-            .animate-marquee, .animate-float-slow { animation: none !important; }
+            .marquee-content { animation: none !important; }
         }
-        .marquee-mask {
-            mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-            -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-        }
-        details.faq-item > summary { list-style: none; cursor: pointer; }
-        details.faq-item > summary::-webkit-details-marker { display: none; }
-        details.faq-item[open] .faq-chevron { transform: rotate(180deg); }
-        .faq-chevron { transition: transform 0.25s ease; }
     </style>
 </head>
-<body class="bg-white font-sans text-slate-900 antialiased">
+<body class="antialiased bg-[#020617] text-white overflow-x-hidden selection:bg-[#F97316] selection:text-[#020617]">
+{% from "partials/solar_icons.html" import icon %}
 
-    <!-- ===================== Navigation ===================== -->
-    <header id="site-nav" class="glass-nav fixed inset-x-0 top-0 z-50">
-        <div class="sk-container">
-            <div class="flex h-16 md:h-20 items-center justify-between gap-4">
-                <a href="#top" class="flex items-center gap-2.5" aria-label="Sahaayak home">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 shadow-lg shadow-brand-600/40">
-                        <svg viewBox="0 0 24 24" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M3 9l1.5-5h15L21 9"></path>
-                            <path d="M3 9h18v3a3 3 0 0 1-3 3v6H6v-6a3 3 0 0 1-3-3V9z"></path>
-                            <path d="M9 21v-5h6v5"></path>
-                        </svg>
-                    </span>
-                    <span class="font-display text-xl font-extrabold tracking-tight text-white">Sahaayak</span>
+    <!-- Ambient light-trail background -->
+    <canvas id="trail-canvas" class="fixed inset-0 w-full h-screen -z-10 pointer-events-none opacity-70 mix-blend-screen"></canvas>
+
+    <!-- ===================== Hero ===================== -->
+    <section class="min-h-[130vh] flex flex-col overflow-hidden w-full pt-8 relative items-center" id="hero">
+        <div class="absolute inset-0 flex flex-col justify-center items-center pointer-events-none select-none z-0 opacity-20">
+            <span class="block text-[25vw] leading-[0.8] font-medium tracking-tight text-white/5 uppercase mix-blend-overlay gs-bg-text">STREET</span>
+            <span class="block text-[25vw] leading-[0.8] font-medium tracking-tight text-white/5 uppercase mix-blend-overlay gs-bg-text">SUPPLY</span>
+        </div>
+
+        <nav class="w-full max-w-[95%] mx-auto flex justify-between items-center z-40 relative gs-nav">
+            <a href="#hero" class="text-xl font-medium tracking-tight uppercase">SAHAAYAK.</a>
+
+            <div class="hidden md:flex items-center gap-8 bg-[#080808]/80 backdrop-blur-md rounded-full px-6 py-2 border border-[#262626]">
+                <a href="#vendors" class="flex items-center gap-2 text-sm font-light text-[#F97316]">
+                    <span class="w-2 h-2 rounded-full bg-[#F97316]"></span>
+                    Vendors
                 </a>
+                <a href="#wholesalers" class="text-sm font-light text-white/70 hover:text-white transition-colors">Wholesalers</a>
+                <a href="#network" class="text-sm font-light text-white/70 hover:text-white transition-colors">Network</a>
+                <a href="{{ url_for('main.vendor_login') }}" class="text-sm font-light text-white/70 hover:text-white transition-colors">Log in</a>
+            </div>
 
-                <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-300" aria-label="Primary">
-                    <a href="#how-it-works" class="hover:text-white transition-colors">How it works</a>
-                    <a href="#for-vendors" class="hover:text-white transition-colors">For vendors</a>
-                    <a href="#for-wholesalers" class="hover:text-white transition-colors">For wholesalers</a>
-                    <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
-                </nav>
-
-                <div class="hidden lg:flex items-center gap-3">
-                    <div class="relative">
-                        <button id="login-menu-btn" class="sk-btn bg-white/5 text-slate-200 border border-white/15 hover:bg-white/10 hover:text-white" aria-haspopup="true" aria-expanded="false">
-                            Log in
-                            <i data-feather="chevron-down" class="h-4 w-4"></i>
-                        </button>
-                        <div id="login-menu" class="hidden absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl shadow-slate-900/10">
-                            <a href="{{ url_for('main.vendor_login') }}" class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                                <i data-feather="shopping-cart" class="h-4 w-4 text-brand-600"></i> Vendor login
-                            </a>
-                            <a href="{{ url_for('main.wholesaler_login') }}" class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                                <i data-feather="briefcase" class="h-4 w-4 text-brand-600"></i> Wholesaler login
-                            </a>
-                        </div>
-                    </div>
-                    <a href="#get-started" class="sk-btn-primary">Get started</a>
-                </div>
-
-                <button id="mobile-menu-btn" class="lg:hidden flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white" aria-label="Open menu" aria-expanded="false">
-                    <i data-feather="menu" class="h-5 w-5"></i>
+            <div class="flex items-center gap-3">
+                <a href="#join" class="bg-white text-[#020617] px-5 py-2 rounded-full text-sm font-normal hidden md:flex items-center gap-2 hover:bg-[#D4D4D4] transition-colors">
+                    Get started
+                    {{ icon('arrow-right-up-linear', 'w-4 h-4') }}
+                </a>
+                <button id="menu-btn" class="md:hidden w-11 h-11 rounded-full border border-[#262626] bg-[#080808]/80 backdrop-blur-md flex items-center justify-center" aria-label="Open menu" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="w-5 h-5"><path d="M4 8h16M4 16h16"/></svg>
                 </button>
             </div>
-        </div>
+        </nav>
 
-        <!-- Mobile menu sheet -->
-        <div id="mobile-menu" class="hidden lg:hidden border-t border-white/10 bg-[#0a1120]/95 backdrop-blur-xl">
-            <nav class="sk-container flex flex-col gap-1 py-4 text-base font-semibold text-slate-200" aria-label="Mobile">
-                <a href="#how-it-works" class="rounded-xl px-3 py-3 hover:bg-white/5">How it works</a>
-                <a href="#for-vendors" class="rounded-xl px-3 py-3 hover:bg-white/5">For vendors</a>
-                <a href="#for-wholesalers" class="rounded-xl px-3 py-3 hover:bg-white/5">For wholesalers</a>
-                <a href="#faq" class="rounded-xl px-3 py-3 hover:bg-white/5">FAQ</a>
-                <div class="my-3 border-t border-white/10"></div>
-                <div class="grid grid-cols-2 gap-3 pb-2">
-                    <a href="{{ url_for('main.vendor_login') }}" class="sk-btn bg-white/10 text-white border border-white/15 hover:bg-white/15">Vendor login</a>
-                    <a href="{{ url_for('main.wholesaler_login') }}" class="sk-btn bg-white/10 text-white border border-white/15 hover:bg-white/15">Wholesaler login</a>
+        <!-- Mobile menu overlay -->
+        <div id="mobile-menu" class="hidden fixed inset-0 z-50 bg-[#020617]/95 backdrop-blur-xl md:hidden">
+            <div class="h-full flex flex-col px-6 pt-8 pb-10">
+                <div class="flex justify-between items-center">
+                    <span class="text-xl font-medium tracking-tight uppercase">SAHAAYAK.</span>
+                    <button id="menu-close" class="w-11 h-11 rounded-full border border-[#262626] flex items-center justify-center" aria-label="Close menu">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="w-5 h-5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                    </button>
                 </div>
-                <a href="#get-started" class="sk-btn-primary w-full">Get started</a>
-            </nav>
-        </div>
-    </header>
-
-    <main id="top">
-        <!-- ===================== Hero ===================== -->
-        <section class="hero-canvas relative overflow-hidden text-white">
-            <div class="hero-grid absolute inset-0" aria-hidden="true"></div>
-            <div class="sk-container relative">
-                <div class="grid items-center gap-14 pb-20 pt-28 md:pt-36 lg:grid-cols-2 lg:gap-10 lg:pb-28 lg:pt-44">
-                    <!-- Copy -->
-                    <div class="max-w-xl">
-                        <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold tracking-wide text-slate-200">
-                            <span class="h-1.5 w-1.5 rounded-full bg-accent-400"></span>
-                            Built for India's street food economy
-                        </span>
-                        <h1 class="mt-6 font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl xl:text-6xl">
-                            Wholesale buying power for every
-                            <span class="bg-gradient-to-r from-brand-400 via-brand-300 to-accent-300 bg-clip-text text-transparent">street vendor</span>
-                        </h1>
-                        <p class="mt-6 text-lg leading-relaxed text-slate-300 sm:text-xl">
-                            Sahaayak connects vendors directly with verified local wholesalers.
-                            Compare prices across suppliers, order everything in one cart, and
-                            track every delivery — from fresh produce to packaging.
-                        </p>
-                        <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-                            <a href="{{ url_for('main.register_vendor') }}" class="sk-btn-primary sk-btn-lg">
-                                Start buying wholesale
-                                <i data-feather="arrow-right" class="h-5 w-5"></i>
-                            </a>
-                            <a href="{{ url_for('main.register_wholesaler') }}" class="sk-btn sk-btn-lg border border-white/20 bg-white/5 text-white hover:bg-white/10">
-                                Sell on Sahaayak
-                            </a>
-                        </div>
-                        <dl class="mt-12 grid grid-cols-3 gap-6 border-t border-white/10 pt-8">
-                            <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">Categories</dt>
-                                <dd class="mt-1 font-display text-2xl font-bold sm:text-3xl">11+</dd>
-                            </div>
-                            <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">Verified suppliers</dt>
-                                <dd class="mt-1 font-display text-2xl font-bold sm:text-3xl">100%</dd>
-                            </div>
-                            <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">Avg. trust score</dt>
-                                <dd class="mt-1 font-display text-2xl font-bold sm:text-3xl">4.8<span class="text-accent-400">★</span></dd>
-                            </div>
-                        </dl>
-                    </div>
-
-                    <!-- Product collage -->
-                    <div class="relative mx-auto w-full max-w-lg lg:max-w-none" aria-hidden="true">
-                        <div class="relative grid grid-cols-2 gap-4 sm:gap-5">
-                            <div class="space-y-4 sm:space-y-5">
-                                <div class="sk-card overflow-hidden border-white/10 bg-white/[0.06] shadow-2xl shadow-black/40 backdrop-blur-sm">
-                                    <img src="{{ url_for('static', filename='uploads/showcase/organic_tomatoes.svg') }}" alt="" class="aspect-[4/3] w-full object-cover">
-                                    <div class="flex items-center justify-between p-4">
-                                        <div>
-                                            <p class="text-sm font-bold text-white">Organic Tomatoes</p>
-                                            <p class="mt-0.5 text-xs text-slate-400">₹45 / kg · Fresh Mart</p>
-                                        </div>
-                                        <span class="sk-badge-success">In stock</span>
-                                    </div>
-                                </div>
-                                <div class="sk-card animate-float-slow border-white/10 bg-white/[0.06] p-4 shadow-2xl shadow-black/40 backdrop-blur-sm">
-                                    <div class="flex items-center gap-3">
-                                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400">
-                                            <i data-feather="trending-down" class="h-5 w-5"></i>
-                                        </span>
-                                        <div>
-                                            <p class="text-lg font-bold text-white">₹2,340 saved</p>
-                                            <p class="text-xs text-slate-400">on stock this month</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="space-y-4 pt-10 sm:space-y-5">
-                                <div class="sk-card border-white/10 bg-white/[0.06] p-4 shadow-2xl shadow-black/40 backdrop-blur-sm">
-                                    <div class="flex items-center justify-between">
-                                        <p class="text-sm font-bold text-white">Order #1042</p>
-                                        <span class="sk-badge-info">Out for delivery</span>
-                                    </div>
-                                    <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-                                        <div class="h-full w-3/4 rounded-full bg-gradient-to-r from-brand-500 to-brand-400"></div>
-                                    </div>
-                                    <p class="mt-2.5 text-xs text-slate-400">12 items · arriving before 7:00 AM</p>
-                                </div>
-                                <div class="sk-card overflow-hidden border-white/10 bg-white/[0.06] shadow-2xl shadow-black/40 backdrop-blur-sm">
-                                    <img src="{{ url_for('static', filename='uploads/showcase/turmeric_powder.svg') }}" alt="" class="aspect-[4/3] w-full object-cover">
-                                    <div class="flex items-center justify-between p-4">
-                                        <div>
-                                            <p class="text-sm font-bold text-white">Turmeric Powder</p>
-                                            <p class="mt-0.5 text-xs text-slate-400">₹42 / 100g · Spices</p>
-                                        </div>
-                                        <span class="sk-badge-success">In stock</span>
-                                    </div>
-                                </div>
-                                <div class="sk-card animate-float-slow border-white/10 bg-white/[0.06] p-4 shadow-2xl shadow-black/40 backdrop-blur-sm" style="animation-delay: 1.6s;">
-                                    <div class="flex items-center gap-3">
-                                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-accent-500/20 text-accent-400 font-display font-bold">FM</span>
-                                        <div>
-                                            <p class="text-sm font-bold text-white">Fresh Mart Wholesale</p>
-                                            <p class="text-xs text-slate-400">★ 4.8 trust score · Ghatkopar</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <nav class="flex flex-col gap-2 mt-14 text-4xl font-light uppercase tracking-tight">
+                    <a href="#vendors" class="py-3 border-b border-white/10 flex justify-between items-center">Vendors <span class="text-white/30">{{ icon('arrow-right-up-linear', 'w-6 h-6') }}</span></a>
+                    <a href="#wholesalers" class="py-3 border-b border-white/10 flex justify-between items-center">Wholesalers <span class="text-white/30">{{ icon('arrow-right-up-linear', 'w-6 h-6') }}</span></a>
+                    <a href="#network" class="py-3 border-b border-white/10 flex justify-between items-center">Network <span class="text-white/30">{{ icon('arrow-right-up-linear', 'w-6 h-6') }}</span></a>
+                </nav>
+                <div class="mt-auto flex flex-col gap-3">
+                    <a href="{{ url_for('main.vendor_login') }}" class="border border-[#262626] text-white px-5 py-3.5 rounded-full text-sm font-light text-center">Vendor login</a>
+                    <a href="{{ url_for('main.wholesaler_login') }}" class="border border-[#262626] text-white px-5 py-3.5 rounded-full text-sm font-light text-center">Wholesaler login</a>
+                    <a href="#join" class="bg-white text-[#020617] px-5 py-3.5 rounded-full text-sm font-normal text-center">Get started</a>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- ===================== Category marquee ===================== -->
-        <section class="border-b border-slate-200 bg-slate-50 py-10" aria-label="Product categories">
-            <div class="sk-container">
-                <p class="text-center text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Everything a stall needs, in one order
+        <div class="w-full max-w-[90%] mx-auto mt-20 relative z-10 flex flex-col items-center">
+            <div class="w-full justify-between absolute top-[10%] text-xs font-light text-white/50 uppercase tracking-widest hidden lg:flex gs-hero-text">
+                <div class="max-w-[230px]">
+                    Sahaayak connects street food vendors directly with the mandi — live wholesale prices, one cart, delivered before dawn.
+                </div>
+                <div class="text-right flex flex-col gap-1">
+                    <span>Compare //</span>
+                    <span>Order //</span>
+                    <span>Restock //</span>
+                </div>
+            </div>
+
+            <div class="text-center relative gs-title mt-12 md:mt-0">
+                <div class="absolute -left-10 md:-left-36 top-1/2 -translate-y-1/2 gs-hero-btn hidden sm:block">
+                    <a href="{{ url_for('main.register_vendor') }}" class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full text-sm font-normal flex items-center gap-2 hover:bg-white/20 transition-all">
+                        Start ordering
+                        <span class="w-6 h-6 rounded-full text-[#020617] flex items-center justify-center bg-[#F97316]">
+                            {{ icon('arrow-right-linear', 'w-3.5 h-3.5') }}
+                        </span>
+                    </a>
+                </div>
+                <h1 class="text-[12vw] md:text-[9vw] leading-[0.85] font-medium tracking-tight uppercase text-white drop-shadow-2xl z-20 relative">
+                    <span class="block overflow-hidden"><span class="block gs-title-line">WHOLESALE</span></span>
+                    <span class="block overflow-hidden"><span class="block gs-title-line">MEETS THE</span></span>
+                    <span class="block overflow-hidden clip-text-image"><span class="block gs-title-line">STREET</span></span>
+                </h1>
+            </div>
+        </div>
+
+        <!-- Hero visual panel -->
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[20%] w-[90%] md:w-[70%] h-[50vh] md:h-[60vh] rounded-3xl overflow-hidden z-30 gs-hero-img shadow-2xl border border-white/10">
+            <div class="w-full h-full absolute inset-0 z-10 bg-gradient-to-t from-[#020617] via-transparent to-transparent pointer-events-none"></div>
+            <div id="hero-img-inner" class="w-full h-[120%] grid grid-cols-2 md:grid-cols-3 gap-1 scale-105">
+                <div class="overflow-hidden"><img src="{{ url_for('static', filename='uploads/showcase/organic_tomatoes.svg') }}" alt="" class="w-full h-full object-cover art-crop"></div>
+                <div class="overflow-hidden hidden md:block"><img src="{{ url_for('static', filename='uploads/showcase/turmeric_powder.svg') }}" alt="" class="w-full h-full object-cover art-crop"></div>
+                <div class="overflow-hidden"><img src="{{ url_for('static', filename='uploads/showcase/fresh_milk.svg') }}" alt="" class="w-full h-full object-cover art-crop"></div>
+            </div>
+            <div class="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-20 flex flex-col gap-3">
+                <div class="bg-black/40 backdrop-blur-md px-5 py-4 rounded-2xl border border-white/10 w-max">
+                    <p class="text-[10px] font-light text-white/60 uppercase tracking-widest mb-1">Tonight's order</p>
+                    <p class="text-lg font-medium tracking-tight">12 items · ₹1,862 <span class="text-[#F97316]">· arriving 5:40 AM</span></p>
+                </div>
+            </div>
+            <div class="absolute bottom-6 right-6 md:bottom-10 md:right-10 z-20 hidden sm:block">
+                <div class="bg-black/40 backdrop-blur-md px-5 py-4 rounded-2xl border border-white/10 text-right">
+                    <p class="text-[10px] font-light text-white/60 uppercase tracking-widest mb-1">Saved this month</p>
+                    <p class="text-lg font-medium tracking-tight text-[#F97316]">₹2,340</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== Vendors / Categories ===================== -->
+    <section class="md:px-12 text-white z-20 pt-[30vh] pr-6 pb-24 pl-6 relative bg-[#080808]" id="vendors">
+        <div class="absolute bottom-10 right-10 text-[18vw] font-medium tracking-tight text-white/40 uppercase leading-none pointer-events-none gs-bg-text opacity-20">
+            MUMBAI.
+        </div>
+
+        <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">
+            <div class="flex flex-col justify-center">
+                <h2 class="text-6xl md:text-[6vw] leading-[0.9] font-medium tracking-tight text-white uppercase gs-fade-up">
+                    11 AISLES
+                    <br>
+                    IN ONE
+                    <br>
+                    CART
+                </h2>
+
+                <div class="mt-12 space-y-4 text-sm font-light gs-fade-up border-l-2 border-white/30 pl-6">
+                    <div class="flex items-center gap-4 text-white">
+                        <span class="text-xs opacity-70 font-mono">// 01</span>
+                        <span class="text-base font-normal">Everything a stall burns through in a week</span>
+                    </div>
+                    <div class="text-[#D4D4D4] hover:text-[#F97316] transition-colors cursor-default">Fresh Vegetables</div>
+                    <div class="text-[#D4D4D4] hover:text-[#F97316] transition-colors cursor-default">Spices &amp; Masalas</div>
+                    <div class="text-[#D4D4D4] hover:text-[#F97316] transition-colors cursor-default">Dairy, Bread &amp; Bakery</div>
+                    <div class="text-[#D4D4D4] hover:text-[#F97316] transition-colors cursor-default">Oils, Grains &amp; Staples</div>
+                    <div class="text-[#D4D4D4] hover:text-[#F97316] transition-colors cursor-default">Packaging &amp; Disposables</div>
+                </div>
+
+                <div class="mt-12 flex gap-4 gs-fade-up">
+                    <a href="{{ url_for('main.register_vendor') }}" class="w-16 h-16 rounded-full border border-[#262626] flex items-center justify-center hover:bg-[#F97316] hover:text-[#020617] transition-all" aria-label="Create vendor account">
+                        {{ icon('cart-large-2-linear', 'w-6 h-6') }}
+                    </a>
+                    <a href="{{ url_for('main.vendor_login') }}" class="flex hover:bg-[#F97316] hover:text-[#020617] transition-all text-white bg-[#262626] w-16 h-16 rounded-full items-center justify-center" aria-label="Vendor login">
+                        {{ icon('arrow-right-linear', 'w-6 h-6') }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="relative h-[400px] md:h-[600px] w-full rounded-3xl overflow-hidden gs-fade-up shadow-2xl border border-white/10">
+                <div class="w-full h-full grid grid-cols-2 gap-1">
+                    <img src="{{ url_for('static', filename='uploads/showcase/green_capsicum.svg') }}" alt="" class="w-full h-full object-cover art-crop">
+                    <img src="{{ url_for('static', filename='uploads/showcase/cumin_seeds.svg') }}" alt="" class="w-full h-full object-cover art-crop">
+                    <img src="{{ url_for('static', filename='uploads/showcase/paneer.svg') }}" alt="" class="w-full h-full object-cover art-crop">
+                    <img src="{{ url_for('static', filename='uploads/showcase/sunflower_oil.svg') }}" alt="" class="w-full h-full object-cover art-crop">
+                </div>
+                <div class="absolute bottom-6 left-6 bg-black/40 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10">
+                    <p class="text-xs font-light text-white/70 uppercase tracking-widest">Live stock &amp; prices, every morning</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== One cart (vendor value) ===================== -->
+    <section class="bg-[#020617] py-24 px-6 md:px-12 relative" id="one-cart">
+        <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div class="flex flex-col items-start gs-fade-up">
+                <div class="px-3 py-1 rounded-full border border-[#262626] text-xs font-light uppercase tracking-wider mb-6">
+                    For street vendors
+                </div>
+                <h2 class="text-7xl md:text-[7vw] leading-[0.9] font-medium tracking-tight uppercase mb-8">
+                    ONE CART.
+                </h2>
+                <p class="reveal-line text-white/50 text-sm font-light max-w-sm mb-12 leading-relaxed" id="vendor-reveal">
+                    Skip the dawn run to the mandi. Compare every wholesaler near your pitch, mix suppliers in a single cart, and have it all reach your stall before the first customer does.
                 </p>
-            </div>
-            <div class="marquee-mask mt-6 overflow-hidden">
-                <div class="flex w-max animate-marquee gap-3 pr-3">
-                    {% set categories = [
-                        ('shopping-bag', 'Vegetables'), ('layers', 'Grains & Cereals'), ('box', 'Dry Ingredients'),
-                        ('droplet', 'Dairy Products'), ('sunrise', 'Bread & Bakery'), ('zap', 'Ready-to-Eat'),
-                        ('star', 'Spices & Condiments'), ('archive', 'Spreads & Pantry'), ('coffee', 'Snacks & Beverages'),
-                        ('filter', 'Oils & Condiments'), ('package', 'Packaging & More')
-                    ] %}
-                    {% for _ in range(2) %}
-                        {% for icon, name in categories %}
-                        <span class="inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm">
-                            <i data-feather="{{ icon }}" class="h-4 w-4 text-brand-600"></i>{{ name }}
-                        </span>
-                        {% endfor %}
-                    {% endfor %}
+
+                <div class="flex items-center gap-6 text-xs font-light text-white/40 uppercase tracking-widest">
+                    <span>// In the cart</span>
+                    <div class="flex gap-2">
+                        <img src="{{ url_for('static', filename='uploads/showcase/organic_tomatoes.svg') }}" class="w-12 h-8 object-cover rounded-sm grayscale opacity-50" alt="">
+                        <img src="{{ url_for('static', filename='uploads/showcase/tea.svg') }}" class="w-12 h-8 object-cover rounded-sm grayscale opacity-50" alt="">
+                        <img src="{{ url_for('static', filename='uploads/showcase/besan.svg') }}" class="w-12 h-8 object-cover rounded-sm grayscale opacity-50" alt="">
+                    </div>
+                </div>
+
+                <div class="mt-12">
+                    <a href="{{ url_for('main.register_vendor') }}" class="bg-white/5 backdrop-blur-md border border-white/10 text-white px-5 py-2.5 rounded-full text-sm font-normal flex items-center gap-3 hover:bg-white/10 transition-all">
+                        Create vendor account
+                        <span class="w-2 h-2 rounded-full bg-[#F97316]"></span>
+                    </a>
                 </div>
             </div>
-        </section>
 
-        <!-- ===================== How it works ===================== -->
-        <section id="how-it-works" class="scroll-mt-24 bg-white py-20 sm:py-28">
-            <div class="sk-container">
-                <div class="reveal mx-auto max-w-2xl text-center">
-                    <span class="text-sm font-bold uppercase tracking-widest text-brand-600">How it works</span>
-                    <h2 class="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-                        From empty stall to fully stocked in three steps
+            <div class="flex flex-col gap-6 gs-fade-up lg:mt-24 relative">
+                <div class="flex justify-between items-end mb-4">
+                    <h3 class="text-xl font-medium uppercase tracking-tight">BUILT FOR THE STALL</h3>
+                    <a href="{{ url_for('main.vendor_login') }}" class="w-8 h-8 rounded-full text-[#020617] flex items-center justify-center bg-[#F97316]" aria-label="Vendor login">
+                        {{ icon('arrow-right-up-linear', 'w-4 h-4') }}
+                    </a>
+                </div>
+                <div class="w-full h-[250px] rounded-2xl overflow-hidden border border-white/10">
+                    <img src="{{ url_for('static', filename='uploads/showcase/veg_momos.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                </div>
+
+                <div class="space-y-4 mt-8 border-t border-white/10 pt-6">
+                    <div class="flex justify-between items-center group cursor-default">
+                        <span class="text-sm font-normal uppercase tracking-wider group-hover:text-[#F97316] transition-colors">COMPARE EVERY WHOLESALER</span>
+                        {{ icon('arrow-right-linear', 'w-5 h-5 text-white/50 group-hover:text-[#F97316] transition-colors') }}
+                    </div>
+                    <div class="flex justify-between items-center group cursor-default">
+                        <span class="text-sm font-normal uppercase tracking-wider group-hover:text-[#F97316] transition-colors">TRACK TO YOUR STALL</span>
+                        {{ icon('arrow-right-linear', 'w-5 h-5 text-white/50 group-hover:text-[#F97316] transition-colors') }}
+                    </div>
+                    <div class="flex justify-between items-center group cursor-default">
+                        <span class="text-sm font-normal uppercase tracking-wider group-hover:text-[#F97316] transition-colors">REORDER IN ONE TAP</span>
+                        {{ icon('arrow-right-linear', 'w-5 h-5 text-white/50 group-hover:text-[#F97316] transition-colors') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== Marketplace grid ===================== -->
+    <section class="bg-[#020617] py-12 px-6 md:px-12 relative overflow-hidden" id="marketplace">
+        <h2 class="text-[12vw] leading-none font-medium tracking-tight text-white/5 uppercase text-center absolute top-10 left-0 w-full pointer-events-none select-none gs-bg-text">
+            THE MANDI
+        </h2>
+
+        <div class="max-w-[1700px] mx-auto relative z-10">
+            <div class="flex flex-col md:flex-row items-end justify-between mb-12 gs-fade-up">
+                <p class="text-xs font-light text-white/50 max-w-xs uppercase tracking-widest leading-relaxed">
+                    Every wholesaler is verified by the Sahaayak team before a single listing goes live — then rated by vendors on every order.
+                </p>
+
+                <a href="{{ url_for('main.register_wholesaler') }}" class="bg-white/5 backdrop-blur-md border border-white/10 text-white px-5 py-2.5 rounded-full text-sm font-normal flex items-center gap-3 hover:bg-white/10 transition-all mt-6 md:mt-0">
+                    Sell on Sahaayak
+                    <span class="w-2 h-2 rounded-full bg-[#F97316]"></span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <div class="h-[200px] rounded-2xl overflow-hidden gs-fade-up hidden md:block border border-white/10">
+                    <img src="{{ url_for('static', filename='uploads/showcase/red_onions.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                </div>
+                <div class="md:col-span-2 h-[350px] md:h-[450px] rounded-2xl overflow-hidden gs-fade-up border border-white/10">
+                    <img src="{{ url_for('static', filename='uploads/showcase/basmati_rice.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                </div>
+                <div class="h-[200px] rounded-2xl overflow-hidden gs-fade-up border border-white/10">
+                    <img src="{{ url_for('static', filename='uploads/showcase/mango_juice.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== Wholesalers ===================== -->
+    <section class="bg-[#020617] py-24 relative overflow-hidden" id="wholesalers">
+        <div class="w-full max-w-[95%] mx-auto px-0 md:px-6 mb-12 gs-fade-up">
+            <h2 class="text-sm font-light text-white/50 uppercase tracking-widest mb-4">Built for</h2>
+            <h2 class="text-5xl md:text-[7vw] leading-[0.85] font-medium tracking-tight uppercase mb-8">
+                SUPPLIERS
+            </h2>
+
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <p class="text-xs font-light text-white/50 max-w-sm uppercase tracking-widest leading-relaxed">
+                    Hundreds of stalls restock every single day. List your catalogue once and let the orders queue up — no notebook required.
+                </p>
+                <a href="{{ url_for('main.register_wholesaler') }}" class="bg-white/5 backdrop-blur-md border border-white/10 text-white px-5 py-2.5 rounded-full text-sm font-normal flex items-center gap-3 hover:bg-white/10 transition-all">
+                    Register your business
+                    <span class="w-6 h-6 rounded-full text-[#020617] flex items-center justify-center bg-[#F97316]">
+                        {{ icon('arrow-right-up-linear', 'w-3.5 h-3.5') }}
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <div class="w-full h-[60vh] md:h-[75vh] relative gs-fade-up">
+            <div class="w-full h-full grid grid-cols-2 md:grid-cols-4">
+                <img src="{{ url_for('static', filename='uploads/showcase/toor_dal.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                <img src="{{ url_for('static', filename='uploads/showcase/fresh_broccoli.svg') }}" class="w-full h-full object-cover art-crop hidden md:block" alt="">
+                <img src="{{ url_for('static', filename='uploads/showcase/eggs.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                <img src="{{ url_for('static', filename='uploads/showcase/white_bread.svg') }}" class="w-full h-full object-cover art-crop hidden md:block" alt="">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/30 to-transparent pointer-events-none"></div>
+
+            <div class="absolute inset-0 max-w-[1700px] mx-auto px-6 md:px-12 flex items-center justify-between pointer-events-none">
+                <a href="{{ url_for('main.wholesaler_login') }}" class="w-14 h-14 rounded-full bg-white/10 backdrop-blur border border-[#262626] text-white flex items-center justify-center pointer-events-auto hover:bg-[#F97316] hover:text-[#020617] transition-all" aria-label="Wholesaler login">
+                    {{ icon('box-linear', 'w-5 h-5') }}
+                </a>
+                <a href="{{ url_for('main.register_wholesaler') }}" class="w-14 h-14 rounded-full text-[#020617] flex items-center justify-center pointer-events-auto hover:bg-white transition-all bg-[#F97316]" aria-label="Register as wholesaler">
+                    {{ icon('arrow-right-linear', 'w-5 h-5') }}
+                </a>
+            </div>
+
+            <div class="absolute bottom-10 right-6 md:right-[8%] bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 max-w-xs">
+                <p class="text-xs font-light text-white/70 uppercase tracking-widest mb-2">Your storefront metrics</p>
+                <h3 class="text-xl font-medium tracking-tight uppercase mb-4">Orders · Revenue · Trust</h3>
+                <div class="flex gap-6 text-left">
+                    <div>
+                        <p class="text-2xl font-medium tracking-tight text-[#F97316]">4.8★</p>
+                        <p class="text-[10px] font-light text-white/50 uppercase tracking-widest mt-1">Trust score</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-medium tracking-tight">97%</p>
+                        <p class="text-[10px] font-light text-white/50 uppercase tracking-widest mt-1">Response</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-medium tracking-tight">+18%</p>
+                        <p class="text-[10px] font-light text-white/50 uppercase tracking-widest mt-1">Revenue MoM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-y border-[#262626] py-4 mt-10 bg-[#020617] marquee-container relative z-10">
+            <div class="marquee-content text-2xl md:text-3xl font-normal tracking-tight uppercase text-white/20 flex gap-8">
+                <span>COMPARE • ORDER • TRACK • REORDER •&nbsp;</span><span>COMPARE • ORDER • TRACK • REORDER •&nbsp;</span><span>COMPARE • ORDER • TRACK • REORDER •&nbsp;</span><span>COMPARE • ORDER • TRACK • REORDER •&nbsp;</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== Network grid ===================== -->
+    <section class="text-white py-24 px-6 md:px-12 bg-[#080808]" id="network">
+        <div class="max-w-[1700px] mx-auto gs-fade-up">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-12 mb-16">
+                <div>
+                    <div class="px-3 py-1 rounded-full border border-[#262626] text-xs font-medium uppercase tracking-wider mb-6 inline-block">
+                        The network
+                    </div>
+                    <h2 class="text-[8vw] md:text-7xl leading-[0.9] font-medium tracking-tight text-white uppercase">
+                        AN HONEST
+                        <br>
+                        SUPPLY
+                        <br>
+                        CHAIN
                     </h2>
-                    <p class="mt-4 text-lg text-slate-600">
-                        No middlemen, no guesswork. Sahaayak keeps sourcing simple so you can focus on your customers.
+                </div>
+
+                <div class="max-w-md mt-12 md:mt-0 flex flex-col items-end text-right">
+                    <p class="text-sm font-light opacity-80 mb-8 text-left md:text-right">
+                        Six things every order gets you — whether you run a chai
+                        cart in Dadar or a warehouse in Ghatkopar. No middlemen,
+                        no guesswork, no 4 AM mandi runs.
+                    </p>
+                    <a href="#join" class="bg-white text-[#020617] px-5 py-2 rounded-full text-xs font-medium uppercase flex items-center gap-3 hover:bg-[#D4D4D4] transition-all shadow-sm">
+                        Get started
+                        <span class="w-5 h-5 rounded-full bg-[#020617] text-white flex items-center justify-center">
+                            {{ icon('arrow-right-up-linear', 'w-3 h-3') }}
+                        </span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-6 border-t border-[#262626]">
+                {% set cells = [
+                    ('shield-check-linear', '01', 'VERIFIED', 'SUPPLY'),
+                    ('tag-price-linear', '02', 'LIVE', 'PRICING'),
+                    ('cart-large-2-linear', '03', 'ONE', 'CART'),
+                    ('sun-2-linear', '04', 'DAWN', 'DELIVERY'),
+                    ('medal-star-linear', '05', 'TRUST', 'SCORES'),
+                    ('cpu-bolt-linear', '06', 'AI', 'INSIGHTS')
+                ] %}
+                {% for ic, num, l1, l2 in cells %}
+                <div class="{% if not loop.last %}border-r border-[#262626]{% endif %} {% if loop.index > 2 %}hidden md:flex{% else %}flex{% endif %} p-6 flex-col gap-8 group hover:bg-[#141414] transition-colors cursor-default">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[#979797] group-hover:text-[#F97316] transition-colors">{{ icon(ic, 'w-6 h-6') }}</span>
+                        <span class="text-3xl font-extralight opacity-20 group-hover:opacity-100 transition-opacity font-mono">{{ num }}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs font-light opacity-50 block mb-1">//</span>
+                        <h4 class="font-medium uppercase text-sm group-hover:text-white">
+                            {{ l1 }}
+                            <br>
+                            {{ l2 }}
+                        </h4>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== Who is it for ===================== -->
+    <section class="md:px-12 text-white pt-12 pb-24 px-6 relative bg-[#020617] border-t border-[#262626]" id="join">
+        <div class="gs-fade-up max-w-[1700px] mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-12 mb-16">
+                <div>
+                    <div class="px-3 py-1 rounded-full border border-[#262626] text-xs font-medium uppercase tracking-wider mb-6 inline-block">
+                        Pick your side
+                    </div>
+                    <h2 class="text-5xl md:text-7xl leading-[0.9] font-medium tracking-tight text-white uppercase">
+                        WHO IS
+                        <br>
+                        SAHAAYAK
+                        <br>
+                        FOR?
+                    </h2>
+
+                    <div class="mt-12 flex items-start gap-4">
+                        <span class="text-xs font-mono opacity-50 mt-1 font-light">// 00</span>
+                        <div>
+                            <h4 class="font-medium uppercase text-sm mb-1">
+                                FREE TO JOIN.
+                                <br>
+                                PAY ONLY FOR GOODS.
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-sm mt-12 md:mt-24">
+                    <p class="text-xs font-light opacity-80 leading-relaxed border-l-2 border-[#262626] pl-4">
+                        सहायक — "the helper." Two sides of the same market,
+                        one clean platform. Vendors order in minutes; wholesalers
+                        go live after a quick verification by our team.
                     </p>
                 </div>
-                <div class="mt-16 grid gap-6 md:grid-cols-3">
-                    <div class="reveal sk-card-hover p-8">
-                        <div class="flex items-center justify-between">
-                            <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
-                                <i data-feather="user-plus" class="h-6 w-6"></i>
-                            </span>
-                            <span class="font-display text-5xl font-extrabold text-slate-100">01</span>
-                        </div>
-                        <h3 class="mt-6 font-display text-xl font-bold text-slate-900">Create your free account</h3>
-                        <p class="mt-3 leading-relaxed text-slate-600">
-                            Register with just your phone number and shop details. Vendors start ordering
-                            immediately; wholesalers go live after a quick verification.
-                        </p>
-                    </div>
-                    <div class="reveal sk-card-hover p-8" style="transition-delay: 0.1s;">
-                        <div class="flex items-center justify-between">
-                            <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
-                                <i data-feather="search" class="h-6 w-6"></i>
-                            </span>
-                            <span class="font-display text-5xl font-extrabold text-slate-100">02</span>
-                        </div>
-                        <h3 class="mt-6 font-display text-xl font-bold text-slate-900">Compare &amp; fill one cart</h3>
-                        <p class="mt-3 leading-relaxed text-slate-600">
-                            Browse 11+ categories, compare prices and trust scores across nearby wholesalers,
-                            and add it all to a single cart — even from different suppliers.
-                        </p>
-                    </div>
-                    <div class="reveal sk-card-hover p-8" style="transition-delay: 0.2s;">
-                        <div class="flex items-center justify-between">
-                            <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
-                                <i data-feather="truck" class="h-6 w-6"></i>
-                            </span>
-                            <span class="font-display text-5xl font-extrabold text-slate-100">03</span>
-                        </div>
-                        <h3 class="mt-6 font-display text-xl font-bold text-slate-900">Order, track, reorder</h3>
-                        <p class="mt-3 leading-relaxed text-slate-600">
-                            Check out securely, follow every order to your stall, and restock your
-                            regulars with one-tap reorders from your history.
-                        </p>
-                    </div>
-                </div>
             </div>
-        </section>
 
-        <!-- ===================== For vendors ===================== -->
-        <section id="for-vendors" class="scroll-mt-24 bg-slate-50 py-20 sm:py-28">
-            <div class="sk-container">
-                <div class="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
-                    <div class="reveal">
-                        <span class="text-sm font-bold uppercase tracking-widest text-brand-600">For street vendors</span>
-                        <h2 class="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-                            Stock your stall for less, without leaving it
-                        </h2>
-                        <p class="mt-4 text-lg leading-relaxed text-slate-600">
-                            Every rupee counts when margins are thin. Sahaayak puts the whole wholesale
-                            market in your pocket so you buy at the right price, every time.
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Vendor card -->
+                <div class="bg-[#080808] border border-[#262626] rounded-3xl p-6 md:p-10 text-white flex flex-col md:flex-row gap-8 items-end relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
+                    <div class="absolute inset-0 bg-[#141414] opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
+                    <div class="w-full md:w-1/2 relative z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-4xl font-extralight opacity-20 font-mono">01</span>
+                        </div>
+                        <div class="h-64 rounded-2xl overflow-hidden mb-6 filter grayscale group-hover:grayscale-0 transition-all duration-500">
+                            <img src="{{ url_for('static', filename='uploads/showcase/instant_noodles.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                        </div>
+                        <h3 class="text-2xl font-medium uppercase tracking-tight leading-none text-[#F97316]">
+                            I RUN A
+                            <br>
+                            STREET
+                            <br>
+                            STALL
+                        </h3>
+                    </div>
+                    <div class="w-full md:w-1/2 pb-2 relative z-10">
+                        <p class="text-xs font-light text-white/50 uppercase tracking-widest leading-relaxed mb-4 border-l border-white/20 pl-3">
+                            I want wholesale prices without closing my stall to go get them
                         </p>
-                        <ul class="mt-8 space-y-5">
-                            <li class="flex gap-4">
-                                <span class="mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-brand-600/10 text-brand-700">
-                                    <i data-feather="percent" class="h-5 w-5"></i>
-                                </span>
-                                <div>
-                                    <h3 class="font-bold text-slate-900">Compare prices across wholesalers</h3>
-                                    <p class="mt-1 text-slate-600">See live prices, stock, and ratings side by side before you commit a single rupee.</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-4">
-                                <span class="mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-brand-600/10 text-brand-700">
-                                    <i data-feather="shopping-cart" class="h-5 w-5"></i>
-                                </span>
-                                <div>
-                                    <h3 class="font-bold text-slate-900">One cart, many suppliers</h3>
-                                    <p class="mt-1 text-slate-600">Mix vegetables, spices, dairy, and packaging from different wholesalers in a single checkout.</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-4">
-                                <span class="mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-brand-600/10 text-brand-700">
-                                    <i data-feather="rotate-cw" class="h-5 w-5"></i>
-                                </span>
-                                <div>
-                                    <h3 class="font-bold text-slate-900">One-tap reorders &amp; order tracking</h3>
-                                    <p class="mt-1 text-slate-600">Repeat yesterday's order in seconds and follow every delivery from accepted to arrived.</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-4">
-                                <span class="mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-brand-600/10 text-brand-700">
-                                    <i data-feather="cpu" class="h-5 w-5"></i>
-                                </span>
-                                <div>
-                                    <h3 class="font-bold text-slate-900">AI market insights</h3>
-                                    <p class="mt-1 text-slate-600">Ask the built-in assistant about demand trends and seasonal pricing before you stock up.</p>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="mt-10 flex flex-wrap gap-3">
-                            <a href="{{ url_for('main.register_vendor') }}" class="sk-btn-primary sk-btn-lg">Create vendor account</a>
-                            <a href="{{ url_for('main.vendor_login') }}" class="sk-btn-secondary sk-btn-lg">Vendor login</a>
-                        </div>
-                    </div>
-                    <div class="reveal relative" aria-hidden="true">
-                        <div class="overflow-hidden rounded-3xl shadow-2xl shadow-slate-900/15 ring-1 ring-slate-900/5">
-                            <img src="{{ url_for('static', filename='uploads/groceries.jpg') }}" alt="" class="aspect-[4/3] w-full object-cover">
-                        </div>
-                        <div class="sk-card absolute -bottom-6 left-4 right-4 flex items-center justify-between p-4 shadow-xl sm:left-auto sm:right-8 sm:w-80">
-                            <div class="flex items-center gap-3">
-                                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                                    <i data-feather="check-circle" class="h-5 w-5"></i>
-                                </span>
-                                <div>
-                                    <p class="text-sm font-bold text-slate-900">Order delivered</p>
-                                    <p class="text-xs text-slate-500">14 items · before opening time</p>
-                                </div>
-                            </div>
-                            <span class="font-display text-sm font-extrabold text-emerald-600">₹1,862</span>
-                        </div>
+                        <div class="w-full h-[1px] bg-white/10 mb-4"></div>
+                        <a href="{{ url_for('main.register_vendor') }}" class="text-xs font-medium uppercase tracking-wider flex items-center justify-between group-hover:text-[#F97316] transition-colors">
+                            BUY WHOLESALE
+                            {{ icon('arrow-right-up-linear', 'w-4 h-4') }}
+                        </a>
+                        <a href="{{ url_for('main.vendor_login') }}" class="mt-3 text-xs font-light uppercase tracking-wider flex items-center justify-between text-white/40 hover:text-white transition-colors">
+                            VENDOR LOGIN
+                            {{ icon('arrow-right-linear', 'w-4 h-4') }}
+                        </a>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- ===================== For wholesalers ===================== -->
-        <section id="for-wholesalers" class="scroll-mt-24 bg-white py-20 sm:py-28">
-            <div class="sk-container">
-                <div class="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
-                    <div class="reveal order-2 lg:order-1" aria-hidden="true">
-                        <!-- Hand-built analytics mock -->
-                        <div class="sk-card p-6 shadow-2xl shadow-slate-900/10 sm:p-8">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">This month</p>
-                                    <p class="mt-1 font-display text-3xl font-extrabold text-slate-900">₹84,560</p>
-                                </div>
-                                <span class="sk-badge-success">+18% vs last month</span>
-                            </div>
-                            <div class="mt-8 flex h-36 items-end gap-2.5 sm:gap-3" aria-hidden="true">
-                                {% for h in [38, 52, 44, 66, 58, 74, 62, 88, 72, 96, 84, 100] %}
-                                <div class="flex-1 rounded-t-lg {% if loop.index > 9 %}bg-brand-600{% else %}bg-brand-100{% endif %}" style="height: {{ h }}%;"></div>
-                                {% endfor %}
-                            </div>
-                            <div class="mt-8 grid grid-cols-3 gap-4 border-t border-slate-100 pt-6">
-                                <div>
-                                    <p class="text-xs font-semibold text-slate-500">Pending orders</p>
-                                    <p class="mt-1 font-display text-xl font-bold text-slate-900">7</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-semibold text-slate-500">Active products</p>
-                                    <p class="mt-1 font-display text-xl font-bold text-slate-900">27</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-semibold text-slate-500">Trust score</p>
-                                    <p class="mt-1 font-display text-xl font-bold text-slate-900">4.8★</p>
-                                </div>
-                            </div>
+                <!-- Wholesaler card -->
+                <div class="bg-[#080808] border border-[#262626] rounded-3xl p-6 md:p-10 text-white flex flex-col md:flex-row gap-8 items-end relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
+                    <div class="absolute inset-0 bg-[#141414] opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
+                    <div class="w-full md:w-1/2 relative z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-4xl font-extralight opacity-20 font-mono">02</span>
                         </div>
+                        <div class="h-64 rounded-2xl overflow-hidden mb-6 filter grayscale group-hover:grayscale-0 transition-all duration-500">
+                            <img src="{{ url_for('static', filename='uploads/showcase/toor_dal.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                        </div>
+                        <h3 class="text-2xl font-medium uppercase tracking-tight leading-none text-white group-hover:text-[#F97316] transition-colors">
+                            I SUPPLY
+                            <br>
+                            IN BULK
+                        </h3>
                     </div>
-                    <div class="reveal order-1 lg:order-2">
-                        <span class="text-sm font-bold uppercase tracking-widest text-brand-600">For wholesalers</span>
-                        <h2 class="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-                            A steady stream of repeat bulk buyers
-                        </h2>
-                        <p class="mt-4 text-lg leading-relaxed text-slate-600">
-                            Reach hundreds of street vendors who restock daily. Manage your catalogue,
-                            orders, and reputation from one clean dashboard.
+                    <div class="w-full md:w-1/2 pb-2 relative z-10">
+                        <p class="text-xs font-light text-white/50 uppercase tracking-widest leading-relaxed mb-4 border-l border-white/20 pl-3">
+                            I want a steady queue of repeat vendor orders, minus the phone tag
                         </p>
-                        <ul class="mt-8 space-y-5">
-                            <li class="flex gap-4">
-                                <span class="mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-brand-600/10 text-brand-700">
-                                    <i data-feather="package" class="h-5 w-5"></i>
-                                </span>
-                                <div>
-                                    <h3 class="font-bold text-slate-900">Effortless catalogue management</h3>
-                                    <p class="mt-1 text-slate-600">List products with photos, prices, and stock levels — update availability in two taps.</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-4">
-                                <span class="mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-brand-600/10 text-brand-700">
-                                    <i data-feather="inbox" class="h-5 w-5"></i>
-                                </span>
-                                <div>
-                                    <h3 class="font-bold text-slate-900">Orders in one queue</h3>
-                                    <p class="mt-1 text-slate-600">Accept, fulfil, and complete vendor orders with a clear status flow and full history.</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-4">
-                                <span class="mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-brand-600/10 text-brand-700">
-                                    <i data-feather="bar-chart-2" class="h-5 w-5"></i>
-                                </span>
-                                <div>
-                                    <h3 class="font-bold text-slate-900">Analytics that matter</h3>
-                                    <p class="mt-1 text-slate-600">Track revenue, top products, and active customers so you stock what sells.</p>
-                                </div>
-                            </li>
-                            <li class="flex gap-4">
-                                <span class="mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-brand-600/10 text-brand-700">
-                                    <i data-feather="shield" class="h-5 w-5"></i>
-                                </span>
-                                <div>
-                                    <h3 class="font-bold text-slate-900">A trust score that sells for you</h3>
-                                    <p class="mt-1 text-slate-600">Verified onboarding plus vendor reviews build a reputation buyers can rely on.</p>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="mt-10 flex flex-wrap gap-3">
-                            <a href="{{ url_for('main.register_wholesaler') }}" class="sk-btn-primary sk-btn-lg">Register as wholesaler</a>
-                            <a href="{{ url_for('main.wholesaler_login') }}" class="sk-btn-secondary sk-btn-lg">Wholesaler login</a>
-                        </div>
+                        <div class="w-full h-[1px] bg-white/10 mb-4"></div>
+                        <a href="{{ url_for('main.register_wholesaler') }}" class="text-xs font-medium uppercase tracking-wider flex items-center justify-between group-hover:text-[#F97316] transition-colors">
+                            START SELLING
+                            {{ icon('arrow-right-up-linear', 'w-4 h-4') }}
+                        </a>
+                        <a href="{{ url_for('main.wholesaler_login') }}" class="mt-3 text-xs font-light uppercase tracking-wider flex items-center justify-between text-white/40 hover:text-white transition-colors">
+                            WHOLESALER LOGIN
+                            {{ icon('arrow-right-linear', 'w-4 h-4') }}
+                        </a>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- ===================== Stats band ===================== -->
-        <section class="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800 py-16 text-white sm:py-20">
-            <div class="hero-grid absolute inset-0 opacity-60" aria-hidden="true"></div>
-            <div class="sk-container relative">
-                <dl class="grid grid-cols-2 gap-x-6 gap-y-10 text-center lg:grid-cols-4">
-                    <div class="reveal">
-                        <dd class="font-display text-4xl font-extrabold sm:text-5xl">18%</dd>
-                        <dt class="mt-2 text-sm font-semibold text-brand-100">avg. savings on stock costs</dt>
-                    </div>
-                    <div class="reveal" style="transition-delay: 0.05s;">
-                        <dd class="font-display text-4xl font-extrabold sm:text-5xl">11+</dd>
-                        <dt class="mt-2 text-sm font-semibold text-brand-100">product categories</dt>
-                    </div>
-                    <div class="reveal" style="transition-delay: 0.1s;">
-                        <dd class="font-display text-4xl font-extrabold sm:text-5xl">100%</dd>
-                        <dt class="mt-2 text-sm font-semibold text-brand-100">admin-verified wholesalers</dt>
-                    </div>
-                    <div class="reveal" style="transition-delay: 0.15s;">
-                        <dd class="font-display text-4xl font-extrabold sm:text-5xl">24×7</dd>
-                        <dt class="mt-2 text-sm font-semibold text-brand-100">ordering, on any device</dt>
-                    </div>
-                </dl>
-            </div>
-        </section>
-
-        <!-- ===================== Testimonials ===================== -->
-        <section class="bg-slate-50 py-20 sm:py-28">
-            <div class="sk-container">
-                <div class="reveal mx-auto max-w-2xl text-center">
-                    <span class="text-sm font-bold uppercase tracking-widest text-brand-600">From the market</span>
-                    <h2 class="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-                        Trusted at the stall and the warehouse
-                    </h2>
-                </div>
-                <div class="mt-14 grid gap-6 md:grid-cols-3">
-                    <figure class="reveal sk-card flex flex-col p-8">
-                        <div class="flex gap-1 text-accent-500" aria-label="5 star rating">
-                            {% for _ in range(5) %}<i data-feather="star" class="h-4 w-4 fill-current"></i>{% endfor %}
-                        </div>
-                        <blockquote class="mt-5 flex-1 leading-relaxed text-slate-700">
-                            “Earlier I closed my stall for two hours every morning to visit the mandi.
-                            Now my order reaches before I even set up. The savings paid for my new tawa.”
-                        </blockquote>
-                        <figcaption class="mt-6 flex items-center gap-3">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-full bg-brand-600 font-display text-sm font-bold text-white">RP</span>
-                            <div>
-                                <p class="text-sm font-bold text-slate-900">Raj Patel</p>
-                                <p class="text-xs text-slate-500">Snacks stall · Ghatkopar, Mumbai</p>
-                            </div>
-                        </figcaption>
-                    </figure>
-                    <figure class="reveal sk-card flex flex-col p-8" style="transition-delay: 0.1s;">
-                        <div class="flex gap-1 text-accent-500" aria-label="5 star rating">
-                            {% for _ in range(5) %}<i data-feather="star" class="h-4 w-4 fill-current"></i>{% endfor %}
-                        </div>
-                        <blockquote class="mt-5 flex-1 leading-relaxed text-slate-700">
-                            “Comparing three wholesalers before buying masala changed my margins.
-                            One-tap reorder means I never run out of chai patti on a busy day.”
-                        </blockquote>
-                        <figcaption class="mt-6 flex items-center gap-3">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-full bg-accent-500 font-display text-sm font-bold text-white">SD</span>
-                            <div>
-                                <p class="text-sm font-bold text-slate-900">Sunita Devi</p>
-                                <p class="text-xs text-slate-500">Tea &amp; breakfast cart · Dadar</p>
-                            </div>
-                        </figcaption>
-                    </figure>
-                    <figure class="reveal sk-card flex flex-col p-8" style="transition-delay: 0.2s;">
-                        <div class="flex gap-1 text-accent-500" aria-label="5 star rating">
-                            {% for _ in range(5) %}<i data-feather="star" class="h-4 w-4 fill-current"></i>{% endfor %}
-                        </div>
-                        <blockquote class="mt-5 flex-1 leading-relaxed text-slate-700">
-                            “We picked up forty new vendor customers in our first quarter on Sahaayak.
-                            The order queue and analytics replaced my notebook completely.”
-                        </blockquote>
-                        <figcaption class="mt-6 flex items-center gap-3">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 font-display text-sm font-bold text-white">FM</span>
-                            <div>
-                                <p class="text-sm font-bold text-slate-900">Fresh Mart Wholesale</p>
-                                <p class="text-xs text-slate-500">Wholesaler · Ghatkopar, Mumbai</p>
-                            </div>
-                        </figcaption>
-                    </figure>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===================== Get started (role cards) ===================== -->
-        <section id="get-started" class="scroll-mt-24 bg-white py-20 sm:py-28">
-            <div class="sk-container">
-                <div class="reveal mx-auto max-w-2xl text-center">
-                    <h2 class="font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-                        Choose how you want to use Sahaayak
-                    </h2>
-                    <p class="mt-4 text-lg text-slate-600">Two sides, one marketplace. Pick your role to get started in minutes.</p>
-                </div>
-                <div class="mt-14 grid gap-6 lg:grid-cols-2">
-                    <div class="reveal sk-card-hover relative overflow-hidden p-8 sm:p-10">
-                        <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-50" aria-hidden="true"></div>
-                        <div class="relative">
-                            <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-lg shadow-brand-600/30">
-                                <i data-feather="shopping-cart" class="h-7 w-7"></i>
-                            </span>
-                            <h3 class="mt-6 font-display text-2xl font-extrabold text-slate-900">I'm a street vendor</h3>
-                            <p class="mt-3 leading-relaxed text-slate-600">
-                                Buy stock at wholesale prices, compare suppliers, and get it delivered to your stall.
-                            </p>
-                            <div class="mt-8 flex flex-wrap gap-3">
-                                <a href="{{ url_for('main.register_vendor') }}" class="sk-btn-primary">Create free account</a>
-                                <a href="{{ url_for('main.vendor_login') }}" class="sk-btn-secondary">Log in</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="reveal sk-card-hover relative overflow-hidden p-8 sm:p-10" style="transition-delay: 0.1s;">
-                        <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-50" aria-hidden="true"></div>
-                        <div class="relative">
-                            <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-lg shadow-slate-900/30">
-                                <i data-feather="briefcase" class="h-7 w-7"></i>
-                            </span>
-                            <h3 class="mt-6 font-display text-2xl font-extrabold text-slate-900">I'm a wholesaler</h3>
-                            <p class="mt-3 leading-relaxed text-slate-600">
-                                List your catalogue, receive bulk orders from local vendors, and grow with analytics.
-                            </p>
-                            <div class="mt-8 flex flex-wrap gap-3">
-                                <a href="{{ url_for('main.register_wholesaler') }}" class="sk-btn bg-slate-900 text-white shadow-md shadow-slate-900/20 hover:bg-slate-800">Register business</a>
-                                <a href="{{ url_for('main.wholesaler_login') }}" class="sk-btn-secondary">Log in</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===================== FAQ ===================== -->
-        <section id="faq" class="scroll-mt-24 bg-slate-50 py-20 sm:py-28">
-            <div class="sk-container">
-                <div class="grid gap-12 lg:grid-cols-3">
-                    <div class="reveal">
-                        <span class="text-sm font-bold uppercase tracking-widest text-brand-600">FAQ</span>
-                        <h2 class="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900">
-                            Questions, answered
-                        </h2>
-                        <p class="mt-4 text-slate-600">
-                            Can't find what you're looking for? Reach out once you're signed in — the AI assistant can help too.
-                        </p>
-                    </div>
-                    <div class="reveal space-y-4 lg:col-span-2">
-                        <details class="faq-item sk-card group p-6" open>
-                            <summary class="flex items-center justify-between gap-4 font-display text-base font-bold text-slate-900 sm:text-lg">
-                                Is Sahaayak free for street vendors?
-                                <span class="faq-chevron flex h-8 w-8 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-600">
-                                    <i data-feather="chevron-down" class="h-4 w-4"></i>
-                                </span>
-                            </summary>
-                            <p class="mt-4 leading-relaxed text-slate-600">
-                                Yes. Creating a vendor account, browsing wholesalers, and placing orders is completely free.
-                                You only pay for the goods you order.
-                            </p>
-                        </details>
-                        <details class="faq-item sk-card group p-6">
-                            <summary class="flex items-center justify-between gap-4 font-display text-base font-bold text-slate-900 sm:text-lg">
-                                How are wholesalers verified?
-                                <span class="faq-chevron flex h-8 w-8 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-600">
-                                    <i data-feather="chevron-down" class="h-4 w-4"></i>
-                                </span>
-                            </summary>
-                            <p class="mt-4 leading-relaxed text-slate-600">
-                                Every wholesaler application is reviewed and approved by the Sahaayak admin team before
-                                their products appear in the marketplace. Ongoing vendor reviews then feed each
-                                wholesaler's public trust score.
-                            </p>
-                        </details>
-                        <details class="faq-item sk-card group p-6">
-                            <summary class="flex items-center justify-between gap-4 font-display text-base font-bold text-slate-900 sm:text-lg">
-                                Can I order from multiple wholesalers at once?
-                                <span class="faq-chevron flex h-8 w-8 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-600">
-                                    <i data-feather="chevron-down" class="h-4 w-4"></i>
-                                </span>
-                            </summary>
-                            <p class="mt-4 leading-relaxed text-slate-600">
-                                Yes — that's the point. Add products from any number of suppliers to one cart and
-                                check out in a single step. Each wholesaler fulfils their part of your order.
-                            </p>
-                        </details>
-                        <details class="faq-item sk-card group p-6">
-                            <summary class="flex items-center justify-between gap-4 font-display text-base font-bold text-slate-900 sm:text-lg">
-                                How do payments work?
-                                <span class="faq-chevron flex h-8 w-8 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-600">
-                                    <i data-feather="chevron-down" class="h-4 w-4"></i>
-                                </span>
-                            </summary>
-                            <p class="mt-4 leading-relaxed text-slate-600">
-                                Pay the way the market works — UPI, card, or cash on delivery. You can securely save
-                                your preferred payment methods to speed up checkout.
-                            </p>
-                        </details>
-                        <details class="faq-item sk-card group p-6">
-                            <summary class="flex items-center justify-between gap-4 font-display text-base font-bold text-slate-900 sm:text-lg">
-                                Does Sahaayak work on my phone?
-                                <span class="faq-chevron flex h-8 w-8 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-600">
-                                    <i data-feather="chevron-down" class="h-4 w-4"></i>
-                                </span>
-                            </summary>
-                            <p class="mt-4 leading-relaxed text-slate-600">
-                                Yes. The entire experience — browsing, cart, checkout, order management — is designed
-                                mobile-first, so it works beautifully on any smartphone browser. No app install needed.
-                            </p>
-                        </details>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===================== Final CTA ===================== -->
-        <section class="bg-white py-20 sm:py-24">
-            <div class="sk-container">
-                <div class="hero-canvas reveal relative overflow-hidden rounded-3xl px-6 py-16 text-center text-white sm:px-16 sm:py-20">
-                    <div class="hero-grid absolute inset-0" aria-hidden="true"></div>
-                    <div class="relative mx-auto max-w-2xl">
-                        <h2 class="font-display text-3xl font-extrabold tracking-tight sm:text-5xl">
-                            Your business deserves a <span class="bg-gradient-to-r from-brand-300 to-accent-300 bg-clip-text text-transparent">sahaayak</span>
-                        </h2>
-                        <p class="mt-5 text-lg text-slate-300">
-                            Join the marketplace built for India's street food economy — set up in
-                            minutes, save from your very first order.
-                        </p>
-                        <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-                            <a href="{{ url_for('main.register_vendor') }}" class="sk-btn-primary sk-btn-lg">
-                                Get started free
-                                <i data-feather="arrow-right" class="h-5 w-5"></i>
-                            </a>
-                            <a href="{{ url_for('main.register_wholesaler') }}" class="sk-btn sk-btn-lg border border-white/20 bg-white/5 text-white hover:bg-white/10">
-                                Sell on Sahaayak
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
+        </div>
+    </section>
 
     <!-- ===================== Footer ===================== -->
-    <footer class="border-t border-slate-200 bg-slate-50">
-        <div class="sk-container py-14">
-            <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-                <div class="max-w-xs">
-                    <a href="#top" class="flex items-center gap-2.5" aria-label="Sahaayak home">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600">
-                            <svg viewBox="0 0 24 24" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M3 9l1.5-5h15L21 9"></path>
-                                <path d="M3 9h18v3a3 3 0 0 1-3 3v6H6v-6a3 3 0 0 1-3-3V9z"></path>
-                                <path d="M9 21v-5h6v5"></path>
-                            </svg>
-                        </span>
-                        <span class="font-display text-xl font-extrabold tracking-tight text-slate-900">Sahaayak</span>
-                    </a>
-                    <p class="mt-4 text-sm leading-relaxed text-slate-600">
-                        सहायक — "the helper". A wholesale marketplace connecting India's street
-                        vendors with trusted local suppliers.
+    <footer class="overflow-hidden bg-[#080808] pt-24 pb-8 relative" id="footer">
+        <div class="md:px-12 z-10 flex flex-col max-w-[1700px] mx-auto px-6 relative items-center">
+            <h2 class="text-[10vw] leading-[0.8] font-medium tracking-tight text-white uppercase text-center mb-12 gs-fade-up">
+                STOCK
+                <br>
+                YOUR
+                <span class="text-stroke">HUSTLE</span>
+            </h2>
+
+            <div class="w-full h-[40vh] md:h-[50vh] rounded-3xl overflow-hidden mb-16 gs-fade-up relative border border-white/10">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent z-10"></div>
+                <div class="w-full h-full grid grid-cols-3 md:grid-cols-5">
+                    <img src="{{ url_for('static', filename='uploads/showcase/turmeric_powder.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                    <img src="{{ url_for('static', filename='uploads/showcase/fresh_spinach.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                    <img src="{{ url_for('static', filename='uploads/showcase/gulab_jamun_mix.svg') }}" class="w-full h-full object-cover art-crop" alt="">
+                    <img src="{{ url_for('static', filename='uploads/showcase/cucumber.svg') }}" class="w-full h-full object-cover art-crop hidden md:block" alt="">
+                    <img src="{{ url_for('static', filename='uploads/showcase/peanut_butter.svg') }}" class="w-full h-full object-cover art-crop hidden md:block" alt="">
+                </div>
+
+                <div class="absolute bottom-10 left-10 z-20">
+                    <h3 class="text-3xl font-medium uppercase tracking-tight leading-none max-w-sm">
+                        WHERE THE STREET STOCKS UP.
+                    </h3>
+                </div>
+            </div>
+
+            <div class="flex flex-col xl:flex-row w-full border-white/10 border-t pt-12 items-start justify-between gs-fade-up">
+                <div class="mb-12 xl:mb-0">
+                    <div class="text-2xl font-medium tracking-tight uppercase text-white mb-6">SAHAAYAK.</div>
+                    <p class="text-xs font-light text-white/50 max-w-xs uppercase tracking-widest leading-relaxed">
+                        A wholesale marketplace connecting India's street vendors with verified local suppliers.
                     </p>
                 </div>
-                <nav aria-label="Marketplace">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900">Marketplace</h3>
-                    <ul class="mt-4 space-y-3 text-sm text-slate-600">
-                        <li><a href="#how-it-works" class="hover:text-brand-700">How it works</a></li>
-                        <li><a href="#for-vendors" class="hover:text-brand-700">For vendors</a></li>
-                        <li><a href="#for-wholesalers" class="hover:text-brand-700">For wholesalers</a></li>
-                        <li><a href="#faq" class="hover:text-brand-700">FAQ</a></li>
-                    </ul>
-                </nav>
-                <nav aria-label="Accounts">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900">Accounts</h3>
-                    <ul class="mt-4 space-y-3 text-sm text-slate-600">
-                        <li><a href="{{ url_for('main.vendor_login') }}" class="hover:text-brand-700">Vendor login</a></li>
-                        <li><a href="{{ url_for('main.register_vendor') }}" class="hover:text-brand-700">Vendor registration</a></li>
-                        <li><a href="{{ url_for('main.wholesaler_login') }}" class="hover:text-brand-700">Wholesaler login</a></li>
-                        <li><a href="{{ url_for('main.register_wholesaler') }}" class="hover:text-brand-700">Wholesaler registration</a></li>
-                    </ul>
-                </nav>
-                <nav aria-label="Platform">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900">Platform</h3>
-                    <ul class="mt-4 space-y-3 text-sm text-slate-600">
-                        <li>
-                            <a href="{{ url_for('main.admin_login') }}" class="inline-flex items-center gap-2 hover:text-brand-700">
-                                <i data-feather="lock" class="h-3.5 w-3.5"></i> Admin panel
-                            </a>
-                        </li>
-                        <li><a href="https://github.com/vinitgirdhar/sahaayak" class="hover:text-brand-700" rel="noopener">Open source on GitHub</a></li>
-                    </ul>
-                </nav>
+
+                <div class="flex flex-wrap gap-12 md:gap-24">
+                    <div>
+                        <h4 class="text-xs font-medium uppercase tracking-widest mb-6 text-white">VENDORS</h4>
+                        <ul class="space-y-3">
+                            <li><a href="{{ url_for('main.register_vendor') }}" class="text-sm font-light text-white/50 hover:text-white transition-colors">Create account</a></li>
+                            <li><a href="{{ url_for('main.vendor_login') }}" class="text-sm font-light text-white/50 hover:text-white transition-colors">Log in</a></li>
+                            <li><a href="#vendors" class="text-sm font-light text-white/50 hover:text-white transition-colors">Browse aisles</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-medium uppercase tracking-widest mb-6 text-white">WHOLESALERS</h4>
+                        <ul class="space-y-3">
+                            <li><a href="{{ url_for('main.register_wholesaler') }}" class="text-sm font-light text-white/50 hover:text-white transition-colors">Register business</a></li>
+                            <li><a href="{{ url_for('main.wholesaler_login') }}" class="text-sm font-light text-white/50 hover:text-white transition-colors">Log in</a></li>
+                            <li><a href="#wholesalers" class="text-sm font-light text-white/50 hover:text-white transition-colors">Why sell here</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-medium uppercase tracking-widest mb-6 text-white">PLATFORM</h4>
+                        <ul class="space-y-3">
+                            <li><a href="{{ url_for('main.admin_login') }}" class="text-sm font-light text-white/50 hover:text-[#F97316] transition-colors">Admin panel</a></li>
+                            <li><a href="https://github.com/vinitgirdhar/sahaayak" rel="noopener" class="text-sm font-light text-white/50 hover:text-white transition-colors">Open source</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-8 text-sm text-slate-500 sm:flex-row">
-                <p>© 2026 Sahaayak. Released under the MIT License.</p>
-                <p class="flex items-center gap-1.5">Made with <span class="text-rose-500" aria-hidden="true">♥</span> for India's street vendors</p>
+
+            <div class="w-full border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between gs-fade-up">
+                <ul class="flex flex-wrap items-center justify-center md:justify-start gap-6 md:gap-8 text-xs font-light text-white/50 uppercase tracking-widest mb-6 md:mb-0">
+                    <li><span class="hover:text-[#F97316] transition-colors">MIT License</span></li>
+                    <li><a href="#hero" class="hover:text-[#F97316] transition-colors">Back to top</a></li>
+                </ul>
+                <div class="text-xs font-light text-white/40 uppercase tracking-widest text-center md:text-right">
+                    <p>Copyright © 2026 Sahaayak. Made for India's street vendors.</p>
+                </div>
             </div>
         </div>
     </footer>
 
+    <script src="{{ url_for('static', filename='vendor/gsap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/ScrollTrigger.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/lenis.min.js') }}"></script>
     <script>
-        feather.replace();
+    (function () {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Navbar glass effect on scroll
-        const nav = document.getElementById('site-nav');
-        const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
-        onScroll();
-        window.addEventListener('scroll', onScroll, { passive: true });
-
-        // Mobile menu
-        const menuBtn = document.getElementById('mobile-menu-btn');
+        /* ---------- Mobile menu ---------- */
+        const menuBtn = document.getElementById('menu-btn');
+        const menuClose = document.getElementById('menu-close');
         const mobileMenu = document.getElementById('mobile-menu');
-        menuBtn.addEventListener('click', () => {
-            const open = mobileMenu.classList.toggle('hidden') === false;
+        const setMenu = (open) => {
+            mobileMenu.classList.toggle('hidden', !open);
             menuBtn.setAttribute('aria-expanded', String(open));
-            menuBtn.innerHTML = open
-                ? '<i data-feather="x" class="h-5 w-5"></i>'
-                : '<i data-feather="menu" class="h-5 w-5"></i>';
-            if (open) nav.classList.add('scrolled');
-            feather.replace();
-        });
-        mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-            menuBtn.setAttribute('aria-expanded', 'false');
-            menuBtn.innerHTML = '<i data-feather="menu" class="h-5 w-5"></i>';
-            feather.replace();
-        }));
+            document.body.style.overflow = open ? 'hidden' : '';
+        };
+        menuBtn.addEventListener('click', () => setMenu(true));
+        menuClose.addEventListener('click', () => setMenu(false));
+        mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
 
-        // Desktop login dropdown
-        const loginBtn = document.getElementById('login-menu-btn');
-        const loginMenu = document.getElementById('login-menu');
-        loginBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const open = loginMenu.classList.toggle('hidden') === false;
-            loginBtn.setAttribute('aria-expanded', String(open));
-        });
-        document.addEventListener('click', () => {
-            loginMenu.classList.add('hidden');
-            loginBtn.setAttribute('aria-expanded', 'false');
+        /* ---------- Ambient light trails (canvas) ---------- */
+        const canvas = document.getElementById('trail-canvas');
+        if (!reduceMotion && canvas) {
+            const ctx = canvas.getContext('2d');
+            const palette = ['#429DFE', '#FF91E3', '#F97316', '#334155', '#F97316'];
+            const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+            let W, H, trails = [];
+
+            function sizeCanvas() {
+                W = canvas.clientWidth; H = canvas.clientHeight;
+                canvas.width = W * DPR; canvas.height = H * DPR;
+                ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            }
+
+            function makeTrail() {
+                const x = Math.random() * 1.4 - 0.2; // normalized; spills past edges
+                return {
+                    x,
+                    y: 1.1 + Math.random() * 0.5,        // start below the fold
+                    speed: 0.0012 + Math.random() * 0.0022,
+                    len: 0.12 + Math.random() * 0.22,    // tail length
+                    width: 0.6 + Math.random() * 1.4,
+                    color: palette[Math.floor(Math.random() * palette.length)],
+                    drift: (x - 0.5) * 0.00035            // slight perspective lean
+                };
+            }
+
+            function resetTrails() {
+                const count = Math.round(Math.min(70, Math.max(28, W / 28)));
+                trails = Array.from({ length: count }, makeTrail);
+            }
+
+            let running = true;
+            function frame() {
+                if (!running) return;
+                ctx.clearRect(0, 0, W, H);
+                ctx.globalCompositeOperation = 'lighter';
+                for (const t of trails) {
+                    t.y -= t.speed;
+                    t.x += t.drift;
+                    if (t.y + t.len < -0.1) Object.assign(t, makeTrail());
+                    const x = t.x * W;
+                    const y1 = t.y * H;
+                    const y2 = (t.y + t.len) * H;
+                    const grad = ctx.createLinearGradient(0, y1, 0, y2);
+                    grad.addColorStop(0, t.color + 'cc');
+                    grad.addColorStop(1, t.color + '00');
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = t.width;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(x, y1);
+                    ctx.lineTo(x + t.drift * W * 60, y2);
+                    ctx.stroke();
+                }
+                requestAnimationFrame(frame);
+            }
+
+            sizeCanvas(); resetTrails(); frame();
+            window.addEventListener('resize', () => { sizeCanvas(); resetTrails(); });
+            document.addEventListener('visibilitychange', () => {
+                running = !document.hidden;
+                if (running) frame();
+            });
+        }
+
+        if (reduceMotion || !window.gsap) return; // content stays fully visible without animation
+
+        /* ---------- Lenis smooth scroll ---------- */
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
         });
 
-        // Scroll-reveal animations
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    observer.unobserve(entry.target);
+        gsap.registerPlugin(ScrollTrigger);
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+        gsap.ticker.lagSmoothing(0, 0);
+
+        // Route anchor links through Lenis for a smooth glide
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) { e.preventDefault(); lenis.scrollTo(target, { offset: 0 }); }
+            });
+        });
+
+        /* ---------- Word-by-word paragraph reveal ---------- */
+        document.querySelectorAll('.reveal-line').forEach(line => {
+            const words = line.innerText.split(' ');
+            line.innerHTML = '';
+            words.forEach(word => {
+                const outer = document.createElement('span');
+                outer.style.display = 'inline-block';
+                outer.style.overflow = 'hidden';
+                outer.style.verticalAlign = 'top';
+                outer.style.marginRight = '0.25em';
+                const inner = document.createElement('span');
+                inner.className = 'word-inner';
+                inner.style.display = 'inline-block';
+                inner.style.transform = 'translateY(110%)';
+                inner.innerText = word;
+                outer.appendChild(inner);
+                line.appendChild(outer);
+            });
+        });
+        gsap.to('.word-inner', {
+            y: '0%',
+            duration: 1.2,
+            ease: 'power4.out',
+            stagger: 0.04,
+            scrollTrigger: { trigger: '#vendor-reveal', start: 'top 90%' }
+        });
+
+        /* ---------- Load timeline ---------- */
+        const tl = gsap.timeline();
+        tl.fromTo('.gs-nav',
+            { y: -20, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }
+        )
+        .fromTo('.gs-hero-text',
+            { opacity: 0 },
+            { opacity: 1, duration: 1, ease: 'power2.out' },
+            '-=0.5'
+        )
+        .fromTo('.gs-title-line',
+            { y: '100%' },
+            { y: '0%', duration: 1, stagger: 0.15, ease: 'power4.out' },
+            '-=0.8'
+        )
+        .fromTo('.gs-hero-btn',
+            { scale: 0.8, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.5)' },
+            '-=0.5'
+        )
+        .fromTo('.gs-hero-img',
+            { y: '40%', opacity: 0, scale: 0.95 },
+            { y: '20%', opacity: 1, scale: 1, duration: 1.5, ease: 'power3.out' },
+            '-=1'
+        );
+
+        /* ---------- Hero panel parallax ---------- */
+        gsap.to('#hero-img-inner', {
+            yPercent: -12,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: '#hero',
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+            }
+        });
+
+        /* ---------- Watermark text drift ---------- */
+        gsap.utils.toArray('.gs-bg-text').forEach(text => {
+            gsap.to(text, {
+                y: -100,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: text.parentElement,
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 1
                 }
             });
-        }, { threshold: 0.12 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        });
+
+        /* ---------- Scroll fade-ups ---------- */
+        gsap.utils.toArray('.gs-fade-up').forEach(element => {
+            gsap.fromTo(element,
+                { y: 50, opacity: 0 },
+                {
+                    y: 0, opacity: 1, duration: 1, ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: element,
+                        start: 'top 85%',
+                        toggleActions: 'play none none reverse'
+                    }
+                }
+            );
+        });
+    })();
     </script>
 </body>
 </html>

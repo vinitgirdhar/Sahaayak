@@ -278,27 +278,16 @@ function uploadProfilePhoto() {
             // Update profile image
             const profileImage = document.getElementById('profile-image');
             const profilePlaceholder = document.getElementById('profile-placeholder');
-            
+
             if (profileImage) {
                 profileImage.src = data.photo_url + '?t=' + new Date().getTime(); // Cache bust
             } else if (profilePlaceholder) {
                 // Replace placeholder with image
                 profilePlaceholder.outerHTML = `<img id="profile-image" src="${data.photo_url}" alt="Profile Photo" class="w-full h-full object-cover">`;
             }
-            
+
             // Show success message
-                showNotification('Profile photo updated successfully!', 'success');
-}
-
-// Logout confirmation function
-function confirmLogout() {
-    if (confirm('Are you sure you want to logout? You will be logged out from all devices.')) {
-        window.location.href = '{{ url_for("main.index") }}';
-    }
-}
-
-// Show notification helper
-function showNotification(message, type = 'success') {
+            showNotification('Profile photo updated successfully!', 'success');
         } else {
             showNotification(data.error || 'Error uploading photo', 'error');
         }
@@ -313,6 +302,23 @@ function showNotification(message, type = 'success') {
         uploadButton.disabled = false;
         fileInput.value = ''; // Clear file input
     });
+}
+
+// Logout confirmation function
+function confirmLogout() {
+    if (confirm('Are you sure you want to logout? You will be logged out from all devices.')) {
+        window.location.href = '{{ url_for("main.index") }}';
+    }
+}
+
+// Show notification helper (toast)
+function showNotification(message, type = 'success') {
+    const note = document.createElement('div');
+    const color = type === 'success' ? 'bg-green-600' : (type === 'error' ? 'bg-red-600' : 'bg-blue-600');
+    note.className = `fixed top-4 right-4 z-[60] ${color} text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium`;
+    note.textContent = message;
+    document.body.appendChild(note);
+    setTimeout(() => { note.style.transition = 'opacity .3s'; note.style.opacity = '0'; setTimeout(() => note.remove(), 300); }, 2700);
 }
 
 // Change password modal functions

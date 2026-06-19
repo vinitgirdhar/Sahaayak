@@ -16,8 +16,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 
     <style>
-        html { scrollbar-width: none; }
+        html { scrollbar-width: none; scroll-behavior: smooth; }
         ::-webkit-scrollbar { display: none; }
+        @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
         body { font-family: 'Geist', 'Inter', sans-serif; }
         h1, h2, h3, h4 { font-family: 'Geist', 'Inter', sans-serif; }
@@ -67,8 +68,19 @@
         }
         .text-stroke { color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.35); }
 
-        /* Glass surfaces for product mockups (small areas → cheap blur) */
-        .glass { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        /* Glass surfaces. No backdrop-filter on large cards (expensive over
+           scrolling content); a solid translucent fill reads the same on the
+           dark canvas. Blur is reserved for the small nav pill only. */
+        .glass { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); }
+        .glass-blur { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+        /* Scroll reveal — content is visible by default; hidden states apply
+           only after JS adds .js-anim, so nothing is ever stuck invisible. */
+        .js-anim .gs-fade-up { opacity: 0; transform: translateY(40px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); will-change: opacity, transform; }
+        .js-anim .gs-fade-up.in { opacity: 1; transform: none; }
+        .js-anim .reveal-line .word-inner { display: inline-block; transform: translateY(110%); transition: transform .9s cubic-bezier(.2,.7,.2,1); }
+        .js-anim .reveal-line.in .word-inner { transform: translateY(0); }
+        .js-anim .reveal-line.in .word-inner { transition-delay: calc(var(--i, 0) * 30ms); }
 
         @media (prefers-reduced-motion: reduce) {
             .marquee-content, .aurora::after { animation: none !important; }
@@ -91,7 +103,7 @@
         <nav class="w-full max-w-[1700px] px-5 mx-auto flex justify-between items-center z-40 relative gs-nav">
             <a href="#hero" class="text-xl font-semibold tracking-tight uppercase">SAHAAYAK.</a>
 
-            <div class="hidden md:flex items-center gap-8 glass rounded-full px-6 py-2">
+            <div class="hidden md:flex items-center gap-8 glass glass-blur rounded-full px-6 py-2">
                 <a href="#vendors" class="flex items-center gap-2 text-sm font-light text-[#F97316]">
                     <span class="w-2 h-2 rounded-full bg-[#F97316]"></span> Vendors
                 </a>
@@ -104,7 +116,7 @@
                 <a href="#join" class="bg-white text-[#020617] px-5 py-2 rounded-full text-sm font-medium hidden md:flex items-center gap-2 hover:bg-[#F97316] transition-colors">
                     Get started {{ icon('arrow-right-up-linear', 'w-4 h-4') }}
                 </a>
-                <button id="menu-btn" class="md:hidden w-11 h-11 rounded-full glass flex items-center justify-center" aria-label="Open menu" aria-expanded="false">
+                <button id="menu-btn" class="md:hidden w-11 h-11 rounded-full glass glass-blur flex items-center justify-center" aria-label="Open menu" aria-expanded="false">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="w-5 h-5"><path d="M4 8h16M4 16h16"/></svg>
                 </button>
             </div>
@@ -464,13 +476,11 @@
     </footer>
 
     <script src="{{ url_for('static', filename='vendor/gsap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='vendor/ScrollTrigger.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='vendor/lenis.min.js') }}"></script>
     <script>
     (function () {
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        /* Mobile menu */
+        /* Mobile menu (always available) */
         const menuBtn = document.getElementById('menu-btn');
         const menuClose = document.getElementById('menu-close');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -483,46 +493,52 @@
         menuClose.addEventListener('click', () => setMenu(false));
         mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
 
-        if (reduceMotion || !window.gsap) return;
+        // Without motion (or if GSAP failed to load) leave all content visible.
+        if (reduceMotion) return;
 
-        /* Lenis smooth scroll */
-        const lenis = new Lenis({ duration: 1.1, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothTouch: false });
-        gsap.registerPlugin(ScrollTrigger);
-        lenis.on('scroll', ScrollTrigger.update);
-        gsap.ticker.add((time) => lenis.raf(time * 1000));
-        gsap.ticker.lagSmoothing(0, 0);
-        document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', (e) => {
-            const target = document.querySelector(a.getAttribute('href'));
-            if (target) { e.preventDefault(); lenis.scrollTo(target); }
-        }));
+        // Enable the hidden-until-revealed initial states only now that JS is running,
+        // so content is never stuck invisible if anything fails.
+        document.documentElement.classList.add('js-anim');
 
-        /* Word reveal */
-        document.querySelectorAll('.reveal-line').forEach(line => {
-            const words = line.innerText.split(' '); line.innerHTML = '';
-            words.forEach(w => {
-                const o = document.createElement('span'); o.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:top;margin-right:0.25em';
-                const i = document.createElement('span'); i.className = 'word-inner'; i.style.cssText = 'display:inline-block;transform:translateY(110%)'; i.innerText = w;
+        const splitWords = (line) => {
+            const words = line.textContent.split(' ');
+            line.textContent = '';
+            words.forEach((w, idx) => {
+                const o = document.createElement('span');
+                o.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:top;margin-right:0.25em';
+                const i = document.createElement('span');
+                i.className = 'word-inner'; i.textContent = w; i.style.setProperty('--i', idx);
                 o.appendChild(i); line.appendChild(o);
             });
-        });
-        gsap.to('.word-inner', { y: '0%', duration: 1.1, ease: 'power4.out', stagger: 0.03, scrollTrigger: { trigger: '#vendor-reveal', start: 'top 90%' } });
+        };
+        document.querySelectorAll('.reveal-line').forEach(splitWords);
 
-        /* Load timeline */
-        gsap.timeline()
-            .fromTo('.gs-nav', { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: 'power3.out' })
-            .fromTo('.gs-hero-text', { opacity: 0 }, { opacity: 1, duration: 1 }, '-=0.5')
-            .fromTo('.gs-title-line', { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.12, ease: 'power4.out' }, '-=0.8')
-            .fromTo('.gs-hero-btn', { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.5)' }, '-=0.5')
-            .fromTo('.gs-hero-img', { yPercent: 40, opacity: 0 }, { yPercent: 20, opacity: 1, duration: 1.4, ease: 'power3.out' }, '-=1');
+        /* Reliable reveal via IntersectionObserver (fires even on fast scroll) */
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+            });
+        }, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.gs-fade-up, .reveal-line').forEach(el => io.observe(el));
 
-        /* Hero photo parallax (single transform scrub) */
-        gsap.to('#hero-img-inner', { yPercent: -10, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } });
+        // Safety net: reveal anything in (or above) the viewport, on load and after scroll settles.
+        const revealInView = () => {
+            document.querySelectorAll('.gs-fade-up, .reveal-line').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in');
+            });
+        };
+        requestAnimationFrame(revealInView);
+        window.addEventListener('load', revealInView);
 
-        /* Watermark drift (transform only, no blend) */
-        gsap.utils.toArray('.gs-bg-text').forEach(t => gsap.to(t, { y: -80, ease: 'none', scrollTrigger: { trigger: t.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1 } }));
-
-        /* Fade-ups */
-        gsap.utils.toArray('.gs-fade-up').forEach(el => gsap.fromTo(el, { y: 48, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } }));
+        /* Hero entrance timeline (one-shot, GSAP if present) */
+        if (window.gsap) {
+            gsap.timeline()
+                .fromTo('.gs-nav', { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: 'power3.out' })
+                .fromTo('.gs-hero-text', { opacity: 0 }, { opacity: 1, duration: 1 }, '-=0.5')
+                .fromTo('.gs-title-line', { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.12, ease: 'power4.out' }, '-=0.8')
+                .fromTo('.gs-hero-btn', { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.5)' }, '-=0.5')
+                .fromTo('.gs-hero-img', { yPercent: 40, opacity: 0 }, { yPercent: 20, opacity: 1, duration: 1.4, ease: 'power3.out' }, '-=1');
+        }
     })();
     </script>
 </body>

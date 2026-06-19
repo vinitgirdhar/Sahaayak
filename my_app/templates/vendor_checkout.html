@@ -153,29 +153,30 @@
                 <!-- Payment Methods -->
                 <div class="interactive-card p-6">
                     <h2 class="text-xl font-bold mb-6" style="color: var(--text-primary);">Payment Method</h2>
-                    
+
                     <div class="space-y-4">
                         <div class="payment-option p-4 border border-[var(--border-primary)] rounded-lg cursor-pointer hover:border-[var(--accent-primary)] transition-colors">
                             <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="payment_method" value="cod" checked class="mr-3">
+                                <input type="radio" name="payment_method" value="online" checked class="mr-3">
+                                <div class="flex items-center gap-3 flex-grow">
+                                    <i data-feather="credit-card" class="w-6 h-6" style="color: var(--accent-primary);"></i>
+                                    <div>
+                                        <div class="font-medium" style="color: var(--text-primary);">Pay Online</div>
+                                        <div class="text-sm" style="color: var(--text-secondary);">UPI, Cards &amp; NetBanking via Razorpay</div>
+                                    </div>
+                                    <span class="ml-auto text-[10px] font-bold tracking-wide px-2 py-1 rounded-full" style="background: rgba(53,149,255,0.12); color:#3395FF;">RAZORPAY</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="payment-option p-4 border border-[var(--border-primary)] rounded-lg cursor-pointer hover:border-[var(--accent-primary)] transition-colors">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="payment_method" value="cod" class="mr-3">
                                 <div class="flex items-center gap-3">
                                     <i data-feather="truck" class="w-6 h-6" style="color: var(--accent-primary);"></i>
                                     <div>
                                         <div class="font-medium" style="color: var(--text-primary);">Cash on Delivery</div>
                                         <div class="text-sm" style="color: var(--text-secondary);">Pay when your order arrives</div>
-                                    </div>
-                                </div>
-                            </label>
-                        </div>
-                        
-                        <div class="payment-option p-4 border border-[var(--border-primary)] rounded-lg cursor-pointer hover:border-[var(--accent-primary)] transition-colors">
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="payment_method" value="upi" class="mr-3">
-                                <div class="flex items-center gap-3">
-                                    <i data-feather="smartphone" class="w-6 h-6" style="color: var(--accent-primary);"></i>
-                                    <div>
-                                        <div class="font-medium" style="color: var(--text-primary);">UPI Payment</div>
-                                        <div class="text-sm" style="color: var(--text-secondary);">Pay now via UPI</div>
                                     </div>
                                 </div>
                             </label>
@@ -267,6 +268,129 @@
         </div>
     </div>
 </div>
+<!-- ===================== Razorpay-style checkout (demo) ===================== -->
+<div id="rzp-overlay" class="rzp-overlay" aria-hidden="true">
+    <div class="rzp-card" role="dialog" aria-modal="true" aria-label="Razorpay payment">
+        <div class="rzp-header">
+            <div class="rzp-merchant">
+                <div class="rzp-logo">S</div>
+                <div>
+                    <div class="rzp-name">Sahaayak</div>
+                    <div class="rzp-sub">Wholesale marketplace</div>
+                </div>
+            </div>
+            <button type="button" class="rzp-close" onclick="closeRazorpay()" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="rzp-amount-bar">
+            <span>Amount payable</span>
+            <span class="rzp-amount">₹{{ "%.2f"|format(total_amount) }}</span>
+        </div>
+
+        <div class="rzp-test">TEST MODE · No real payment is processed</div>
+
+        <div class="rzp-tabs" role="tablist">
+            <button type="button" class="rzp-tab active" data-tab="upi" onclick="rzpTab('upi')">UPI</button>
+            <button type="button" class="rzp-tab" data-tab="card" onclick="rzpTab('card')">Card</button>
+            <button type="button" class="rzp-tab" data-tab="netbanking" onclick="rzpTab('netbanking')">NetBanking</button>
+        </div>
+
+        <div class="rzp-body">
+            <!-- UPI -->
+            <div class="rzp-panel" data-panel="upi">
+                <div class="rzp-apps">
+                    <button type="button" class="rzp-app"><span class="rzp-app-ic" style="color:#5f259f">◆</span> PhonePe</button>
+                    <button type="button" class="rzp-app"><span class="rzp-app-ic" style="color:#00baf2">◆</span> Paytm</button>
+                    <button type="button" class="rzp-app"><span class="rzp-app-ic" style="color:#34a853">◆</span> GPay</button>
+                </div>
+                <div class="rzp-or"><span>or enter UPI ID</span></div>
+                <input type="text" id="rzp-vpa" class="rzp-input" placeholder="yourname@upi" autocomplete="off" value="streetvendor@okhdfc">
+            </div>
+            <!-- Card -->
+            <div class="rzp-panel" data-panel="card" hidden>
+                <input type="text" id="rzp-card" class="rzp-input" placeholder="Card number" inputmode="numeric" maxlength="19" value="4111 1111 1111 1111">
+                <div class="rzp-row">
+                    <input type="text" class="rzp-input" placeholder="MM / YY" maxlength="7" value="12 / 28">
+                    <input type="text" class="rzp-input" placeholder="CVV" inputmode="numeric" maxlength="3" value="123">
+                </div>
+                <input type="text" class="rzp-input" placeholder="Name on card" value="Raj Patel">
+            </div>
+            <!-- NetBanking -->
+            <div class="rzp-panel" data-panel="netbanking" hidden>
+                <select id="rzp-bank" class="rzp-input">
+                    <option>HDFC Bank</option><option>State Bank of India</option><option>ICICI Bank</option>
+                    <option>Axis Bank</option><option>Kotak Mahindra Bank</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="button" class="rzp-pay" onclick="payNow()">Pay ₹{{ "%.2f"|format(total_amount) }}</button>
+        <div class="rzp-secure"><i data-feather="lock" class="w-3.5 h-3.5"></i> Secured by <b>Razorpay</b></div>
+
+        <!-- processing overlay -->
+        <div id="rzp-processing" class="rzp-status" hidden>
+            <div class="rzp-spinner"></div>
+            <p class="rzp-status-title">Processing payment…</p>
+            <p class="rzp-status-sub">Please do not press back or refresh</p>
+        </div>
+        <!-- success overlay -->
+        <div id="rzp-success" class="rzp-status" hidden>
+            <svg class="rzp-check" viewBox="0 0 52 52" aria-hidden="true">
+                <circle class="rzp-check-circle" cx="26" cy="26" r="24" fill="none"/>
+                <path class="rzp-check-mark" fill="none" d="M14 27l8 8 16-16"/>
+            </svg>
+            <p class="rzp-status-title">Payment successful</p>
+            <p class="rzp-status-sub">Placing your order…</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rzp-overlay { display:none; position:fixed; inset:0; z-index:80; background:rgba(2,6,23,0.7); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1rem; }
+    .rzp-overlay.visible { display:flex; }
+    .rzp-card { position:relative; width:100%; max-width:400px; background:#fff; color:#162033; border-radius:16px; overflow:hidden; box-shadow:0 24px 70px rgba(2,6,23,0.5); animation:rzpIn .28s cubic-bezier(.2,.8,.2,1); font-family:'Inter',system-ui,sans-serif; }
+    @keyframes rzpIn { from{opacity:0; transform:translateY(16px) scale(.98)} to{opacity:1; transform:none} }
+    .rzp-header { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:#0b1f3a; color:#fff; }
+    .rzp-merchant { display:flex; align-items:center; gap:12px; }
+    .rzp-logo { width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,#3395FF,#0b6bff); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; }
+    .rzp-name { font-weight:700; font-size:15px; line-height:1.1; }
+    .rzp-sub { font-size:11px; opacity:.7; }
+    .rzp-close { background:transparent; border:0; color:#fff; font-size:24px; line-height:1; cursor:pointer; opacity:.8; }
+    .rzp-close:hover { opacity:1; }
+    .rzp-amount-bar { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:#f1f5fb; border-bottom:1px solid #e6ecf5; font-size:13px; color:#5b6b85; }
+    .rzp-amount { font-size:20px; font-weight:800; color:#0b1f3a; }
+    .rzp-test { font-size:10.5px; font-weight:700; letter-spacing:.04em; text-align:center; padding:7px; background:#fff7ed; color:#c2630a; border-bottom:1px solid #fde6cc; }
+    .rzp-tabs { display:flex; gap:4px; padding:12px 14px 0; }
+    .rzp-tab { flex:1; padding:9px 0; font-size:13px; font-weight:600; color:#5b6b85; background:transparent; border:0; border-bottom:2px solid transparent; cursor:pointer; }
+    .rzp-tab.active { color:#3395FF; border-bottom-color:#3395FF; }
+    .rzp-body { padding:16px 18px 4px; min-height:132px; }
+    .rzp-apps { display:flex; gap:8px; }
+    .rzp-app { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 4px; font-size:11px; font-weight:600; color:#27364d; border:1px solid #e6ecf5; border-radius:10px; background:#fff; cursor:pointer; transition:border-color .15s, box-shadow .15s; }
+    .rzp-app:hover { border-color:#3395FF; box-shadow:0 2px 10px rgba(51,149,255,.15); }
+    .rzp-app-ic { font-size:18px; }
+    .rzp-or { display:flex; align-items:center; text-align:center; color:#94a3b8; font-size:11px; margin:14px 0 10px; }
+    .rzp-or::before, .rzp-or::after { content:''; flex:1; height:1px; background:#e6ecf5; }
+    .rzp-or span { padding:0 10px; }
+    .rzp-input { width:100%; padding:11px 13px; font-size:14px; color:#162033; border:1px solid #d8e0ee; border-radius:10px; outline:none; margin-bottom:10px; background:#fff; }
+    .rzp-input:focus { border-color:#3395FF; box-shadow:0 0 0 3px rgba(51,149,255,.15); }
+    .rzp-row { display:flex; gap:10px; }
+    .rzp-pay { width:calc(100% - 36px); margin:6px 18px 12px; padding:14px; font-size:15px; font-weight:700; color:#fff; background:#3395FF; border:0; border-radius:12px; cursor:pointer; transition:background .15s; }
+    .rzp-pay:hover { background:#1f7fff; }
+    .rzp-secure { display:flex; align-items:center; justify-content:center; gap:6px; padding-bottom:16px; font-size:11px; color:#7c8aa3; }
+    .rzp-status { position:absolute; inset:0; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; z-index:5; }
+    .rzp-status[hidden] { display:none; }
+    .rzp-panel[hidden] { display:none; }
+    .rzp-status-title { font-size:16px; font-weight:700; color:#0b1f3a; margin-top:8px; }
+    .rzp-status-sub { font-size:12px; color:#7c8aa3; }
+    .rzp-spinner { width:46px; height:46px; border:4px solid #e6ecf5; border-top-color:#3395FF; border-radius:50%; animation:rzpSpin .8s linear infinite; }
+    @keyframes rzpSpin { to{ transform:rotate(360deg) } }
+    .rzp-check { width:64px; height:64px; }
+    .rzp-check-circle { stroke:#16a34a; stroke-width:3; stroke-dasharray:151; stroke-dashoffset:151; animation:rzpCircle .5s ease-out forwards; }
+    .rzp-check-mark { stroke:#16a34a; stroke-width:4; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:48; stroke-dashoffset:48; animation:rzpMark .35s .45s ease-out forwards; }
+    @keyframes rzpCircle { to{ stroke-dashoffset:0 } }
+    @keyframes rzpMark { to{ stroke-dashoffset:0 } }
+    @media (prefers-reduced-motion: reduce) { .rzp-card,.rzp-spinner,.rzp-check-circle,.rzp-check-mark{ animation:none !important } .rzp-check-circle,.rzp-check-mark{ stroke-dashoffset:0 } }
+</style>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -326,44 +450,78 @@ function showStep() {
     }
 }
 
+let rzpMethod = 'upi';
+
 function placeOrder() {
     const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-    
-    if (paymentMethod === 'upi') {
-        alert('UPI payment integration coming soon! For now, please use Cash on Delivery.');
+
+    if (paymentMethod === 'cod') {
+        // Cash on Delivery — create the order directly
+        submitOrder('cod');
         return;
     }
-    
-    // Show loading modal briefly
-    showLoadingModal();
-    
-    // Simulate order processing
-    setTimeout(() => {
-        hideLoadingModal();
-        
-        // Submit form to backend
-        const form = document.createElement('form');
-        form.method = 'POST';
+
+    // Online payment — open the Razorpay-style checkout
+    openRazorpay();
+}
+
+// Submits the real order to the backend (creates orders + order_items)
+function submitOrder(method) {
+    const form = document.createElement('form');
+    form.method = 'POST';
     form.action = '{{ url_for("main.vendor_checkout") }}';
-        
-        const paymentInput = document.createElement('input');
-        paymentInput.type = 'hidden';
-        paymentInput.name = 'payment_method';
-        paymentInput.value = paymentMethod;
-        form.appendChild(paymentInput);
+
+    const paymentInput = document.createElement('input');
+    paymentInput.type = 'hidden';
+    paymentInput.name = 'payment_method';
+    paymentInput.value = method;
+    form.appendChild(paymentInput);
 
     const addressInput = document.createElement('input');
     addressInput.type = 'hidden';
     addressInput.name = 'delivery_address';
     addressInput.value = 'Home, 123, Street Name, City - 400001, Maharashtra, India';
     form.appendChild(addressInput);
-        
-        document.body.appendChild(form);
-        form.submit();
-        
-        // Show confirmation modal instead of page redirect
-        // showConfirmationModal();
-    }, 2000);
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+/* ---- Razorpay-style demo checkout ---- */
+function openRazorpay() {
+    const ov = document.getElementById('rzp-overlay');
+    ov.classList.add('visible');
+    ov.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (typeof feather !== 'undefined') feather.replace();
+}
+
+function closeRazorpay() {
+    const ov = document.getElementById('rzp-overlay');
+    ov.classList.remove('visible');
+    ov.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    // reset overlays so it's clean if reopened
+    document.getElementById('rzp-processing').hidden = true;
+    document.getElementById('rzp-success').hidden = true;
+}
+
+function rzpTab(name) {
+    rzpMethod = name;
+    document.querySelectorAll('.rzp-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.rzp-panel').forEach(p => p.hidden = (p.dataset.panel !== name));
+}
+
+function payNow() {
+    const processing = document.getElementById('rzp-processing');
+    const success = document.getElementById('rzp-success');
+    processing.hidden = false;
+    // simulate gateway processing, then success animation, then create order
+    setTimeout(() => {
+        processing.hidden = true;
+        success.hidden = false;
+        setTimeout(() => submitOrder(rzpMethod), 1400);
+    }, 2200);
 }
 
 function showLoadingModal() {
@@ -400,23 +558,25 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof feather !== 'undefined') {
         feather.replace();
     }
-    updateProgress();
-    showStep();
-});
-
-// Handle modal clicks
-document.getElementById('confirmation-modal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        hideConfirmationModal();
-        goToOrders();
+    // Step elements only exist when the cart has items
+    if (document.getElementById('step-review')) {
+        updateProgress();
+        showStep();
     }
 });
 
-document.getElementById('loading-modal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        // Don't allow closing loading modal by clicking outside
-        return false;
-    }
-});
+// Handle modal clicks (modals render regardless of cart state)
+const _confModal = document.getElementById('confirmation-modal');
+if (_confModal) {
+    _confModal.addEventListener('click', function(e) {
+        if (e.target === this) { hideConfirmationModal(); goToOrders(); }
+    });
+}
+const _loadModal = document.getElementById('loading-modal');
+if (_loadModal) {
+    _loadModal.addEventListener('click', function(e) {
+        if (e.target === this) { return false; }
+    });
+}
 </script>
 {% endblock %}

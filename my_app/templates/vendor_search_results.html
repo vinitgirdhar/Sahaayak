@@ -230,15 +230,84 @@ function performSearch() {
         window.location.href = `/vendor/search?q=${encodeURIComponent(query)}`;
     }
 }
-
-function quickSearch(term) {
+function quickSearch(term) {
     document.getElementById('product-search-input').value = term;
     performSearch();
 }
 
-function startVoiceSearch() {
-    // Voice search logic...
-    alert('Voice search not implemented yet.');
+let searchRecorder = null;
+let searchAudioChunks = [];
+let searchStreamRef = null;
+let isSearchRecording = false;
+
+async function startVoiceSearch() {
+    const micButton = document.getElementById('mic-button');
+    const searchInput = document.getElementById('product-search-input');
+    
+    if (isSearchRecording) {
+        if (searchRecorder && searchRecorder.state !== 'inactive') {
+            searchRecorder.stop();
+        }
+        if (searchStreamRef) {
+            searchStreamRef.getTracks().forEach(track => track.stop());
+        }
+        isSearchRecording = false;
+        micButton.innerHTML = '<i data-feather="mic" class="w-6 h-6"></i>';
+        feather.replace();
+        return;
+    }
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        searchStreamRef = stream;
+        searchRecorder = new MediaRecorder(stream);
+        searchAudioChunks = [];
+
+        searchRecorder.ondataavailable = (event) => {
+            searchAudioChunks.push(event.data);
+        };
+
+        searchRecorder.onstop = async () => {
+            const audioBlob = new Blob(searchAudioChunks, { type: 'audio/wav' });
+            
+            const originalPlaceholder = searchInput.placeholder;
+            searchInput.placeholder = "Transcribing...";
+            searchInput.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', audioBlob, 'audio.wav');
+            formData.append('lang', "{{ session.get('vendor_language', 'en') }}");
+
+            try {
+                const response = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.text) {
+                    searchInput.value = data.text;
+                    performSearch();
+                } else {
+                    console.error('Transcription error:', data.error || 'Unknown error');
+                }
+            } catch (err) {
+                console.error('Failed to contact transcription backend:', err);
+            } finally {
+                searchInput.placeholder = originalPlaceholder;
+                searchInput.disabled = false;
+                searchInput.focus();
+            }
+        };
+
+        searchRecorder.start();
+        isSearchRecording = true;
+        micButton.innerHTML = '<i data-feather="mic-off" class="w-6 h-6"></i>';
+        feather.replace();
+
+    } catch (err) {
+        console.error('Error accessing microphone:', err);
+        alert('Could not access microphone. Please check permissions.');
+    }
 }
 
 function clearSearch() {

@@ -448,17 +448,24 @@ def main():
             )
         else:
             mocked_response = Mock()
-            mocked_response.text = (
-                "Price: INR 20-30/kg\n"
-                "Trend: Stable\n"
-                "Demand: High\n"
-                "Profit: 20-30% margin\n"
-                "Tip: Buy early in the mandi"
-            )
-            with patch('my_app.routes.genai.configure') as configure_mock, patch(
-                'my_app.routes.genai.GenerativeModel'
-            ) as model_mock:
-                model_mock.return_value.generate_content.return_value = mocked_response
+            mocked_response.json.return_value = {
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                "Price: INR 20-30/kg\n"
+                                "Trend: Stable\n"
+                                "Demand: High\n"
+                                "Profit: 20-30% margin\n"
+                                "Tip: Buy early in the mandi"
+                            )
+                        }
+                    }
+                ]
+            }
+            mocked_response.status_code = 200
+            
+            with patch('my_app.routes.requests.post', return_value=mocked_response) as post_mock:
                 ai_success = vendor_client.post('/api/ask-ai', json={'product_name': 'Potato'})
                 ai_json = ai_success.get_json()
                 suite.check(
@@ -467,8 +474,39 @@ def main():
                     detail=str(ai_json),
                 )
                 suite.check(
-                    configure_mock.called and model_mock.called,
-                    '/api/ask-ai configures and instantiates the Gemini client in mocked mode',
+                    post_mock.called,
+                    '/api/ask-ai configures and instantiates the 9router client in mocked mode',
+                )
+                # Test the new ask-chatbot endpoint
+                chatbot_success = vendor_client.post('/api/ask-chatbot', json={'query': 'Hello', 'lang': 'en'})
+                chatbot_json = chatbot_success.get_json()
+                suite.check(
+                    chatbot_success.status_code == 200 and 'Price:' in chatbot_json.get('response', ''),
+                    '/api/ask-chatbot returns expected response',
+                    detail=str(chatbot_json),
+                )
+                
+            # Test the new transcribe endpoint
+            transcribe_mock_response = Mock()
+            transcribe_mock_response.json.return_value = {"text": "hello from groq whisper"}
+            transcribe_mock_response.status_code = 200
+            with patch('my_app.routes.requests.post', return_value=transcribe_mock_response) as transcribe_post_mock:
+                from io import BytesIO
+                audio_file = (BytesIO(b"fake audio data"), 'audio.wav')
+                transcribe_success = vendor_client.post(
+                    '/api/transcribe',
+                    data={'file': audio_file, 'lang': 'en'},
+                    content_type='multipart/form-data'
+                )
+                transcribe_json = transcribe_success.get_json()
+                suite.check(
+                    transcribe_success.status_code == 200 and transcribe_json.get('text') == "hello from groq whisper",
+                    '/api/transcribe returns expected transcription text',
+                    detail=str(transcribe_json),
+                )
+                suite.check(
+                    transcribe_post_mock.called,
+                    '/api/transcribe calls the 9router transcription endpoint in mocked mode'
                 )
 
         pending_login = wholesaler_client.post(

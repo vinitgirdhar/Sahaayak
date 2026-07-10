@@ -8,10 +8,10 @@
     <!-- Compiled Tailwind + Sahaayak design system -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 
-    <!-- Google Fonts: Inter + Plus Jakarta Sans -->
+    <!-- Google Fonts: Geist + Inter + Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Feather Icons (self-hosted) -->
     <script src="{{ url_for('static', filename='vendor/feather.min.js') }}"></script>
@@ -39,28 +39,50 @@
             --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07);
         }
         
-        /* --- Dark Theme (Aurora) --- */
+        /* --- Dark Theme (Aurora - Aligned to Landing Page) --- */
         .aurora-theme {
-            --background-primary: #0F2027; /* Darkest shade for main background */
-            --background-secondary: #142d36; /* Slightly lighter for cards, sidebar */
-            --background-tertiary: #1a3a45; /* Lighter shade for hovers */
-            --border-primary: #28623A;     /* Green accent for borders */
-            --text-primary: #f0f6fc;       /* Off-white for primary text */
-            --text-secondary: #c2d1d6;     /* Brighter secondary for contrast */
-            /* Accent: restore original dark theme contrast-friendly blue */
-            --accent-primary: #60a5fa;     /* Blue 400 */
-            --accent-secondary: #3b82f6;   /* Blue 500 */
-            --glow-primary: rgba(59, 130, 246, 0.25);
-            --glow-secondary: rgba(59, 130, 246, 0.2);
-            --card-shadow: 0 0 0 1px rgba(40, 98, 58, 0.5);
-            --card-shadow-hover: 0 0 0 1px var(--accent-secondary), 0 10px 30px -5px var(--glow-primary);
+            --background-primary: #020617; /* Slate 950 */
+            --background-secondary: #0b0f19; /* Deep slate-blue */
+            --background-tertiary: #161f30; /* Lighter shade for hovers/active items */
+            --border-primary: rgba(255, 255, 255, 0.08); /* Soft glass borders */
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6); /* Brighter translucent secondary */
+            /* Accent: Lightened, softer pastel orange for dark mode eye-comfort */
+            --accent-primary: #ff9e59;     /* Soft pastel orange */
+            --accent-secondary: #fb8c3c;   /* Slightly deeper soft orange */
+            --glow-primary: rgba(255, 158, 89, 0.15);
+            --glow-secondary: rgba(251, 140, 60, 0.15);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 10px 15px -3px rgba(249, 115, 22, 0.1), 0 4px 6px -4px rgba(249, 115, 22, 0.1);
+        }
+
+        /* Cinematic background layers matching landing page */
+        .aurora-overlay {
+            position: fixed; inset: 0; z-index: -10; pointer-events: none;
+            background:
+                radial-gradient(55rem 38rem at 78% -8%, rgba(249,115,22,0.12), transparent 60%),
+                radial-gradient(48rem 34rem at 8% 18%, rgba(66,157,254,0.08), transparent 55%),
+                radial-gradient(42rem 30rem at 55% 112%, rgba(255,145,227,0.06), transparent 60%);
+        }
+        .aurora-overlay::after {
+            content: ''; position: absolute; inset: -20%;
+            background: radial-gradient(40rem 28rem at 50% 50%, rgba(249,115,22,0.03), transparent 70%);
+            animation: auroraDrift 26s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+        .grain-overlay {
+            position: fixed; inset: 0; z-index: -9; pointer-events: none; opacity: 0.02;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Geist', 'Inter', sans-serif;
             background-color: var(--background-primary);
             color: var(--text-primary);
             transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Geist', 'Inter', sans-serif;
         }
         
         .preloader {
@@ -610,6 +632,8 @@
     </style>
 </head>
 <body class="daylight-theme">
+    <div class="aurora-overlay hidden"></div>
+    <div class="grain-overlay hidden"></div>
     <!-- Preloader -->
     <div class="preloader">
     <style>
@@ -855,6 +879,20 @@
                 apply(themeName) {
                     document.body.classList.remove('daylight-theme', 'aurora-theme');
                     document.body.classList.add(themeName);
+                    
+                    // Toggle cinematic layers matching landing page
+                    const aurora = document.querySelector('.aurora-overlay');
+                    const grain = document.querySelector('.grain-overlay');
+                    if (aurora && grain) {
+                        if (themeName === 'aurora-theme') {
+                            aurora.classList.remove('hidden');
+                            grain.classList.remove('hidden');
+                        } else {
+                            aurora.classList.add('hidden');
+                            grain.classList.add('hidden');
+                        }
+                    }
+                    
                     sessionStorage.setItem('sahaayak-theme', themeName);
                     this.updateToggleIcon(themeName);
                 },
@@ -1128,6 +1166,493 @@
         });
     </script>
     
+    <!-- Floating Voice Chatbot Widget -->
+    <style>
+        /* Floating action button */
+        .chatbot-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 3.75rem;
+            height: 3.75rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 12px var(--glow-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chatbot-fab:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px var(--glow-secondary);
+        }
+        
+        /* Chatbot window */
+        .chatbot-window {
+            position: fixed;
+            bottom: 6.5rem;
+            right: 2rem;
+            width: 380px;
+            height: 500px;
+            background: var(--background-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+        }
+        .chatbot-window.open {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Header */
+        .chatbot-header {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Language Selector pills */
+        .chatbot-lang-bar {
+            background: var(--background-tertiary);
+            padding: 0.5rem;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid var(--border-primary);
+            gap: 0.25rem;
+        }
+        .chatbot-lang-pill {
+            flex: 1;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.35rem 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .chatbot-lang-pill.active {
+            background-color: var(--background-secondary);
+            color: var(--text-primary);
+            box-shadow: var(--card-shadow);
+        }
+        
+        /* Messages area */
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .chat-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            animation: bubble-appear 0.2s ease;
+        }
+        @keyframes bubble-appear {
+            from { transform: translateY(5px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .chat-bubble.assistant {
+            background-color: var(--background-tertiary);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-top-left-radius: 0.25rem;
+        }
+        .chat-bubble.user {
+            background-color: var(--accent-primary);
+            color: white;
+            align-self: flex-end;
+            border-top-right-radius: 0.25rem;
+        }
+        
+        /* Input area */
+        .chatbot-input-bar {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--background-secondary);
+        }
+        .chatbot-input {
+            flex: 1;
+            height: 2.5rem;
+            border-radius: 1.25rem;
+            border: 1px solid var(--border-primary);
+            padding: 0 1rem;
+            font-size: 0.875rem;
+            background: var(--background-primary);
+            color: var(--text-primary);
+        }
+        .chatbot-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .chatbot-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .chatbot-btn:hover {
+            background-color: var(--background-tertiary);
+            color: var(--text-primary);
+        }
+        .chatbot-btn.recording {
+            color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.1);
+            animation: pulse-recording 1.5s infinite;
+        }
+        @keyframes pulse-recording {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .chatbot-btn.send-btn {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+        .chatbot-btn.send-btn:hover {
+            background-color: var(--accent-secondary);
+        }
+        
+        /* Toggle sound option */
+        .chatbot-sound-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+    </style>
+
+    <div class="chatbot-fab" id="chatbot-fab" aria-label="Open AI Assistant" title="Sahaayak AI Assistant">
+        <i data-feather="message-circle" class="w-6 h-6"></i>
+    </div>
+
+    <div class="chatbot-window" id="chatbot-window">
+        <div class="chatbot-header">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-md bg-white flex items-center justify-center text-xs" style="color: var(--accent-primary); font-weight:800;">S</div>
+                <span class="font-bold text-sm">Sahaayak Assistant</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="chatbot-sound-toggle" id="chatbot-sound-toggle" title="Toggle read out response">
+                    <i data-feather="volume-2" class="w-4 h-4"></i>
+                    <span class="text-xs">TTS</span>
+                </div>
+                <button id="close-chatbot" class="text-white hover:opacity-80">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Language Selection Pills -->
+        <div class="chatbot-lang-bar">
+            <div class="chatbot-lang-pill active" data-lang="en">English</div>
+            <div class="chatbot-lang-pill" data-lang="hi">हिंदी (Hindi)</div>
+            <div class="chatbot-lang-pill" data-lang="mr">मराठी (Marathi)</div>
+        </div>
+        
+        <!-- Message History Area -->
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="chat-bubble assistant" id="welcome-message">
+                Namaste! I am Sahaayak, your AI assistant. How can I help you today?
+            </div>
+        </div>
+        
+        <!-- Input Bar -->
+        <div class="chatbot-input-bar">
+            <button class="chatbot-btn" id="chatbot-mic" title="Speak to assistant">
+                <i data-feather="mic" class="w-5 h-5"></i>
+            </button>
+            <input type="text" class="chatbot-input" id="chatbot-input-text" placeholder="Type a message...">
+            <button class="chatbot-btn send-btn" id="chatbot-send" title="Send message">
+                <i data-feather="send" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fab = document.getElementById('chatbot-fab');
+            const win = document.getElementById('chatbot-window');
+            const closeBtn = document.getElementById('close-chatbot');
+            const sendBtn = document.getElementById('chatbot-send');
+            const micBtn = document.getElementById('chatbot-mic');
+            const inputText = document.getElementById('chatbot-input-text');
+            const messagesContainer = document.getElementById('chatbot-messages');
+            const soundToggle = document.getElementById('chatbot-sound-toggle');
+            const langPills = document.querySelectorAll('.chatbot-lang-pill');
+
+            let currentLang = 'en';
+            let chatHistory = [];
+            let isTtsEnabled = true;
+            let isRecording = false;
+
+            // Localized welcome messages
+            const welcomeMessages = {
+                en: "Namaste! I am Sahaayak, your AI assistant. How can I help you today?",
+                hi: "नमस्ते! मैं सहायक हूँ, आपका एआई सहायक। आज मैं आपकी क्या मदद कर सकता हूँ?",
+                mr: "नमस्कार! मी सहाय्यक आहे, आपला एआई मदतनीस. आज मी तुम्हाला कशी मदत करू?"
+            };
+
+            // Toggle Chatbot Window
+            if (fab) fab.addEventListener('click', () => {
+                win.classList.toggle('open');
+                if (win.classList.contains('open') && typeof feather !== 'undefined') {
+                    feather.replace();
+                }
+            });
+            if (closeBtn) closeBtn.addEventListener('click', () => win.classList.remove('open'));
+
+            // Sound toggle
+            if (soundToggle) {
+                soundToggle.addEventListener('click', () => {
+                    isTtsEnabled = !isTtsEnabled;
+                    const icon = soundToggle.querySelector('i');
+                    if (icon) {
+                        icon.setAttribute('data-feather', isTtsEnabled ? 'volume-2' : 'volume-x');
+                        feather.replace();
+                    }
+                    soundToggle.style.opacity = isTtsEnabled ? '1' : '0.5';
+                });
+            }
+
+            // Language pills select
+            langPills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    langPills.forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    const lang = pill.getAttribute('data-lang');
+                    if (lang !== currentLang) {
+                        currentLang = lang;
+                        
+                        // Clear and add language-specific welcome
+                        messagesContainer.innerHTML = '';
+                        addMessage(welcomeMessages[currentLang], 'assistant');
+                        chatHistory = [];
+                    }
+                });
+            });
+
+            // Helper to map 2-letter lang to Speech Recognition codes
+            function getSpeechLangCode(lang) {
+                if (lang === 'hi') return 'hi-IN';
+                if (lang === 'mr') return 'mr-IN';
+                return 'en-US';
+            }
+
+            // Text to Speech
+            function speak(text, lang) {
+                if (!isTtsEnabled || !window.speechSynthesis) return;
+                
+                // Stop current speaking
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = getSpeechLangCode(lang);
+                
+                // Try to select appropriate native voice
+                const voices = window.speechSynthesis.getVoices();
+                let voice = null;
+                if (lang === 'hi') {
+                    voice = voices.find(v => v.lang.includes('hi') || v.name.includes('Hindi'));
+                } else if (lang === 'mr') {
+                    voice = voices.find(v => v.lang.includes('mr') || v.name.includes('Marathi'));
+                }
+                if (voice) utterance.voice = voice;
+                
+                window.speechSynthesis.speak(utterance);
+            }
+
+            // MediaRecorder Voice Capture Setup (Server-side Transcription using Groq/Whisper)
+            let mediaRecorder = null;
+            let audioChunks = [];
+            let streamRef = null;
+
+            async function startRecording() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    streamRef = stream;
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        
+                        // Show placeholder/status in chat input
+                        const originalPlaceholder = inputText.placeholder;
+                        inputText.placeholder = "Transcribing speech...";
+                        inputText.disabled = true;
+
+                        const formData = new FormData();
+                        formData.append('file', audioBlob, 'audio.wav');
+                        formData.append('lang', currentLang);
+
+                        try {
+                            const response = await fetch('/api/transcribe', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            const data = await response.json();
+                            if (data.text) {
+                                inputText.value = data.text;
+                                sendMessage();
+                            } else {
+                                console.error('Transcription error:', data.error || 'Unknown error');
+                            }
+                        } catch (err) {
+                            console.error('Failed to contact transcription backend:', err);
+                        } finally {
+                            inputText.placeholder = originalPlaceholder;
+                            inputText.disabled = false;
+                            inputText.focus();
+                        }
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    micBtn.classList.add('recording');
+                    const icon = micBtn.querySelector('i');
+                    if (icon) {
+                        icon.setAttribute('data-feather', 'mic-off');
+                        feather.replace();
+                    }
+                } catch (err) {
+                    console.error('Error accessing microphone:', err);
+                    alert('Could not access microphone. Please check permissions.');
+                }
+            }
+
+            function stopRecording() {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+                if (streamRef) {
+                    streamRef.getTracks().forEach(track => track.stop());
+                }
+                isRecording = false;
+                micBtn.classList.remove('recording');
+                const icon = micBtn.querySelector('i');
+                if (icon) {
+                    icon.setAttribute('data-feather', 'mic');
+                    feather.replace();
+                }
+            }
+
+            if (micBtn) {
+                micBtn.addEventListener('click', () => {
+                    if (isRecording) {
+                        stopRecording();
+                    } else {
+                        startRecording();
+                    }
+                });
+            }
+
+            // Add message to chat box
+            function addMessage(text, sender) {
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${sender}`;
+                bubble.textContent = text;
+                messagesContainer.appendChild(bubble);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            // Send Message
+            function sendMessage() {
+                const text = inputText.value.trim();
+                if (!text) return;
+
+                inputText.value = '';
+                addMessage(text, 'user');
+
+                // Show spinner / typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'chat-bubble assistant flex items-center justify-center';
+                typingIndicator.innerHTML = '<div class="spinner !w-5 !h-5"></div>';
+                messagesContainer.appendChild(typingIndicator);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // Call Backend API
+                fetch('/api/ask-chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: text,
+                        lang: currentLang,
+                        history: chatHistory
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Remove typing indicator
+                    typingIndicator.remove();
+                    
+                    const reply = data.response || "Sorry, I encountered an error.";
+                    addMessage(reply, 'assistant');
+                    
+                    // Append to history
+                    chatHistory.push({ role: 'user', content: text });
+                    chatHistory.push({ role: 'assistant', content: reply });
+                    // Keep history length within limits
+                    if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
+
+                    // Read aloud response
+                    speak(reply, currentLang);
+                })
+                .catch(err => {
+                    typingIndicator.remove();
+                    console.error('Error fetching chatbot reply:', err);
+                    addMessage("Unable to get response. Please try again.", 'assistant');
+                });
+            }
+
+            if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+            if (inputText) {
+                inputText.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') sendMessage();
+                });
+            }
+        });
+    </script>
+
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

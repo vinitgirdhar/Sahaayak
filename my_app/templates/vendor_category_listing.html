@@ -29,7 +29,7 @@
         <article class="bg-[var(--background-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-sm p-4 flex flex-col text-left hover:shadow-md transition-shadow duration-200" tabindex="0" aria-labelledby="cat-product-{{ product[0] }}">
             <div class="w-full h-40 bg-[var(--background-tertiary)] rounded-lg overflow-hidden mb-4 flex items-center justify-center">
                 {% if product[5] and product[5] != 'None' %}
-                <img src="{{ url_for('static', filename=product[5]) }}" alt="{{ product[1] }}" class="w-full h-full object-cover">
+                <img src="{{ url_for('static', filename=product[5]) | cache_bust }}" alt="{{ product[1] }}" class="w-full h-full object-cover">
                 {% else %}
                 <i data-feather="package" class="w-10 h-10 text-[var(--text-secondary)]"></i>
                 {% endif %}

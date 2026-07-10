@@ -82,7 +82,7 @@
         {% for item in recent_orders %}
     <div class="order-card reveal flex flex-col p-4">
             <div class="flex-grow flex items-start gap-4">
-                <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/80x80/e2e8f0/64748b?text=N/A' }}" 
+                <img src="{{ (url_for('static', filename=item.image_path) | cache_bust) if item.image_path else 'https://placehold.co/80x80/e2e8f0/64748b?text=N/A' }}" 
                      alt="{{ item.name }}" class="w-20 h-20 rounded-lg object-cover flex-shrink-0">
                 
                 <div class="flex-grow">
@@ -429,6 +429,7 @@
     }
 </style>
 <script>
+window.cacheBustVersion = Date.now();
 // --- Cart UI compatibility shims ---
 // These were referenced but never defined globally, throwing ReferenceErrors
 // that halted the rest of this script. Map them to the shared SahaayakApp cart.
@@ -458,32 +459,78 @@ function performSearch() {
     }
 }
 
-function startVoiceSearch() {
-    if ('webkitSpeechRecognition' in window) {
-        const recognition = new webkitSpeechRecognition();
-        recognition.lang = 'en-US';
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        
-        recognition.onstart = function() {
-            document.getElementById('mic-button').innerHTML = '<i data-feather="mic-off" class="w-6 h-6"></i>';
-            feather.replace();
+let searchRecorder = null;
+let searchAudioChunks = [];
+let searchStreamRef = null;
+let isSearchRecording = false;
+
+async function startVoiceSearch() {
+    const micButton = document.getElementById('mic-button');
+    const searchInput = document.getElementById('product-search-input');
+    
+    if (isSearchRecording) {
+        if (searchRecorder && searchRecorder.state !== 'inactive') {
+            searchRecorder.stop();
+        }
+        if (searchStreamRef) {
+            searchStreamRef.getTracks().forEach(track => track.stop());
+        }
+        isSearchRecording = false;
+        micButton.innerHTML = '<i data-feather="mic" class="w-6 h-6"></i>';
+        feather.replace();
+        return;
+    }
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        searchStreamRef = stream;
+        searchRecorder = new MediaRecorder(stream);
+        searchAudioChunks = [];
+
+        searchRecorder.ondataavailable = (event) => {
+            searchAudioChunks.push(event.data);
         };
-        
-        recognition.onresult = function(event) {
-            const transcript = event.results[0][0].transcript;
-            document.getElementById('product-search-input').value = transcript;
-            performSearch();
+
+        searchRecorder.onstop = async () => {
+            const audioBlob = new Blob(searchAudioChunks, { type: 'audio/wav' });
+            
+            const originalPlaceholder = searchInput.placeholder;
+            searchInput.placeholder = "Transcribing...";
+            searchInput.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', audioBlob, 'audio.wav');
+            formData.append('lang', "{{ session.get('vendor_language', 'en') }}");
+
+            try {
+                const response = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.text) {
+                    searchInput.value = data.text;
+                    performSearch();
+                } else {
+                    console.error('Transcription error:', data.error || 'Unknown error');
+                }
+            } catch (err) {
+                console.error('Failed to contact transcription backend:', err);
+            } finally {
+                searchInput.placeholder = originalPlaceholder;
+                searchInput.disabled = false;
+                searchInput.focus();
+            }
         };
-        
-        recognition.onend = function() {
-            document.getElementById('mic-button').innerHTML = '<i data-feather="mic" class="w-6 h-6"></i>';
-            feather.replace();
-        };
-        
-        recognition.start();
-    } else {
-        alert('Voice search is not supported in this browser');
+
+        searchRecorder.start();
+        isSearchRecording = true;
+        micButton.innerHTML = '<i data-feather="mic-off" class="w-6 h-6"></i>';
+        feather.replace();
+
+    } catch (err) {
+        console.error('Error accessing microphone:', err);
+        alert('Could not access microphone. Please check permissions.');
     }
 }
 
@@ -1093,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button class="add-to-cart-btn gradient-button text-white text-sm font-semibold py-2 px-4 rounded-lg flex-grow" data-product-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>Add to Cart</button>
                     </div>
                 </div>
-                <img class="product-image hidden" src="${product.image_path ? (/^(https?:|\/)/.test(product.image_path) ? product.image_path : '/static/' + product.image_path) : ''}" alt="${product.name}">
+                <img class="product-image hidden" src="${product.image_path ? (/^(https?:|\/)/.test(product.image_path) ? product.image_path : '/static/' + product.image_path + '?v=' + (window.cacheBustVersion || Date.now())) : ''}" alt="${product.name}">
             </div>
             `;
             budgetGrid.innerHTML += card;

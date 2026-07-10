@@ -22,7 +22,7 @@
                     {% for item in data['items'] %}
                     <div class="py-4 flex flex-col md:flex-row items-center md:items-start gap-4">
                         <div class="w-full md:w-2/3 flex items-center gap-4">
-                            <img src="{{ url_for('static', filename=item.image_path) if item.image_path else 'https://placehold.co/80x80/e2e8f0/64748b?text=N/A' }}" alt="{{ item.name }}" class="w-20 h-20 rounded-lg object-cover">
+                            <img src="{{ (url_for('static', filename=item.image_path) | cache_bust) if item.image_path else 'https://placehold.co/80x80/e2e8f0/64748b?text=N/A' }}" alt="{{ item.name }}" class="w-20 h-20 rounded-lg object-cover">
                             <div>
                                 <h4 class="font-semibold" style="color: var(--text-primary);">{{ item.name }}</h4>
                                 <p class="font-bold mt-1" style="color: var(--accent-primary);">₹{{ "%.2f"|format(item.price) }} per unit</p>

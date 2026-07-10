@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import uuid
 import google.generativeai as genai
+import requests
 
 from .db import DATABASE_NAME, get_dashboard_stats  # Import db helper functions
 
@@ -1236,11 +1237,11 @@ def vendor_category(category_id):
         'snacks': 'Snacks & Beverages',
         'spices': 'Spices & Condiments',
         'spreads': 'Spreads & Pantry',
-        'packaging': 'Other',
+        'packaging': 'Packaging',
         'grains': 'Grains & Cereals',
         'beverage': 'Snacks & Beverages',  # Map beverage to snacks for compatibility
-        'desserts': 'Other',  # Map desserts to other for compatibility
-        'seafood-meat': 'Other'  # Map seafood-meat to other for compatibility
+        'desserts': 'Desserts',
+        'seafood-meat': 'Seafood & Meat'
     }
     wholesaler_category = category_mapping.get(category_id, 'Produce')
     
@@ -1314,17 +1315,227 @@ def vendor_search():
     if 'vendor_id' not in session:
         return redirect(url_for('main.vendor_login'))
     
-    query = request.args.get('q', '')
+    query = request.args.get('q', '').strip()
+    
+    # 1. Map common synonyms to (include_pattern, exclude_pattern) for strict ground-level matching
+    SYNONYM_MAP = {
+        'aloo': ('Potato (Aloo)', None),
+        'aalu': ('Potato (Aloo)', None),
+        'potato': ('Potato (Aloo)', 'Sweet'),
+        'बटाटा': ('Potato (Aloo)', None),
+        'आलू': ('Potato (Aloo)', None),
+        
+        'shakarkand': ('Sweet Potato', None),
+        'shikark': ('Sweet Potato', None),
+        'shakarkhan': ('Sweet Potato', None),
+        'sweet potato': ('Sweet Potato', None),
+        'शकरकंद': ('Sweet Potato', None),
+        
+        'onion': ('Onion (Pyaz)', None),
+        'pyaz': ('Onion (Pyaz)', None),
+        'pyaaz': ('Onion (Pyaz)', None),
+        'kanda': ('Onion (Pyaz)', None),
+        'कांदा': ('Onion (Pyaz)', None),
+        'प्याज': ('Onion (Pyaz)', None),
+        
+        'tomato': ('Tomato (Tamatar)', None),
+        'tamatar': ('Tomato (Tamatar)', None),
+        'टमाटर': ('Tomato (Tamatar)', None),
+        'टोमॅटो': ('Tomato (Tamatar)', None),
+        
+        'garlic': ('Garlic (Lahsun)', None),
+        'lahsun': ('Garlic (Lahsun)', None),
+        'lasun': ('Garlic (Lahsun)', None),
+        'lehsun': ('Garlic (Lahsun)', None),
+        'लसूण': ('Garlic (Lahsun)', None),
+        'लहसुन': ('Garlic (Lahsun)', None),
+        
+        'ginger': ('Ginger (Adrak)', None),
+        'adrak': ('Ginger (Adrak)', None),
+        'आले': ('Ginger (Adrak)', None),
+        'अदरक': ('Ginger (Adrak)', None),
+        
+        'capsicum': ('Capsicum (Shimla Mirch)', None),
+        'shimla': ('Capsicum (Shimla Mirch)', None),
+        'shimlamirch': ('Capsicum (Shimla Mirch)', None),
+        'ढोबळी मिरची': ('Capsicum (Shimla Mirch)', None),
+        'शिमला मिर्च': ('Capsicum (Shimla Mirch)', None),
+        
+        'okra': ('Lady Finger (Bhindi)', None),
+        'bhindi': ('Lady Finger (Bhindi)', None),
+        'bhendi': ('Lady Finger (Bhindi)', None),
+        'lady finger': ('Lady Finger (Bhindi)', None),
+        'ladyfinger': ('Lady Finger (Bhindi)', None),
+        'भेंडी': ('Lady Finger (Bhindi)', None),
+        'भिंडी': ('Lady Finger (Bhindi)', None),
+        
+        'spinach': ('Spinach (Palak)', None),
+        'palak': ('Spinach (Palak)', None),
+        'पालक': ('Spinach (Palak)', None),
+        
+        'fenugreek': ('Fenugreek (Methi)', None),
+        'methi': ('Fenugreek (Methi)', None),
+        'मेथी': ('Fenugreek (Methi)', None),
+        
+        'cucumber': ('Cucumber (Kheera)', None),
+        'kheera': ('Cucumber (Kheera)', None),
+        'काकडी': ('Cucumber (Kheera)', None),
+        'खीरा': ('Cucumber (Kheera)', None),
+        
+        'peas': ('Green Peas (Matar)', None),
+        'matar': ('Green Peas (Matar)', None),
+        'मटार': ('Green Peas (Matar)', None),
+        'मटर': ('Green Peas (Matar)', None),
+    }
+
     if query:
+        # Standardize Hindi/Marathi digits to English
+        hindi_to_eng = {
+            '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
+            '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
+        }
+        cleaned_query = query.lower().strip()
+        for h, e in hindi_to_eng.items():
+            cleaned_query = cleaned_query.replace(h, e)
+
+        # 2. Check for voice/command pattern: <quantity> [unit] <product>
+        import re
+        pattern = r'^(\d+)\s*(kg|kilo|kilos|gram|grams|gm|gms|packet|packets|pkt|pkts|किळो|किलो|केजी|ग्राम|पैकेट|पॅकेट|लीटर|litre|liter|ltr|l|ml)?s?\.?\s+(.+)$'
+        match = re.match(pattern, cleaned_query)
+        if match:
+            try:
+                quantity = int(match.group(1))
+            except ValueError:
+                quantity = 1
+            user_unit = match.group(2)
+            product_term = match.group(3).strip()
+
+            # Find the best matching approved product in stock
+            conn = sqlite3.connect(DATABASE_NAME)
+            cursor = conn.cursor()
+            query_conditions = []
+            query_params = []
+            
+            if product_term in SYNONYM_MAP:
+                inc, exc = SYNONYM_MAP[product_term]
+                query_conditions.append("p.name LIKE ?")
+                query_params.append(f"%{inc}%")
+                if exc:
+                    query_conditions.append("p.name NOT LIKE ?")
+                    query_params.append(f"%{exc}%")
+            else:
+                query_conditions.append("p.name LIKE ?")
+                query_params.append(f"%{product_term}%")
+
+            cursor.execute(f'''
+                SELECT p.id, p.name, p.stock, w.name as wholesaler_name 
+                FROM products p 
+                JOIN wholesalers w ON p.wholesaler_id = w.id 
+                WHERE ({' AND '.join(query_conditions)}) AND w.is_approved = 1 AND p.stock > 0
+                ORDER BY w.trust_score DESC, p.views DESC
+                LIMIT 1
+            ''', tuple(query_params))
+            product = cursor.fetchone()
+
+            if product:
+                product_id, name, stock, wholesaler_name = product
+                
+                # Scale quantity based on packaging size if necessary (e.g., "200 g Paneer" -> 1 unit of Paneer (200g))
+                import math
+                scaled_qty = quantity
+                if user_unit:
+                    user_unit_norm = user_unit.lower().strip()
+                    if user_unit_norm in ['kg', 'kilo', 'kilos', 'किळो', 'किलो', 'केजी']:
+                        u_val = quantity * 1000
+                        u_unit = 'g'
+                    elif user_unit_norm in ['g', 'gm', 'gms', 'gram', 'grams', 'ग्राम']:
+                        u_val = quantity
+                        u_unit = 'g'
+                    elif user_unit_norm in ['l', 'litre', 'liter', 'ltr', 'लीटर']:
+                        u_val = quantity * 1000
+                        u_unit = 'ml'
+                    elif user_unit_norm in ['ml']:
+                        u_val = quantity
+                        u_unit = 'ml'
+                    else:
+                        u_unit = None
+                        
+                    if u_unit:
+                        # Extract product unit from name e.g., "Paneer (200g)" or "Milk (1L)"
+                        p_match = re.search(r'\((?:(\d+)\s*(g|gm|gms|kg|l|litre|liter|ltr|ml))\)', name, re.IGNORECASE)
+                        if p_match:
+                            p_qty = int(p_match.group(1))
+                            p_unit = p_match.group(2).lower().strip()
+                            
+                            if p_unit in ['kg']:
+                                p_val = p_qty * 1000
+                                p_type = 'g'
+                            elif p_unit in ['g', 'gm', 'gms']:
+                                p_val = p_qty
+                                p_type = 'g'
+                            elif p_unit in ['l', 'litre', 'liter', 'ltr']:
+                                p_val = p_qty * 1000
+                                p_type = 'ml'
+                            elif p_unit in ['ml']:
+                                p_val = p_qty
+                                p_type = 'ml'
+                            else:
+                                p_type = None
+                                
+                            if p_type == u_unit:
+                                # Scale quantity to number of packages, rounded up
+                                scaled_qty = max(1, math.ceil(u_val / p_val))
+
+                actual_qty = min(scaled_qty, stock)
+                
+                # Update vendor cart
+                cart = session.get('vendor_cart', {})
+                product_id_str = str(product_id)
+                current_qty = cart.get(product_id_str, 0)
+                cart[product_id_str] = current_qty + actual_qty
+                session['vendor_cart'] = cart
+                session.modified = True
+                conn.close()
+
+                if actual_qty < scaled_qty:
+                    flash(f"Added {actual_qty} units of {name} (from {wholesaler_name}) to your cart. Capped from {scaled_qty} units due to stock limits.", "warning")
+                else:
+                    flash(f"Added {actual_qty} units of {name} (from {wholesaler_name}) directly to your cart!", "success")
+                return redirect(url_for('main.vendor_cart'))
+            else:
+                conn.close()
+                flash(f"Could not auto-add '{product_term}' to cart. Product not found or out of stock.", "danger")
+                # Fallback to search results for just the product term
+                query = product_term
+
+        # 3. Standard Search with Synonym Expansion
+        cleaned_search = query.lower().strip()
+        for h, e in hindi_to_eng.items():
+            cleaned_search = cleaned_search.replace(h, e)
+
         conn = sqlite3.connect(DATABASE_NAME)
         cursor = conn.cursor()
-        cursor.execute('''
+        query_conditions = []
+        query_params = []
+        
+        if cleaned_search in SYNONYM_MAP:
+            inc, exc = SYNONYM_MAP[cleaned_search]
+            query_conditions.append("p.name LIKE ?")
+            query_params.append(f"%{inc}%")
+            if exc:
+                query_conditions.append("p.name NOT LIKE ?")
+                query_params.append(f"%{exc}%")
+        else:
+            query_conditions.append("p.name LIKE ?")
+            query_params.append(f"%{query}%")
+
+        cursor.execute(f'''
             SELECT p.*, w.name as wholesaler_name, w.location, w.trust_score 
             FROM products p 
             JOIN wholesalers w ON p.wholesaler_id = w.id 
-            WHERE p.name LIKE ? AND w.is_approved = 1 AND p.stock > 0
+            WHERE ({' AND '.join(query_conditions)}) AND w.is_approved = 1 AND p.stock > 0
             ORDER BY w.trust_score DESC, p.views DESC
-        ''', (f'%{query}%',))
+        ''', tuple(query_params))
         products = cursor.fetchall()
         conn.close()
     else:
@@ -1845,7 +2056,8 @@ def test_vendor_creds():
     else:
         return {'error': 'No approved vendor found'}, 404
 
-# NEW AI-POWERED ROUTE
+# NEW AI-POWERED ROUTE USING 9ROUTER
+# NEW AI-POWERED ROUTE USING 9ROUTER WITH MULTI-MODEL FALLBACK
 @bp.route('/api/ask-ai', methods=['POST'])
 def ask_ai():
     if 'vendor_id' not in session:
@@ -1857,38 +2069,214 @@ def ask_ai():
     if not product_name:
         return jsonify({'error': 'Product name is required'}), 400
 
-    try:
-        # Configure the generative AI model using the key from your config
-        genai.configure(api_key=current_app.config['GEMINI_API_KEY'])
-        model = genai.GenerativeModel('gemini-1.5-flash')
+    # Construct prompt
+    prompt = f"""
+    Generate market insights for a street vendor in India for the product '{product_name}'.
+    Follow these rules STRICTLY:
+    1. Provide EXACTLY 5 points, each on a new line: Price, Trend, Demand, Profit, Tip.
+    2. Use very short, direct phrases. No filler words or long sentences.
+    3. For "Price", give a realistic price range in INR (e.g., Rs. 20-30/kg).
+    4. For "Profit", give a realistic margin range (e.g., 20-35% margin).
+    5. For "Tip", provide one short, actionable piece of advice.
+    6. Do NOT add any introductory text, concluding text, explanations, or warnings.
 
-        # UPDATED PROMPT: Create a concise, structured prompt for vendor insights
-        prompt = f"""
-        Generate market insights for a street vendor in India for the product '{product_name}'.
-        Follow these rules STRICTLY:
-        1. Provide EXACTLY 5 points, each on a new line: Price, Trend, Demand, Profit, Tip.
-        2. Use very short, direct phrases. No filler words or long sentences.
-        3. For "Price", give a realistic price range in INR (e.g., ₹20-₹30/kg).
-        4. For "Profit", give a realistic margin range (e.g., 20-35% margin).
-        5. For "Tip", provide one short, actionable piece of advice.
-        6. Do NOT add any introductory text, concluding text, explanations, or warnings.
+    Example for "Potato":
+    Price: Rs. 15-25/kg (check local mandi)
+    Trend: Seasonal fluctuations expected
+    Demand: High, especially evenings
+    Profit: 20-35% margin possible
+    Tip: Offer boiled/fried options
+    """
 
-        Example for "Potato":
-        Price: ₹15-₹25/kg (check local mandi)
-        Trend: Seasonal fluctuations expected
-        Demand: High, especially evenings
-        Profit: 20-35% margin possible
-        Tip: Offer boiled/fried options
-        """
+    api_key = current_app.config.get('NINEROUTER_API_KEY')
+    api_base = current_app.config.get('NINEROUTER_API_BASE', 'https://api.9router.com/v1')
+    models = current_app.config.get('NINEROUTER_MODELS_CHATBOT') or [current_app.config.get('NINEROUTER_MODEL_DEFAULT', 'gpt-4o-mini')]
 
-        # Generate the content
-        response = model.generate_content(prompt)
+    url = f"{api_base.rstrip('/')}/chat/completions"
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
 
-        # Return the AI's response
-        return jsonify({'response': response.text})
+    errors = []
+    for model_name in models:
+        try:
+            payload = {
+                'model': model_name,
+                'messages': [
+                    {'role': 'user', 'content': prompt}
+                ]
+            }
+            response = requests.post(url, json=payload, headers=headers, timeout=60)
+            response.raise_for_status()
+            
+            # 9router Proxy Bug Workaround: Clean trailing SSE data and handle empty responses
+            raw_text = response.text
+            if not isinstance(raw_text, str):
+                result_json = response.json()
+            else:
+                raw_text = raw_text.strip()
+                if "data: [DONE]" in raw_text:
+                    raw_text = raw_text.split("data: [DONE]")[0].strip()
+                if not raw_text:
+                    raise ValueError("Received empty response from proxy.")
+                result_json = json.loads(raw_text)
+                
+            ai_response = result_json['choices'][0]['message']['content']
+            return jsonify({'response': ai_response})
+        except Exception as e:
+            errors.append(f"Model '{model_name}' failed: {str(e)}")
 
-    except Exception:
-        return jsonify({'error': ASK_AI_QUOTA_MESSAGE}), 500
+    return jsonify({'error': f"AI Insights temporarily unavailable. Errors: {'; '.join(errors)}"}), 500
+
+# MULTILINGUAL VOICE CHATBOT ROUTE USING 9ROUTER WITH MULTI-MODEL FALLBACK
+@bp.route('/api/ask-chatbot', methods=['POST'])
+def ask_chatbot():
+    if 'vendor_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    query = data.get('query')
+    lang = data.get('lang', 'en')  # 'en', 'hi', or 'mr'
+    history = data.get('history', [])  # list of {"role": "user"/"assistant", "content": "..."}
+
+    if not query:
+        return jsonify({'error': 'Query is required'}), 400
+
+    model_config_keys = {
+        'en': 'NINEROUTER_MODELS_ENGLISH',
+        'hi': 'NINEROUTER_MODELS_HINDI',
+        'mr': 'NINEROUTER_MODELS_MARATHI'
+    }
+    
+    config_key = model_config_keys.get(lang, 'NINEROUTER_MODELS_CHATBOT')
+    models = current_app.config.get(config_key) or current_app.config.get('NINEROUTER_MODELS_CHATBOT') or ['gpt-4o-mini']
+    
+    api_key = current_app.config.get('NINEROUTER_API_KEY')
+    api_base = current_app.config.get('NINEROUTER_API_BASE', 'https://api.9router.com/v1')
+
+    # Localized system instructions optimized for Indian street vendors/wholesalers
+    system_prompts = {
+        'en': "You are Sahaayak, a friendly and helpful AI market assistant for street vendors and wholesalers in India. "
+              "Respond in English. Keep answers brief (max 3-4 sentences), practical, and focus on helping their vendor business "
+              "(e.g., pricing, demand, storage tips, customer relations).",
+        'hi': "आप सहायक (Sahaayak) हैं, जो भारत में रेहड़ी-पटरी वालों और थोक विक्रेताओं के लिए एक मददगार AI सहायक हैं। "
+              "कृपया हिंदी में उत्तर दें (देवनागरी लिपि का प्रयोग करें)। उत्तर को संक्षिप्त (अधिकतम 3-4 वाक्य) और व्यावहारिक रखें। "
+              "सरल और बोलचाल की भाषा का प्रयोग करें जो आसानी से समझ में आ सके।",
+        'mr': "तुम्ही सहाय्यक (Sahaayak) आहात, जे भारतातील विक्रेते आणि घाऊक व्यापाऱ्यांसाठी एक मदतनीस AI सहाय्यक आहे. "
+              "कृपया मराठीत उत्तर द्या (देवनागरी लिपी वापरा). उत्तर संक्षिप्त (कमाल ३-४ वाक्ये) और व्यावहारिक ठेवा. "
+              "सोप्या आणि रोजच्या बोलचालीतील शब्दांचा वापर करा."
+    }
+    
+    system_prompt = system_prompts.get(lang, system_prompts['en'])
+
+    messages = [{'role': 'system', 'content': system_prompt}]
+    
+    for msg in history:
+        messages.append({'role': msg.get('role'), 'content': msg.get('content')})
+        
+    messages.append({'role': 'user', 'content': query})
+
+    url = f"{api_base.rstrip('/')}/chat/completions"
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+
+    errors = []
+    for model_name in models:
+        try:
+            payload = {
+                'model': model_name,
+                'messages': messages
+            }
+            response = requests.post(url, json=payload, headers=headers, timeout=60)
+            response.raise_for_status()
+            
+            # 9router Proxy Bug Workaround: Clean trailing SSE data and handle empty responses
+            raw_text = response.text
+            if not isinstance(raw_text, str):
+                result_json = response.json()
+            else:
+                raw_text = raw_text.strip()
+                if "data: [DONE]" in raw_text:
+                    raw_text = raw_text.split("data: [DONE]")[0].strip()
+                if not raw_text:
+                    raise ValueError("Received empty response from proxy.")
+                result_json = json.loads(raw_text)
+                
+            chatbot_response = result_json['choices'][0]['message']['content']
+            return jsonify({'response': chatbot_response})
+        except Exception as e:
+            errors.append(f"Model '{model_name}' failed: {str(e)}")
+
+    fallbacks = {
+        'en': "I'm sorry, I'm having trouble connecting to the network right now. Please try again in a moment.",
+        'hi': "क्षमा करें, मुझे इस समय नेटवर्क से जुड़ने में समस्या हो रही है। कृपया थोड़ी देर बाद पुनः प्रयास करें।",
+        'mr': "क्षमस्व, मला सध्या नेटवर्कशी जोडण्यात अडचण येत आहे. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा."
+    }
+    return jsonify({'response': fallbacks.get(lang, fallbacks['en']), 'error': f"All chatbot models failed: {'; '.join(errors)}"}), 500
+
+# VOICE TRANSCRIPTION ENDPOINT USING 9ROUTER (GROQ/WHISPER MODELS)
+@bp.route('/api/transcribe', methods=['POST'])
+def transcribe_audio():
+    if 'vendor_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    if 'file' not in request.files:
+        return jsonify({'error': 'No audio file provided'}), 400
+
+    audio_file = request.files['file']
+    lang = request.form.get('lang', 'en')  # selected language preference
+
+    # Mapping of lang code for Whisper 'language' parameter
+    lang_mapping = {
+        'en': 'en',
+        'hi': 'hi',
+        'mr': 'mr'
+    }
+    whisper_lang = lang_mapping.get(lang)
+
+    api_key = current_app.config.get('NINEROUTER_API_KEY')
+    api_base = current_app.config.get('NINEROUTER_API_BASE', 'https://api.9router.com/v1')
+    models = current_app.config.get('NINEROUTER_MODELS_VOICE') or ['groq/whisper-large-v3', 'whisper-large-v3', 'openai/whisper-1']
+
+    url = f"{api_base.rstrip('/')}/audio/transcriptions"
+    headers = {
+        'Authorization': f'Bearer {api_key}'
+    }
+
+    errors = []
+    audio_data = audio_file.read()
+
+    for model_name in models:
+        try:
+            files = {
+                'file': ('audio.wav', audio_data, audio_file.content_type or 'audio/wav')
+            }
+            data = {
+                'model': model_name
+            }
+            if whisper_lang:
+                data['language'] = whisper_lang
+
+            response = requests.post(url, files=files, data=data, headers=headers, timeout=20)
+            if response.status_code == 200:
+                result_json = response.json()
+                transcript = result_json.get('text', '').strip()
+                if transcript:
+                    return jsonify({'text': transcript})
+                else:
+                    errors.append(f"Model '{model_name}' returned empty transcription text")
+            else:
+                errors.append(f"Model '{model_name}' failed with status {response.status_code}: {response.text}")
+        except Exception as e:
+            errors.append(f"Model '{model_name}' request error: {str(e)}")
+
+    return jsonify({
+        'error': 'Speech transcription failed across all fallback models.',
+        'details': errors
+    }), 500
 
 # NEW ROUTE FOR SUBMITTING A DONATION
 @bp.route('/api/submit-donation', methods=['POST'])

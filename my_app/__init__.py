@@ -57,20 +57,34 @@ def create_app(config_class=Config, config_overrides=None, static_folder=None):
         pass
 
     # Ensure upload directory exists
-    # Note: We use app.config['UPLOAD_FOLDER'] which is now an absolute path
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
     # Make API key available to all templates
     @app.context_processor
     def inject_api_key():
-        return dict(GEMINI_API_KEY=app.config['GEMINI_API_KEY'])
+        return dict(
+            GEMINI_API_KEY=app.config.get('GEMINI_API_KEY'),
+            NINEROUTER_API_KEY=app.config.get('NINEROUTER_API_KEY'),
+            NINEROUTER_API_BASE=app.config.get('NINEROUTER_API_BASE')
+        )
+
+    @app.template_filter('cache_bust')
+    def cache_bust_filter(static_url):
+        if not static_url:
+            return ''
+        if static_url.startswith('/static/'):
+            filename = static_url[len('/static/'):]
+            local_path = os.path.join(app.static_folder, filename)
+            if os.path.exists(local_path):
+                mtime = int(os.path.getmtime(local_path))
+                return f"{static_url}?v={mtime}"
+        return static_url
 
     # Import and register the Blueprint from routes.py
     from . import routes
     app.register_blueprint(routes.bp)
 
     # A simple command to initialize the database from the command line
-    # You can run 'flask init-db' in your terminal
     from . import db
     @app.cli.command('init-db')
     def init_db_command():

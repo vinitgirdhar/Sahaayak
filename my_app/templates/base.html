@@ -9,7 +9,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Compiled Tailwind + Sahaayak design system -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
@@ -17,8 +17,107 @@
     <!-- Feather Icons (self-hosted) -->
     <script src="{{ url_for('static', filename='vendor/feather.min.js') }}"></script>
 
+    <script>
+        (function() {
+            const savedTheme = sessionStorage.getItem('sahaayak-theme') || 'daylight-theme';
+            document.documentElement.classList.add(savedTheme);
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add(savedTheme);
+                const aurora = document.querySelector('.aurora-overlay');
+                const grain = document.querySelector('.grain-overlay');
+                if (aurora && grain) {
+                    if (savedTheme === 'aurora-theme') {
+                        aurora.classList.remove('hidden');
+                        grain.classList.remove('hidden');
+                    } else {
+                        aurora.classList.add('hidden');
+                        grain.classList.add('hidden');
+                    }
+                }
+            });
+        })();
+    </script>
+
     {% block head_extra %}{% endblock %}
     <style>
+        /* --- Light Theme (Daylight) --- */
+        .daylight-theme {
+            --background-primary: #f4f5f7;
+            --background-secondary: #ffffff;
+            --background-tertiary: #eef2f9;
+            --border-primary: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --accent-primary: #2563eb;
+            --accent-secondary: #1d4ed8;
+        }
+        
+        /* --- Dark Theme (Aurora) --- */
+        .aurora-theme {
+            --background-primary: #020617; /* Slate 950 */
+            --background-secondary: #0b0f19; /* Deep slate-blue */
+            --background-tertiary: #161f30; /* Lighter shade for hovers/active items */
+            --border-primary: rgba(255, 255, 255, 0.08); /* Soft glass borders */
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6); /* Brighter translucent secondary */
+            /* Accent: Lightened, softer pastel orange for dark mode eye-comfort */
+            --accent-primary: #ff9e59;     /* Soft pastel orange */
+            --accent-secondary: #fb8c3c;   /* Slightly deeper soft orange */
+        }
+
+        /* Cinematic background layers matching landing page */
+        .aurora-overlay {
+            position: fixed; inset: 0; z-index: -10; pointer-events: none;
+            background:
+                radial-gradient(55rem 38rem at 78% -8%, rgba(249,115,22,0.12), transparent 60%),
+                radial-gradient(48rem 34rem at 8% 18%, rgba(66,157,254,0.08), transparent 55%),
+                radial-gradient(42rem 30rem at 55% 112%, rgba(255,145,227,0.06), transparent 60%);
+        }
+        .aurora-overlay::after {
+            content: ''; position: absolute; inset: -20%;
+            background: radial-gradient(40rem 28rem at 50% 50%, rgba(249,115,22,0.03), transparent 70%);
+            animation: auroraDrift 26s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+        .grain-overlay {
+            position: fixed; inset: 0; z-index: -9; pointer-events: none; opacity: 0.02;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* Wholesaler overrides for dark mode */
+        .aurora-theme body {
+            background-color: var(--background-primary) !important;
+            color: var(--text-primary) !important;
+            font-family: 'Geist', 'Inter', sans-serif !important;
+        }
+        .aurora-theme h1, .aurora-theme h2, .aurora-theme h3, .aurora-theme h4, .aurora-theme h5, .aurora-theme h6 {
+            font-family: 'Geist', 'Inter', sans-serif !important;
+        }
+        .aurora-theme .bg-slate-50, .aurora-theme .bg-gray-50 {
+            background-color: var(--background-primary) !important;
+        }
+        .aurora-theme .bg-white {
+            background-color: var(--background-secondary) !important;
+        }
+        .aurora-theme .border-gray-200, .aurora-theme .border-slate-200, .aurora-theme .border-gray-100 {
+            border-color: var(--border-primary) !important;
+        }
+        .aurora-theme .text-slate-900, .aurora-theme .text-gray-800, .aurora-theme .text-gray-900 {
+            color: var(--text-primary) !important;
+        }
+        .aurora-theme .text-slate-600, .aurora-theme .text-gray-600, .aurora-theme .text-gray-500 {
+            color: var(--text-secondary) !important;
+        }
+        .aurora-theme input, .aurora-theme select, .aurora-theme textarea {
+            background-color: var(--background-tertiary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-primary) !important;
+        }
+        .aurora-theme .mobile-nav {
+            background-color: rgba(11, 15, 25, 0.8) !important;
+            border-color: var(--border-primary) !important;
+        }
+
         /* Hide scrollbars site-wide (pages still scroll by wheel/touch) */
         * { scrollbar-width: none; -ms-overflow-style: none; }
         *::-webkit-scrollbar { display: none; }
@@ -84,6 +183,8 @@
 ] %}
 {% set show_mobile_nav = request.endpoint in wholesaler_endpoints %}
 <body class="bg-slate-50 min-h-screen font-sans text-slate-900 {% if show_mobile_nav %}has-mobile-nav{% endif %}">
+    <div class="aurora-overlay hidden"></div>
+    <div class="grain-overlay hidden"></div>
     <main>
         {% block content %}{% endblock %}
     </main>

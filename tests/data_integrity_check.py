@@ -5,6 +5,11 @@ Run schema and data integrity checks against a disposable verification copy.
 
 import sqlite3
 
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from my_app import db as app_db
 from verification_helper import resolve_local_reference, verification_environment
 

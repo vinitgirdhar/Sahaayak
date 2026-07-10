@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080808" />
+      <stop offset="50%" stop-color="#14110f" />
+      <stop offset="100%" stop-color="#1c140e" />
+    </linearGradient>
+    <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#d97706" stop-opacity="0.2" />
+      <stop offset="60%" stop-color="#f59e0b" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#080808" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="spiceGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+    </linearGradient>
+    <pattern id="grain_pattern" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+      <circle cx="10" cy="10" r="1.5" fill="rgba(217, 119, 6, 0.15)" />
+      <circle cx="30" cy="30" r="1.5" fill="rgba(217, 119, 6, 0.1)" />
+      <circle cx="50" cy="50" r="1.5" fill="rgba(217, 119, 6, 0.15)" />
+    </pattern>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="800" fill="url(#bg)" />
+  <!-- Grain Pattern -->
+  <rect width="1200" height="800" fill="url(#grain_pattern)" />
+  <!-- Gold Glow -->
+  <circle cx="600" cy="400" r="500" fill="url(#goldGlow)" />
+  <!-- Layered spice heap vectors -->
+  <path d="M -100 800 L 200 400 Q 400 350 600 500 T 1300 800 Z" fill="url(#spiceGrad)" />
+  <!-- Abstract wheat line art -->
+  <g stroke="rgba(245, 158, 11, 0.15)" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <!-- Stem 1 -->
+    <path d="M 800 700 Q 820 500 880 300" />
+    <path d="M 880 300 Q 890 280 910 270" />
+    <!-- Grains -->
+    <path d="M 865 370 Q 885 360 880 345 Z" fill="rgba(245, 158, 11, 0.1)" />
+    <path d="M 855 350 Q 840 340 850 325 Z" fill="rgba(245, 158, 11, 0.1)" />
+    <path d="M 875 320 Q 895 310 890 295 Z" fill="rgba(245, 158, 11, 0.1)" />
+    <path d="M 860 300 Q 845 290 855 275 Z" fill="rgba(245, 158, 11, 0.1)" />
+  </g>
+</svg>

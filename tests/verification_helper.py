@@ -7,11 +7,16 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from my_app import create_app
 from my_app import db as app_db
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DATABASE_PATH = PROJECT_ROOT / 'vendor_clubs.db'
 SOURCE_STATIC_DIR = PROJECT_ROOT / 'my_app' / 'static'
 

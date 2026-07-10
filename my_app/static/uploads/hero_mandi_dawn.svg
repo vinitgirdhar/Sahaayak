@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020617" />
+      <stop offset="60%" stop-color="#0b1528" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.25" />
+      <stop offset="50%" stop-color="#fb923c" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="wave1" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#429dfe" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="wave2" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#429dfe" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0" />
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255, 255, 255, 0.03)" stroke-width="1" />
+    </pattern>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="800" fill="url(#bg)" />
+  <!-- Grid -->
+  <rect width="1200" height="800" fill="url(#grid)" />
+  <!-- Sun Glow -->
+  <circle cx="900" cy="200" r="400" fill="url(#sun)" />
+  <!-- Abstract Hills / Produce heaps -->
+  <path d="M 0 500 Q 300 400 600 550 T 1200 450 L 1200 800 L 0 800 Z" fill="url(#wave1)" />
+  <path d="M 0 600 Q 400 700 800 580 T 1200 650 L 1200 800 L 0 800 Z" fill="url(#wave2)" />
+  <!-- Organic Lines (Chilli/Vegetable silhouette) -->
+  <path d="M 850 350 C 900 300, 950 380, 1000 330 C 1050 280, 1020 200, 950 250 C 880 300, 800 400, 850 350 Z" fill="none" stroke="rgba(249, 115, 22, 0.2)" stroke-width="2" />
+  <path d="M 920 280 Q 940 240 980 260" fill="none" stroke="rgba(66, 157, 254, 0.3)" stroke-width="2.5" stroke-linecap="round" />
+  <!-- Abstract leaves -->
+  <path d="M 150 250 Q 200 200 250 250 T 350 250" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+</svg>

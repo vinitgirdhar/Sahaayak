@@ -41,21 +41,18 @@ rebuild it with the Tailwind standalone CLI (v3.x):
 
 ```text
 Sahaayak/
-|-- app.py
+|-- app.py            # Vercel entrypoint
+|-- run.py            # local dev entrypoint
 |-- config.py
 |-- vendor_clubs.db
-|-- my_app/
+|-- my_app/           # the Flask application (backend + frontend)
 |   |-- __init__.py
 |   |-- db.py
 |   |-- routes.py
-|   |-- templates/
-|   `-- static/
-|-- validate_mock_data.py
-|-- data_integrity_check.py
-|-- test_user_flow.py
-|-- final_verification.py
-|-- verification_helper.py
-`-- MANUAL_VERIFICATION.md
+|   |-- templates/    # frontend: server-rendered HTML
+|   `-- static/       # frontend: css, uploads, vendored js
+|-- tests/            # verification suite and test scripts
+`-- scripts/          # one-off utilities (seed, reset, image fetch, debug)
 ```
 
 ## Local Setup
@@ -106,10 +103,10 @@ The verification suite can override `DATABASE` and `UPLOAD_FOLDER` at runtime so
 Run these from the project root.
 
 ```bash
-python validate_mock_data.py
-python data_integrity_check.py
-python test_user_flow.py
-python final_verification.py
+python tests/validate_mock_data.py
+python tests/data_integrity_check.py
+python tests/test_user_flow.py
+python tests/final_verification.py
 ```
 
 What they do:
@@ -123,19 +120,18 @@ For the optional live AI smoke test:
 
 ```bash
 set VERIFY_LIVE_GEMINI=1
-python test_user_flow.py
+python tests/test_user_flow.py
 ```
 
 If `VERIFY_LIVE_GEMINI` is not set, the AI flow is tested with mocks by default.
 
 ## Manual QA
 
-Use the checklist in `MANUAL_VERIFICATION.md` for the browser pass. It covers:
+After the automated scripts pass, do a quick browser pass at `1440x900` (desktop) and `390x844` (mobile) over the core vendor and wholesaler pages: check for clipped or overlapping content, broken images, and that navigation, forms, cart, and checkout stay usable at both sizes.
 
-- Desktop viewport: `1440x900`
-- Mobile viewport: `390x844`
-- Core vendor and wholesaler pages
-- Responsive layout issues, clipped content, missing assets, and interaction checks
+## Utility Scripts
+
+`scripts/` holds one-off development utilities (database reset, product seeding, image fetching, debug dumps). Run them from the project root, e.g. `python scripts/seed_products.py` — they resolve `vendor_clubs.db` relative to the working directory.
 
 ## Deployment Notes
 

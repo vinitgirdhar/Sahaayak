@@ -27,7 +27,7 @@
                 display: flex;
                 position: fixed;
                 bottom: 0; left: 0; right: 0;
-                background-color: rgba(255, 255, 255, 0.92);
+                background-color: rgba(255, 255, 255, 0.8);
                 backdrop-filter: blur(12px);
                 -webkit-backdrop-filter: blur(12px);
                 border-top: 1px solid #e2e8f0;
@@ -117,9 +117,18 @@
     </button>
     {% endif %}
 
+    <script src="{{ url_for('static', filename='vendor/liquidglass.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (window.feather) { feather.replace(); }
+            // Liquid glass on opted-in surfaces only (auth card, sticky headers,
+            // mobile nav). Refraction on Chromium (Windows/Android); the module
+            // falls back to frosted blur on iOS/Safari automatically.
+            if (window.liquidGlass) {
+                document.querySelectorAll('[data-lg], .mobile-nav').forEach(function (el) {
+                    liquidGlass(el, { scale: -96, blur: 3, fallbackBlur: 14 });
+                });
+            }
         });
     </script>
     {% block body_extra %}{% endblock %}

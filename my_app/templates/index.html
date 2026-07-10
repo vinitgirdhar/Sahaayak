@@ -61,7 +61,7 @@
         .photo-warm img { filter: saturate(1.05) contrast(1.05) brightness(0.92); }
 
         .clip-text-image {
-            background: url('{{ url_for('static', filename='uploads/groceries.jpg') }}') center/cover;
+            background: url('{{ url_for('static', filename='uploads/bg_hero.jpg') }}') center/cover;
             -webkit-background-clip: text; background-clip: text;
             -webkit-text-fill-color: transparent; color: transparent;
             filter: brightness(1.15);
@@ -152,7 +152,7 @@
 
             <div class="text-center relative gs-title mt-12 md:mt-0">
                 <div class="absolute -left-10 md:-left-40 top-1/2 -translate-y-1/2 gs-hero-btn hidden sm:block">
-                    <a href="{{ url_for('main.register_vendor') }}" class="glass text-white px-4 py-2 rounded-full text-sm font-normal flex items-center gap-2 hover:bg-white/10 transition-all">
+                    <a href="{{ url_for('main.vendor_login') }}" class="glass text-white px-4 py-2 rounded-full text-sm font-normal flex items-center gap-2 hover:bg-white/10 transition-all">
                         Start ordering
                         <span class="w-6 h-6 rounded-full text-[#020617] flex items-center justify-center bg-[#F97316]">{{ icon('arrow-right-linear', 'w-3.5 h-3.5') }}</span>
                     </a>
@@ -167,7 +167,7 @@
 
         <!-- Hero photographic panel (real photo, graded) + floating product UI -->
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[20%] w-[90%] md:w-[72%] h-[50vh] md:h-[60vh] rounded-3xl z-30 gs-hero-img shadow-2xl border border-white/10 photo photo-grade photo-warm">
-            <img src="{{ url_for('static', filename='uploads/groceries.jpg') }}" alt="Fresh produce in a market bag" id="hero-img-inner" class="scale-110" loading="eager">
+            <img src="{{ url_for('static', filename='uploads/bg_hero.jpg') }}" alt="Mandi at Dawn" id="hero-img-inner" class="scale-110" loading="eager">
             <!-- floating order card -->
             <div class="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-20 glass rounded-2xl p-4 md:p-5 w-[15rem]">
                 <div class="flex items-center justify-between mb-3">
@@ -186,7 +186,7 @@
     </section>
 
     <!-- ===================== Vendors + price-comparison mockup ===================== -->
-    <section class="md:px-12 text-white z-20 pt-[30vh] pr-6 pb-24 pl-6 relative bg-[#080808]" id="vendors">
+    <section class="md:px-12 text-white z-20 pt-[30vh] pr-6 pb-24 pl-6 relative bg-[#080808]" id="vendors" style="background: linear-gradient(rgba(8,8,8,0.85), rgba(8,8,8,0.95)), url('{{ url_for('static', filename='uploads/bg_vendors.jpg') }}') center/cover;">
         <div class="absolute bottom-10 right-6 text-[16vw] font-semibold tracking-tight text-white/[0.03] uppercase leading-none pointer-events-none gs-bg-text">MUMBAI.</div>
 
         <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
@@ -199,10 +199,10 @@
                     Stop closing your stall for the dawn run. Compare live prices and trust scores across every wholesaler near your pitch, then add it all to a single cart.
                 </p>
                 <div class="mt-10 flex gap-4 gs-fade-up">
-                    <a href="{{ url_for('main.register_vendor') }}" class="bg-[#F97316] text-[#020617] px-6 py-3 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-white transition-all">
+                    <a href="{{ url_for('main.vendor_login') }}" class="bg-[#F97316] text-[#020617] px-6 py-3 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-white transition-all">
                         Start buying wholesale {{ icon('arrow-right-linear', 'w-4 h-4') }}
                     </a>
-                    <a href="{{ url_for('main.vendor_login') }}" class="glass px-6 py-3 rounded-full text-sm font-normal flex items-center gap-2 hover:bg-white/10 transition-all">Vendor login</a>
+                    <a href="{{ url_for('main.register_vendor') }}" class="glass px-6 py-3 rounded-full text-sm font-normal flex items-center gap-2 hover:bg-white/10 transition-all">Create account</a>
                 </div>
             </div>
 
@@ -296,7 +296,7 @@
     <!-- ===================== Photographic marketplace band ===================== -->
     <section class="relative overflow-hidden" id="marketplace">
         <div class="photo photo-warm h-[70vh] md:h-[88vh] w-full gs-fade-up">
-            <img src="{{ url_for('static', filename='uploads/groceries.jpg') }}" alt="Fresh wholesale produce" class="scale-105" style="object-position: 50% 35%;" loading="lazy">
+            <img src="{{ url_for('static', filename='uploads/bg_marketplace.jpg') }}" alt="Fresh wholesale produce" class="scale-105" style="object-position: 50% 35%;" loading="lazy">
             <div class="absolute inset-0" style="background:linear-gradient(180deg, rgba(2,6,23,0.55), rgba(2,6,23,0.25) 40%, rgba(2,6,23,0.95));"></div>
         </div>
         <div class="absolute inset-0 flex flex-col justify-center max-w-[1700px] mx-auto px-6 md:px-12">
@@ -312,15 +312,15 @@
     </section>
 
     <!-- ===================== Wholesalers + dashboard mockup ===================== -->
-    <section class="bg-[#080808] py-24 px-6 md:px-12 relative overflow-hidden" id="wholesalers">
+    <section class="bg-[#080808] py-24 px-6 md:px-12 relative overflow-hidden" id="wholesalers" style="background: linear-gradient(rgba(8,8,8,0.85), rgba(8,8,8,0.95)), url('{{ url_for('static', filename='uploads/bg_wholesalers.jpg') }}') center/cover;">
         <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div class="gs-fade-up">
                 <div class="px-3 py-1 rounded-full border border-[#262626] text-xs font-light uppercase tracking-wider mb-6 inline-block">For wholesalers</div>
                 <h2 class="text-[12vw] md:text-[5.5vw] leading-[0.9] font-semibold tracking-tight uppercase mb-8">A QUEUE OF<br>REPEAT BUYERS</h2>
                 <p class="text-base font-light text-white/50 max-w-md leading-relaxed mb-10">Hundreds of stalls restock daily. List your catalogue once and manage orders, revenue and your trust score from one clean dashboard — no notebook, no phone tag.</p>
                 <div class="flex gap-4">
-                    <a href="{{ url_for('main.register_wholesaler') }}" class="bg-[#F97316] text-[#020617] px-6 py-3 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-white transition-all">Register your business {{ icon('arrow-right-linear', 'w-4 h-4') }}</a>
-                    <a href="{{ url_for('main.wholesaler_login') }}" class="glass px-6 py-3 rounded-full text-sm font-normal flex items-center gap-2 hover:bg-white/10 transition-all">Log in</a>
+                    <a href="{{ url_for('main.wholesaler_login') }}" class="bg-[#F97316] text-[#020617] px-6 py-3 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-white transition-all">Start selling {{ icon('arrow-right-linear', 'w-4 h-4') }}</a>
+                    <a href="{{ url_for('main.register_wholesaler') }}" class="glass px-6 py-3 rounded-full text-sm font-normal flex items-center gap-2 hover:bg-white/10 transition-all">Register your business</a>
                 </div>
             </div>
 
@@ -397,8 +397,8 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Vendor card with real photo -->
-                <a href="{{ url_for('main.register_vendor') }}" class="group relative overflow-hidden rounded-3xl border border-[#262626] min-h-[420px] flex items-end p-8 md:p-10 photo photo-warm">
-                    <img src="{{ url_for('static', filename='uploads/groceries.jpg') }}" alt="" class="absolute inset-0 transition-transform duration-700 group-hover:scale-105" style="object-position: 20% 40%;" loading="lazy">
+                <a href="{{ url_for('main.vendor_login') }}" class="group relative overflow-hidden rounded-3xl border border-[#262626] min-h-[420px] flex items-end p-8 md:p-10 photo photo-warm">
+                    <img src="{{ url_for('static', filename='uploads/card_vendor.jpg') }}" alt="Street Vendor Morning" class="absolute inset-0 transition-transform duration-700 group-hover:scale-105" style="object-position: 20% 40%;" loading="lazy">
                     <div class="absolute inset-0" style="background:linear-gradient(150deg, rgba(249,115,22,0.25), rgba(2,6,23,0.55) 45%, rgba(2,6,23,0.95));"></div>
                     <div class="relative z-10">
                         <span class="text-4xl font-extralight opacity-40">01</span>
@@ -409,19 +409,23 @@
                 </a>
 
                 <!-- Wholesaler card with mini dashboard -->
-                <a href="{{ url_for('main.register_wholesaler') }}" class="group relative overflow-hidden rounded-3xl border border-[#262626] min-h-[420px] flex flex-col justify-between p-8 md:p-10 bg-gradient-to-br from-[#0e0e0e] to-[#020617] hover:border-[#F97316]/40 transition-colors">
-                    <div class="flex items-start justify-between">
-                        <span class="text-4xl font-extralight opacity-20">02</span>
-                        <div class="glass rounded-2xl p-4 w-40">
-                            <p class="text-[9px] uppercase tracking-widest text-white/40 mb-1">Revenue</p>
-                            <p class="text-xl font-semibold">₹84,560</p>
-                            <div class="flex items-end gap-1 h-10 mt-2">{% for h in [40,60,50,80,70,100] %}<div class="flex-1 rounded-t-sm {% if loop.last %}bg-[#F97316]{% else %}bg-white/15{% endif %}" style="height:{{h}}%"></div>{% endfor %}</div>
+                <a href="{{ url_for('main.wholesaler_login') }}" class="group relative overflow-hidden rounded-3xl border border-[#262626] min-h-[420px] block p-8 md:p-10 photo hover:border-[#F97316]/40 transition-colors">
+                    <img src="{{ url_for('static', filename='uploads/card_wholesaler.jpg') }}" alt="Wholesaler" class="absolute inset-0 transition-transform duration-700 group-hover:scale-105 w-full h-full object-cover" style="object-position: 50% 50%;" loading="lazy">
+                    <div class="absolute inset-0" style="background:linear-gradient(150deg, rgba(66,157,254,0.15), rgba(2,6,23,0.65) 45%, rgba(2,6,23,0.95));"></div>
+                    <div class="relative z-10 flex flex-col justify-between h-full">
+                        <div class="flex items-start justify-between">
+                            <span class="text-4xl font-extralight opacity-20">02</span>
+                            <div class="glass rounded-2xl p-4 w-40">
+                                <p class="text-[9px] uppercase tracking-widest text-white/40 mb-1">Revenue</p>
+                                <p class="text-xl font-semibold">₹84,560</p>
+                                <div class="flex items-end gap-1 h-10 mt-2">{% for h in [40,60,50,80,70,100] %}<div class="flex-1 rounded-t-sm {% if loop.last %}bg-[#F97316]{% else %}bg-white/15{% endif %}" style="height:{{h}}%"></div>{% endfor %}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <h3 class="text-3xl font-semibold uppercase tracking-tight leading-none mb-3 group-hover:text-[#F97316] transition-colors">I SUPPLY<br>IN BULK</h3>
-                        <p class="text-sm font-light text-white/50 max-w-xs mb-5">A steady queue of repeat vendor orders, minus the phone tag.</p>
-                        <span class="text-xs font-medium uppercase tracking-wider flex items-center gap-2 group-hover:text-[#F97316] transition-colors">Start selling {{ icon('arrow-right-up-linear', 'w-4 h-4') }}</span>
+                        <div>
+                            <h3 class="text-3xl font-semibold uppercase tracking-tight leading-none mb-3 group-hover:text-[#F97316] transition-colors">I SUPPLY<br>IN BULK</h3>
+                            <p class="text-sm font-light text-white/50 max-w-xs mb-5">A steady queue of repeat vendor orders, minus the phone tag.</p>
+                            <span class="text-xs font-medium uppercase tracking-wider flex items-center gap-2 group-hover:text-[#F97316] transition-colors">Start selling {{ icon('arrow-right-up-linear', 'w-4 h-4') }}</span>
+                        </div>
                     </div>
                 </a>
             </div>
@@ -540,6 +544,18 @@
                 .fromTo('.gs-hero-img', { yPercent: 40, opacity: 0 }, { yPercent: 20, opacity: 1, duration: 1.4, ease: 'power3.out' }, '-=1');
         }
     })();
+    </script>
+    <script src="{{ url_for('static', filename='vendor/liquidglass.js') }}"></script>
+    <script>
+        // Liquid glass refraction on the small nav chrome only — large .glass
+        // cards deliberately stay backdrop-filter-free (see perf note in the
+        // stylesheet above). iOS/Safari gets the module's frosted-blur fallback.
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!window.liquidGlass) return;
+            document.querySelectorAll('.glass-blur').forEach(el => {
+                liquidGlass(el, { scale: -64, blur: 3, fallbackBlur: 12 });
+            });
+        });
     </script>
 </body>
 </html>

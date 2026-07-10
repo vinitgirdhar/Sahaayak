@@ -75,13 +75,8 @@ PRODUCT_SEARCH_TERMS = {
     'roti (10pc)': 'flatbread',
     'paratha (5pc)': 'paratha indian bread',
     'pizza base (2pc)': 'pizza dough',
-    'garlic bread': 'garlic bread',    from my_app import create_app
-    
-    app = create_app()
-    
-    if __name__ == '__main__':
-        app.run()
-    
+    'garlic bread': 'garlic bread',
+
     # Oils & Condiments
     'sunflower oil (1l)': 'sunflower oil',
     'mustard oil (1l)': 'mustard oil',

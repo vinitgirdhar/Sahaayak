@@ -120,6 +120,7 @@ def get_database_path():
 
 def get_connection(row_factory=None):
     conn = sqlite3.connect(get_database_path())
+    conn.execute("PRAGMA foreign_keys = ON")
     if row_factory is not None:
         conn.row_factory = row_factory
     return conn

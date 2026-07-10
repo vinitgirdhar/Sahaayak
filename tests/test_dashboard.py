@@ -5,7 +5,7 @@ Test the vendor dashboard route with updated template
 
 import sys
 import os
-sys.path.append(os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from my_app import create_app
 from my_app.db import init_db

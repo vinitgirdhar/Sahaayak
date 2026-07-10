@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020617" />
+      <stop offset="60%" stop-color="#080e1a" />
+      <stop offset="100%" stop-color="#1a120b" />
+    </linearGradient>
+    <radialGradient id="warmLight" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.18" />
+      <stop offset="70%" stop-color="#ea580c" stop-opacity="0.03" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="streetGrid" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+      <line x1="0" y1="0" x2="0" y2="80" stroke="rgba(255, 255, 255, 0.02)" stroke-width="1" />
+      <line x1="0" y1="0" x2="80" y2="0" stroke="rgba(255, 255, 255, 0.02)" stroke-width="1" />
+    </pattern>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="800" fill="url(#bg)" />
+  <!-- Street Grid -->
+  <rect width="1200" height="800" fill="url(#streetGrid)" />
+  <!-- Warm Light -->
+  <circle cx="200" cy="600" r="500" fill="url(#warmLight)" />
+  <!-- Abstract Kettle / Stall silhouette -->
+  <g stroke="rgba(249, 115, 22, 0.25)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Kettle body -->
+    <path d="M 400 450 L 500 450 L 520 550 L 380 550 Z" />
+    <!-- Lid and handle -->
+    <path d="M 420 450 L 420 430 L 480 430 L 480 450" />
+    <path d="M 450 430 Q 450 380 400 380 Q 350 380 350 450" stroke-width="1.5" />
+    <!-- Spout -->
+    <path d="M 510 480 Q 550 460 560 430" />
+    <!-- Steam lines -->
+    <path d="M 560 410 Q 565 390 560 380" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" />
+    <path d="M 570 415 Q 575 395 570 385" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" />
+  </g>
+  <!-- Abstract stall lines -->
+  <line x1="100" y1="200" x2="350" y2="200" stroke="rgba(255,255,255,0.06)" stroke-width="3" />
+  <line x1="150" y1="200" x2="150" y2="600" stroke="rgba(255,255,255,0.06)" stroke-width="2" />
+  <line x1="300" y1="200" x2="300" y2="600" stroke="rgba(255,255,255,0.06)" stroke-width="2" />
+</svg>

@@ -17,6 +17,7 @@
 
     <style>
         html { scrollbar-width: none; scroll-behavior: smooth; }
+        * { scrollbar-width: none; -ms-overflow-style: none; }
         ::-webkit-scrollbar { display: none; }
         @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
@@ -94,7 +95,7 @@
     <div class="grain"></div>
 
     <!-- ===================== Hero ===================== -->
-    <section class="min-h-[128vh] flex flex-col overflow-hidden w-full pt-8 relative items-center" id="hero">
+    <section class="min-h-screen flex flex-col overflow-hidden w-full pt-8 pb-16 md:pb-24 relative items-center" id="hero">
         <div class="absolute inset-0 flex flex-col justify-center items-center pointer-events-none select-none z-0">
             <span class="block text-[25vw] leading-[0.8] font-semibold tracking-tight text-white/[0.04] uppercase gs-bg-text">STREET</span>
             <span class="block text-[25vw] leading-[0.8] font-semibold tracking-tight text-white/[0.04] uppercase gs-bg-text">SUPPLY</span>
@@ -165,11 +166,13 @@
             </div>
         </div>
 
-        <!-- Hero photographic panel (real photo, graded) + floating product UI -->
-        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[20%] w-[90%] md:w-[72%] h-[50vh] md:h-[60vh] rounded-3xl z-30 gs-hero-img shadow-2xl border border-white/10 photo photo-grade photo-warm">
+        <!-- Hero photographic panel (real photo, graded) + floating product UI.
+             In normal flow (no absolute/translate) so it can never drift
+             off-center on resize or orientation change. -->
+        <div class="relative w-[92%] md:w-[74%] max-w-[1400px] h-[42vh] md:h-[54vh] mt-10 md:mt-14 rounded-3xl z-30 gs-hero-img shadow-2xl border border-white/10 photo photo-grade photo-warm">
             <img src="{{ url_for('static', filename='uploads/bg_hero.jpg') }}" alt="Mandi at Dawn" id="hero-img-inner" class="scale-110" loading="eager">
             <!-- floating order card -->
-            <div class="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-20 glass rounded-2xl p-4 md:p-5 w-[15rem]">
+            <div class="absolute bottom-4 left-4 md:bottom-10 md:left-10 z-20 glass glass-blur rounded-2xl p-4 md:p-5 w-[14rem] md:w-[15rem]">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-[10px] font-medium uppercase tracking-widest text-white/60">Order #1042</span>
                     <span class="text-[10px] font-semibold uppercase tracking-wide text-[#F97316] flex items-center gap-1">{{ icon('delivery-linear', 'w-3.5 h-3.5') }} On the way</span>
@@ -178,7 +181,7 @@
                 <p class="text-sm font-medium tracking-tight">12 items · ₹1,862 <span class="text-white/50">· arriving 5:40 AM</span></p>
             </div>
             <!-- floating savings chip -->
-            <div class="absolute top-6 right-6 md:top-10 md:right-10 z-20 glass rounded-2xl p-4 md:p-5 text-right">
+            <div class="absolute top-4 right-4 md:top-10 md:right-10 z-20 glass glass-blur rounded-2xl p-4 md:p-5 text-right animate-float-slow">
                 <p class="text-[10px] font-medium uppercase tracking-widest text-white/60 mb-1">Saved this month</p>
                 <p class="text-2xl font-semibold tracking-tight text-[#F97316]">₹2,340</p>
             </div>
@@ -186,7 +189,7 @@
     </section>
 
     <!-- ===================== Vendors + price-comparison mockup ===================== -->
-    <section class="md:px-12 text-white z-20 pt-[30vh] pr-6 pb-24 pl-6 relative bg-[#080808]" id="vendors" style="background: linear-gradient(rgba(8,8,8,0.85), rgba(8,8,8,0.95)), url('{{ url_for('static', filename='uploads/bg_vendors.jpg') }}') center/cover;">
+    <section class="md:px-12 text-white z-20 pt-24 md:pt-32 pr-6 pb-24 pl-6 relative bg-[#080808]" id="vendors" style="background: linear-gradient(rgba(8,8,8,0.85), rgba(8,8,8,0.95)), url('{{ url_for('static', filename='uploads/bg_vendors.jpg') }}') center/cover;">
         <div class="absolute bottom-10 right-6 text-[16vw] font-semibold tracking-tight text-white/[0.03] uppercase leading-none pointer-events-none gs-bg-text">MUMBAI.</div>
 
         <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
@@ -541,7 +544,10 @@
                 .fromTo('.gs-hero-text', { opacity: 0 }, { opacity: 1, duration: 1 }, '-=0.5')
                 .fromTo('.gs-title-line', { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.12, ease: 'power4.out' }, '-=0.8')
                 .fromTo('.gs-hero-btn', { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.5)' }, '-=0.5')
-                .fromTo('.gs-hero-img', { yPercent: 40, opacity: 0 }, { yPercent: 20, opacity: 1, duration: 1.4, ease: 'power3.out' }, '-=1');
+                // clearProps at the end hands layout back to CSS, so a resize
+                // or rotation can never leave the panel stuck off-center.
+                .fromTo('.gs-hero-img', { y: 90, opacity: 0, scale: 0.97 },
+                        { y: 0, opacity: 1, scale: 1, duration: 1.4, ease: 'power3.out', clearProps: 'all' }, '-=1');
         }
     })();
     </script>

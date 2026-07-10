@@ -19,6 +19,10 @@
 
     {% block head_extra %}{% endblock %}
     <style>
+        /* Hide scrollbars site-wide (pages still scroll by wheel/touch) */
+        * { scrollbar-width: none; -ms-overflow-style: none; }
+        *::-webkit-scrollbar { display: none; }
+
         /* Wholesaler mobile bottom navigation */
         .mobile-nav, .floating-action-btn { display: none; }
         @media (max-width: 767.98px) {
@@ -126,7 +130,8 @@
             // falls back to frosted blur on iOS/Safari automatically.
             if (window.liquidGlass) {
                 document.querySelectorAll('[data-lg], .mobile-nav').forEach(function (el) {
-                    liquidGlass(el, { scale: -96, blur: 3, fallbackBlur: 14 });
+                    // blur 16 keeps form text readable over photo backdrops
+                    liquidGlass(el, { scale: -96, blur: 16, fallbackBlur: 20 });
                 });
             }
         });

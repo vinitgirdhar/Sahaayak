@@ -32,16 +32,17 @@
 {% block auth_subheading %}Sign in with your administrator credentials.{% endblock %}
 
 {% block auth_form %}
+<!-- TESTING: prefilled demo credentials — remove value attributes before production -->
 <form method="post" class="space-y-5">
     <div>
         <label for="username" class="sk-label">Username</label>
         <input type="text" id="username" name="username" class="sk-input" placeholder="Admin username"
-               autocomplete="username" required autofocus>
+               value="admin" autocomplete="username" required autofocus>
     </div>
     <div>
         <label for="password" class="sk-label">Password</label>
         <input type="password" id="password" name="password" class="sk-input" placeholder="Admin password"
-               autocomplete="current-password" required>
+               value="admin123" autocomplete="current-password" required>
     </div>
     <button type="submit" class="sk-btn sk-btn-lg w-full bg-slate-900 text-white shadow-md shadow-slate-900/20 hover:bg-slate-800">
         Sign in to admin

@@ -4,7 +4,7 @@
 
 {% block auth_bg_image %}{{ url_for('static', filename='uploads/card_wholesaler.jpg') }}{% endblock %}
 
-{% block auth_width %}max-w-2xl{% endblock %}
+{% block auth_width %}max-w-4xl{% endblock %}
 
 {% block auth_panel_title %}Put your warehouse in front of every stall.{% endblock %}
 {% block auth_panel_text %}Street vendors restock daily. List your catalogue once and let repeat bulk orders come to you.{% endblock %}
@@ -29,38 +29,39 @@
 {% block auth_subheading %}Applications are reviewed by the Sahaayak team — most go live within a day.{% endblock %}
 
 {% block auth_form %}
-<form method="POST" enctype="multipart/form-data" class="space-y-10">
+<!-- TESTING: prefilled dummy data (random phone per load) — remove value attributes before production -->
+<form method="POST" enctype="multipart/form-data" class="space-y-6">
     <!-- Business basics -->
     <fieldset>
         <legend class="flex items-center gap-2.5 font-display text-lg font-bold text-slate-900">
             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><i data-feather="briefcase" class="h-4 w-4"></i></span>
             Business details
         </legend>
-        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             <div>
                 <label for="name" class="sk-label">Full name <span class="text-rose-500">*</span></label>
-                <input type="text" id="name" name="name" class="sk-input" placeholder="Owner / contact person" autocomplete="name" required>
+                <input type="text" id="name" name="name" class="sk-input" placeholder="Owner / contact person" value="Test Wholesaler" autocomplete="name" required>
             </div>
             <div>
                 <label for="phone" class="sk-label">Phone number <span class="text-rose-500">*</span></label>
-                <input type="tel" id="phone" name="phone" class="sk-input" placeholder="10-digit mobile number" inputmode="numeric" autocomplete="tel" required>
+                <input type="tel" id="phone" name="phone" class="sk-input" placeholder="10-digit mobile number" value="{{ range(7000000000, 9999999999) | random }}" inputmode="numeric" autocomplete="tel" required>
             </div>
             <div>
                 <label for="password" class="sk-label">Password <span class="text-rose-500">*</span></label>
-                <input type="password" id="password" name="password" class="sk-input" placeholder="Choose a password" autocomplete="new-password" required>
+                <input type="password" id="password" name="password" class="sk-input" placeholder="Choose a password" value="password123" autocomplete="new-password" required>
             </div>
             <div>
                 <label for="shop_name" class="sk-label">Business / shop name <span class="text-rose-500">*</span></label>
-                <input type="text" id="shop_name" name="shop_name" class="sk-input" placeholder="e.g. Fresh Mart Wholesale" required>
+                <input type="text" id="shop_name" name="shop_name" class="sk-input" placeholder="e.g. Fresh Mart Wholesale" value="Test Wholesale Mart" required>
             </div>
-            <div class="sm:col-span-2">
+            <div class="md:col-span-2">
                 <label for="location" class="sk-label">Location <span class="text-rose-500">*</span></label>
-                <input type="text" id="location" name="location" class="sk-input" placeholder="Area / locality, e.g. Ghatkopar" required>
+                <input type="text" id="location" name="location" class="sk-input" placeholder="Area / locality, e.g. Ghatkopar" value="Ghatkopar" required>
             </div>
-            <div class="sm:col-span-2">
+            <div class="md:col-span-3">
                 <label for="sourcing_info" class="sk-label">What do you supply? <span class="text-rose-500">*</span></label>
-                <textarea id="sourcing_info" name="sourcing_info" rows="3" class="sk-input resize-y"
-                          placeholder="Describe your products and how you source them — vendors see this on your profile." required></textarea>
+                <textarea id="sourcing_info" name="sourcing_info" rows="2" class="sk-input resize-y"
+                          placeholder="Describe your products and how you source them — vendors see this on your profile." required>Fresh produce, staples and pantry items sourced daily from trusted Mumbai markets.</textarea>
             </div>
         </div>
     </fieldset>
@@ -72,17 +73,17 @@
             Verification documents
         </legend>
         <p class="mt-2 text-sm text-slate-500">These help our team verify your business and unlock your public trust score.</p>
-        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
                 <label for="id_proof" class="sk-label">ID proof</label>
                 <input type="file" id="id_proof" name="id_proof" accept="image/*,.pdf"
-                       class="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 transition-colors file:mr-4 file:rounded-lg file:border-0 file:bg-brand-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-brand-400">
+                       class="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 transition-colors file:mr-4 file:rounded-lg file:border-0 file:bg-[#F97316] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#020617] hover:border-[#F97316]/50">
                 <p class="sk-field-help">Aadhaar, PAN, or any government ID.</p>
             </div>
             <div>
                 <label for="license_doc" class="sk-label">Business license</label>
                 <input type="file" id="license_doc" name="license_doc" accept="image/*,.pdf"
-                       class="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 transition-colors file:mr-4 file:rounded-lg file:border-0 file:bg-brand-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-brand-400">
+                       class="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 transition-colors file:mr-4 file:rounded-lg file:border-0 file:bg-[#F97316] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#020617] hover:border-[#F97316]/50">
                 <p class="sk-field-help">Shop & establishment or trade license.</p>
             </div>
         </div>

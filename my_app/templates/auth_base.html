@@ -10,34 +10,132 @@
 
 {% block head_extra %}
 <style>
-    .auth-aurora {
-        position: fixed; inset: 0; z-index: 0; pointer-events: none;
-        background:
-            radial-gradient(55rem 38rem at 78% -8%, rgba(249,115,22,0.18), transparent 60%),
-            radial-gradient(48rem 34rem at 8% 18%, rgba(66,157,254,0.14), transparent 55%);
+    .hero-grid-overlay {
+        background-image:
+            linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(48rem 32rem at 30% 20%, black 30%, transparent 75%);
+        -webkit-mask-image: radial-gradient(48rem 32rem at 30% 20%, black 30%, transparent 75%);
     }
-    .auth-photo { filter: saturate(1.05) contrast(1.05) brightness(0.9); }
-    /* Frosted fill; backdrop-filter (refraction or blur) comes from liquidglass.js */
-    .auth-card {
-        background: rgba(255, 255, 255, 0.88);
-        border: 1px solid rgba(255, 255, 255, 0.45);
-        box-shadow: 0 25px 60px -15px rgba(2, 6, 23, 0.65);
+
+    /* Premium Glass Theme Overrides */
+    .glass {
+        /* Opaque enough that the form reads over any photo; the blur below is
+           the CSS baseline — liquidglass.js swaps it for refraction+blur on
+           Chromium and frosted blur on iOS/Safari. */
+        background: rgba(8, 13, 28, 0.78) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+        backdrop-filter: blur(22px) saturate(1.4);
+        -webkit-backdrop-filter: blur(22px) saturate(1.4);
     }
+
+    .glass h1 {
+        color: #ffffff !important;
+    }
+
+    .glass p, .glass .sk-field-help {
+        color: #94a3b8 !important; /* slate-400 */
+    }
+
+    .glass legend {
+        color: #ffffff !important;
+    }
+
+    .glass legend span {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #F97316 !important;
+    }
+
+    .glass .sk-label {
+        color: #cbd5e1 !important; /* slate-300 */
+    }
+
+    .glass .sk-input {
+        background-color: rgba(255, 255, 255, 0.09) !important;
+        border-color: rgba(255, 255, 255, 0.18) !important;
+        color: #ffffff !important;
+    }
+
+    /* 16px inputs stop iOS Safari from zooming the form on focus */
+    @media (max-width: 640px) {
+        .glass .sk-input, .glass input[type="file"] { font-size: 16px !important; }
+    }
+
+    .glass .sk-input::placeholder {
+        color: #64748b !important; /* slate-500 */
+    }
+
+    .glass .sk-input:focus {
+        border-color: #F97316 !important;
+        box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15) !important;
+    }
+
+    .glass .sk-btn-primary {
+        background-color: #F97316 !important;
+        color: #020617 !important;
+        font-weight: 600 !important;
+        border: none !important;
+        box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3) !important;
+    }
+
+    .glass .sk-btn-primary:hover {
+        background-color: #ffffff !important;
+        color: #020617 !important;
+        box-shadow: 0 4px 14px rgba(255, 255, 255, 0.3) !important;
+        transform: translateY(-1px);
+    }
+
+    .glass .border-amber-200 {
+        border-color: rgba(249, 115, 22, 0.2) !important;
+        background-color: rgba(249, 115, 22, 0.05) !important;
+        color: #fdba74 !important;
+    }
+
+    /* File upload styling */
+    .glass input[type="file"] {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        color: #94a3b8 !important;
+    }
+
+    .glass input[type="file"]::file-selector-button {
+        background-color: #F97316 !important;
+        color: #020617 !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease;
+    }
+
+    .glass input[type="file"]::file-selector-button:hover {
+        background-color: #ffffff !important;
+    }
+
+    .glass a {
+        color: #F97316 !important;
+        transition: color 0.2s ease;
+    }
+
+    .glass a:hover {
+        color: #ffffff !important;
+        text-decoration: none !important;
+    }
+    
+    /* Remove default blue brand borders on flash messages */
+    .glass .sk-flash-error { border-color: rgba(239, 68, 68, 0.2) !important; background-color: rgba(239, 68, 68, 0.05) !important; color: #fca5a5 !important; }
+    .glass .sk-flash-success { border-color: rgba(16, 185, 129, 0.2) !important; background-color: rgba(16, 185, 129, 0.05) !important; color: #a7f3d0 !important; }
+    .glass .sk-flash-info { border-color: rgba(249, 115, 22, 0.2) !important; background-color: rgba(249, 115, 22, 0.05) !important; color: #ffedd5 !important; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="relative flex min-h-screen bg-[#020617] text-white">
-    <div class="auth-aurora" aria-hidden="true"></div>
+<div class="flex min-h-screen lg:h-screen lg:overflow-hidden relative" style="background: url('{% block auth_bg_image %}{{ url_for('static', filename='uploads/bg_hero.jpg') }}{% endblock %}') center/cover no-repeat fixed;">
+    <div class="absolute inset-0 bg-slate-950/60" aria-hidden="true"></div>
 
-    <!-- Brand panel with photograph (desktop only) -->
-    <aside class="relative hidden lg:flex w-[46%] xl:w-1/2 flex-col justify-between overflow-hidden p-12">
-        <img src="{% block auth_bg_image %}{{ url_for('static', filename='uploads/bg_hero.jpg') }}{% endblock %}"
-             alt="" aria-hidden="true" loading="eager"
-             class="auth-photo absolute inset-0 h-full w-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/50 to-[#020617]/20" aria-hidden="true"></div>
-
-        <a href="{{ url_for('main.index') }}" class="relative z-10 flex w-max items-center gap-2.5" aria-label="Back to Sahaayak home">
+    <!-- Brand panel (desktop only) -->
+    <aside class="relative z-10 hidden lg:flex w-[35%] flex-col justify-between p-12 text-white">
+        <div class="hero-grid-overlay absolute inset-0" aria-hidden="true"></div>
+        <a href="{{ url_for('main.index') }}" class="relative flex items-center gap-2.5 text-white w-max" aria-label="Back to Sahaayak home">
             <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F97316] shadow-lg shadow-[#F97316]/40">
                 <svg viewBox="0 0 24 24" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 9l1.5-5h15L21 9"></path>
@@ -72,18 +170,11 @@
         </div>
     </aside>
 
-    <!-- Form side: floating glass card -->
-    <div class="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-14 sm:px-8">
-        <a href="{{ url_for('main.index') }}"
-           class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:left-6 sm:top-6 lg:hidden"
-           style="top: max(1rem, env(safe-area-inset-top));">
-            <i data-feather="arrow-left" class="h-4 w-4"></i>
-            <span>Back to home</span>
-        </a>
-
-        <div class="auth-card w-full rounded-3xl p-6 text-slate-900 sm:p-10 {% block auth_width %}max-w-md{% endblock %}" data-lg>
+    <!-- Form side -->
+    <div class="relative z-10 flex flex-1 w-full overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <div class="glass m-auto w-full rounded-[2rem] p-5 sm:p-7 lg:p-8 shadow-2xl border border-white/10 {% block auth_width %}max-w-md{% endblock %}" data-lg>
             <!-- Mobile brand mark -->
-            <a href="{{ url_for('main.index') }}" class="mb-8 flex items-center gap-2.5 lg:hidden" aria-label="Sahaayak home">
+            <a href="{{ url_for('main.index') }}" class="mb-6 flex items-center gap-2.5 lg:hidden" aria-label="Sahaayak home">
                 <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F97316] shadow-md shadow-[#F97316]/30">
                     <svg viewBox="0 0 24 24" class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M3 9l1.5-5h15L21 9"></path>
@@ -95,7 +186,7 @@
             </a>
 
             {% block auth_badge %}{% endblock %}
-            <h1 class="font-display text-3xl font-extrabold tracking-tight text-slate-900">{% block auth_heading %}Welcome back{% endblock %}</h1>
+            <h1 class="font-display text-2xl xl:text-3xl font-extrabold tracking-tight text-slate-900">{% block auth_heading %}Welcome back{% endblock %}</h1>
             <p class="mt-2 text-slate-600">{% block auth_subheading %}{% endblock %}</p>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -111,11 +202,11 @@
                 {% endif %}
             {% endwith %}
 
-            <div class="mt-8">
+            <div class="mt-6">
                 {% block auth_form %}{% endblock %}
             </div>
 
-            <div class="mt-8 text-center text-sm text-slate-600">
+            <div class="mt-6 text-center text-sm text-slate-600">
                 {% block auth_footer %}{% endblock %}
             </div>
         </div>

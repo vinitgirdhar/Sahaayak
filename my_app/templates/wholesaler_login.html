@@ -25,16 +25,17 @@
 {% block auth_subheading %}Access your dashboard, products, and orders.{% endblock %}
 
 {% block auth_form %}
+<!-- TESTING: prefilled demo credentials — remove value attributes before production -->
 <form method="POST" action="{{ url_for('main.wholesaler_login') }}" class="space-y-5">
     <div>
         <label for="phone" class="sk-label">Phone number</label>
         <input type="tel" id="phone" name="phone" class="sk-input" placeholder="e.g. 9999999999"
-               inputmode="numeric" autocomplete="tel" required autofocus>
+               value="9999999999" inputmode="numeric" autocomplete="tel" required autofocus>
     </div>
     <div>
         <label for="password" class="sk-label">Password</label>
         <input type="password" id="password" name="password" class="sk-input" placeholder="Your password"
-               autocomplete="current-password" required>
+               value="password123" autocomplete="current-password" required>
     </div>
     <button type="submit" class="sk-btn-primary sk-btn-lg w-full">
         Log in

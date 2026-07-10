@@ -4,7 +4,7 @@
 
 {% block auth_bg_image %}{{ url_for('static', filename='uploads/card_vendor.jpg') }}{% endblock %}
 
-{% block auth_width %}max-w-2xl{% endblock %}
+{% block auth_width %}max-w-4xl{% endblock %}
 
 {% block auth_panel_title %}Set up once. Save on every order.{% endblock %}
 {% block auth_panel_text %}Tell us about your stall so nearby wholesalers can serve you better. It takes about two minutes.{% endblock %}
@@ -29,33 +29,34 @@
 {% block auth_subheading %}Free forever. You only pay for the goods you order.{% endblock %}
 
 {% block auth_form %}
-<form method="post" enctype="multipart/form-data" class="space-y-10">
+<!-- TESTING: prefilled dummy data (random phone per load) — remove value attributes before production -->
+<form method="post" enctype="multipart/form-data" class="space-y-6">
     <!-- Personal information -->
     <fieldset>
         <legend class="flex items-center gap-2.5 font-display text-lg font-bold text-slate-900">
             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><i data-feather="user" class="h-4 w-4"></i></span>
             Personal information
         </legend>
-        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             <div>
                 <label for="name" class="sk-label">Full name <span class="text-rose-500">*</span></label>
-                <input type="text" id="name" name="name" class="sk-input" placeholder="e.g. Raj Patel" autocomplete="name" required>
+                <input type="text" id="name" name="name" class="sk-input" placeholder="e.g. Raj Patel" value="Test Vendor" autocomplete="name" required>
             </div>
             <div>
                 <label for="phone" class="sk-label">Phone number <span class="text-rose-500">*</span></label>
-                <input type="tel" id="phone" name="phone" class="sk-input" placeholder="10-digit mobile number" inputmode="numeric" autocomplete="tel" required>
+                <input type="tel" id="phone" name="phone" class="sk-input" placeholder="10-digit mobile number" value="{{ range(7000000000, 9999999999) | random }}" inputmode="numeric" autocomplete="tel" required>
+            </div>
+            <div>
+                <label for="email" class="sk-label">Email</label>
+                <input type="email" id="email" name="email" class="sk-input" placeholder="Optional — for receipts and updates" value="test.vendor@example.com" autocomplete="email">
             </div>
             <div>
                 <label for="password" class="sk-label">Password <span class="text-rose-500">*</span></label>
-                <input type="password" id="password" name="password" class="sk-input" placeholder="Choose a password" autocomplete="new-password" required>
+                <input type="password" id="password" name="password" class="sk-input" placeholder="Choose a password" value="vendor123" autocomplete="new-password" required>
             </div>
             <div>
                 <label for="alternate_contact" class="sk-label">Alternate contact</label>
-                <input type="tel" id="alternate_contact" name="alternate_contact" class="sk-input" placeholder="Optional backup number" inputmode="numeric">
-            </div>
-            <div class="sm:col-span-2">
-                <label for="email" class="sk-label">Email</label>
-                <input type="email" id="email" name="email" class="sk-input" placeholder="Optional — for receipts and updates" autocomplete="email">
+                <input type="tel" id="alternate_contact" name="alternate_contact" class="sk-input" placeholder="Optional backup number" value="9876500000" inputmode="numeric">
             </div>
         </div>
     </fieldset>
@@ -66,28 +67,27 @@
             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><i data-feather="shopping-bag" class="h-4 w-4"></i></span>
             Your stall
         </legend>
-        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             <div>
                 <label for="shop_name" class="sk-label">Stall / shop name <span class="text-rose-500">*</span></label>
-                <input type="text" id="shop_name" name="shop_name" class="sk-input" placeholder="e.g. Raj Snacks Corner" required>
+                <input type="text" id="shop_name" name="shop_name" class="sk-input" placeholder="e.g. Raj Snacks Corner" value="Test Snacks Corner" required>
             </div>
             <div>
                 <label for="goods_type" class="sk-label">What do you sell? <span class="text-rose-500">*</span></label>
-                <input type="text" id="goods_type" name="goods_type" class="sk-input" placeholder="e.g. Tea, snacks and breakfast" required>
+                <input type="text" id="goods_type" name="goods_type" class="sk-input" placeholder="e.g. Tea, snacks and breakfast" value="Tea, snacks and breakfast" required>
             </div>
             <div>
                 <label for="working_hours" class="sk-label">Working hours</label>
-                <input type="text" id="working_hours" name="working_hours" class="sk-input" placeholder="e.g. 06:30 AM - 03:30 PM">
+                <input type="text" id="working_hours" name="working_hours" class="sk-input" placeholder="e.g. 06:30 AM - 03:30 PM" value="06:30 AM - 03:30 PM">
             </div>
-            <div>
+            <div class="md:col-span-2">
                 <label for="street_area" class="sk-label">Street / market area <span class="text-rose-500">*</span></label>
-                <input type="text" id="street_area" name="street_area" class="sk-input" placeholder="e.g. MG Road Market" required>
+                <input type="text" id="street_area" name="street_area" class="sk-input" placeholder="e.g. MG Road Market" value="MG Road Market" required>
             </div>
-            <div class="sm:col-span-2">
+            <div class="md:col-span-1">
                 <label for="photo" class="sk-label">Stall photo</label>
                 <input type="file" id="photo" name="photo" accept="image/*"
-                       class="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 transition-colors file:mr-4 file:rounded-lg file:border-0 file:bg-brand-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-brand-400">
-                <p class="sk-field-help">Optional — a photo helps wholesalers recognise your stall for delivery.</p>
+                       class="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 transition-colors file:mr-4 file:rounded-lg file:border-0 file:bg-[#F97316] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#020617] hover:border-[#F97316]/50">
             </div>
         </div>
     </fieldset>
@@ -98,18 +98,18 @@
             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><i data-feather="map-pin" class="h-4 w-4"></i></span>
             Location
         </legend>
-        <div class="mt-5 grid gap-5 sm:grid-cols-3">
+        <div class="mt-4 grid gap-4 sm:grid-cols-3">
             <div>
                 <label for="pincode" class="sk-label">Pincode <span class="text-rose-500">*</span></label>
-                <input type="text" id="pincode" name="pincode" class="sk-input" placeholder="e.g. 400086" inputmode="numeric" required>
+                <input type="text" id="pincode" name="pincode" class="sk-input" placeholder="e.g. 400086" value="400086" inputmode="numeric" required>
             </div>
             <div>
                 <label for="city" class="sk-label">City <span class="text-rose-500">*</span></label>
-                <input type="text" id="city" name="city" class="sk-input" placeholder="e.g. Mumbai" required>
+                <input type="text" id="city" name="city" class="sk-input" placeholder="e.g. Mumbai" value="Mumbai" required>
             </div>
             <div>
                 <label for="location" class="sk-label">Locality <span class="text-rose-500">*</span></label>
-                <input type="text" id="location" name="location" class="sk-input" placeholder="e.g. Ghatkopar" required>
+                <input type="text" id="location" name="location" class="sk-input" placeholder="e.g. Ghatkopar" value="Ghatkopar" required>
             </div>
         </div>
     </fieldset>
